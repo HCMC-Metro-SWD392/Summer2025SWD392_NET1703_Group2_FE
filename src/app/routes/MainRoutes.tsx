@@ -6,18 +6,24 @@ import Footer from "../layouts/Footer";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import LoginForm from "../pages/Login/LoginForm";
 import RegisterForm from "../pages/Register/RegisterForm";
+import CommonLayout from "../layouts/CommonLayout/CommonLayout";
+import HeaderOnlyLayout from "../layouts/HeaderOnlyLayout/HeaderOnlyLayout";
 
 export default function MainRoutes() {
   return (
     <BrowserRouter>
-      <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="*" element={<PageNotFound />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<RegisterForm />} />
+        <Route element={<CommonLayout/>}>
+          <Route path="/" element={<Home />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+
+        
+        <Route element={<HeaderOnlyLayout/>}>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<RegisterForm />} />
+        </Route>
       </Routes>
-      <Footer />
     </BrowserRouter>
   );
 }

@@ -1,37 +1,39 @@
 import React from "react";
-import { Form, Input, Button, Typography, message } from "antd";
+import { Form, Input, Button, Typography, message, notification } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import logoMetro from "../../assets/logo.png";
 import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
+import type { LoginPayload } from "../../../types/types";
+import { login } from "../../../api/auth/auth";
 
 const { Title } = Typography;
-
-interface LoginFormValues {
-  email: string;
-  password: string;
-}
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
 
-  const onFinish = (values: LoginFormValues) => {
-    const { email, password } = values;
-
-    // Ví dụ đơn giản: kiểm tra email và password cứng
-    if (email === "admin@example.com" && password === "123456") {
+  const onFinish = async (values: LoginPayload) => {
+    try {
+      const data = await login(values);
       message.success("Đăng nhập thành công!");
-      // navigate("/dashboard") // điều hướng sau đăng nhập
-    } else {
-      message.error("Email hoặc mật khẩu không đúng");
+      localStorage.setItem("userInfo", JSON.stringify(data.result?.user));
+      navigate("/");
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
+        notification.error({
+          message: "Lỗi",
+          description: errorMessage,
+          placement: "topRight",
+        });
     }
   };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4"
+      className="min-h-[calc(100vh-80px)] flex items-center justify-center px-4"
       style={{
         backgroundImage: `url(${backgroundHcmCity})`,
         backgroundSize: "cover",
@@ -42,8 +44,8 @@ const LoginForm: React.FC = () => {
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
-          <img src={logoMetro} alt="Logo" className="w-35" />
-        </div>
+            <img src={logoMetro} alt="Logo" className="w-35" />
+          </div>
           <Title level={2} className="font-bold mb-2">
             Đăng nhập
           </Title>
@@ -103,7 +105,7 @@ const LoginForm: React.FC = () => {
           </span>
         </div>
 
-        <div className="mt-3 flex flex-col items-center">
+        <div className="mt-1 flex flex-col items-center">
           <p className="text-gray-500 text-sm mb-2">Hoặc đăng nhập bằng</p>
           <div className="flex justify-center">
             <GoogleLogin
