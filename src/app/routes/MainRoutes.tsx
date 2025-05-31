@@ -8,6 +8,7 @@ import LoginForm from "../pages/Login/LoginForm";
 import RegisterForm from "../pages/Register/RegisterForm";
 import CommonLayout from "../layouts/CommonLayout/CommonLayout";
 import HeaderOnlyLayout from "../layouts/HeaderOnlyLayout/HeaderOnlyLayout";
+import VerifyEmail from "../pages/VerifyEmail/VerifyEmail";
 
 export default function MainRoutes() {
   return (
@@ -16,6 +17,7 @@ export default function MainRoutes() {
         <Route element={<CommonLayout/>}>
           <Route path="/" element={<Home />} />
           <Route path="*" element={<PageNotFound />} />
+          <Route path="/verifyEmail" element={<VerifyEmail />} />
         </Route>
 
         
