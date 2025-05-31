@@ -9,6 +9,9 @@ import RegisterForm from "../pages/Register/RegisterForm";
 import CommonLayout from "../layouts/CommonLayout/CommonLayout";
 import HeaderOnlyLayout from "../layouts/HeaderOnlyLayout/HeaderOnlyLayout";
 import VerifyEmail from "../pages/VerifyEmail/VerifyEmail";
+import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
+import ManagerDashboard from "../pages/Manager/ManagerDashboard";
+import StaffList from "../pages/Manager/StaffManagement/StaffList";
 
 export default function MainRoutes() {
   return (
@@ -25,7 +28,15 @@ export default function MainRoutes() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
         </Route>
+
+        <Route element={<ManagerLayout/>}>
+        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager/staffs" element={<StaffList />} />
+      </Route>
+      
       </Routes>
+
+
     </BrowserRouter>
   );
 }

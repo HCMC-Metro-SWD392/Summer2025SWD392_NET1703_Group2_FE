@@ -1,0 +1,113 @@
+import React, { useEffect } from 'react';
+import { Layout, Menu } from 'antd';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import {
+  DashboardOutlined,
+  UserOutlined,
+  DollarCircleOutlined,
+  LogoutOutlined,
+} from '@ant-design/icons';
+import logoImg from "../../assets/logo.png";
+import { logout } from '../../../api/auth/auth';
+import { getUserInfo, logTokenContents } from '../../../api/auth/tokenUtils';
+
+const { Header, Sider, Content } = Layout;
+
+const ManagerLayout: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userInfo = getUserInfo();
+
+  useEffect(() => {
+    // Log token contents when component mounts
+    logTokenContents();
+  }, []);
+
+  const menuItems = [
+    {
+      key: '/manager',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '/manager/staffs',
+      icon: <UserOutlined />,
+      label: 'Staff Management',
+    },
+    {
+      key: '/manager/revenue',
+      icon: <DollarCircleOutlined />,
+      label: 'Revenue',
+    },
+  ];
+
+  const handleMenuClick = (key: string) => {
+    navigate(key);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  return (
+    <Layout className="min-h-screen h-screen">
+      <Sider
+        theme="light"
+        className="shadow-lg flex flex-col"
+        width={250}
+      >
+        <div className="flex flex-col items-center justify-center py-8 border-b">
+          <img
+            src={logoImg}
+            alt="Logo"
+            className="w-31 mb-2"
+          />
+          <h1 className="text-xl font-bold text-gray-800 text-center">Manager Portal</h1>
+        </div>
+        <div className="flex-1 flex flex-col justify-between">
+          <div className="flex flex-col justify-center h-full mt-8">
+            <Menu
+              mode="inline"
+              selectedKeys={[location.pathname]}
+              items={menuItems}
+              onClick={({ key }) => handleMenuClick(key)}
+              className="border-r-0"
+            />
+          </div>
+          <div className="p-4">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+            >
+              <LogoutOutlined />
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </Sider>
+      <Layout className="flex flex-col h-full">
+        <Header className="bg-[#001529] px-6 shadow-sm">
+          <div className="flex items-center justify-between h-full">
+            <h2 className="text-lg font-semibold text-white">
+              {menuItems.find(item => item.key === location.pathname)?.label || 'Dashboard'}
+            </h2>
+            <div className="flex items-center gap-4">
+              <span className="text-white font-medium">{userInfo?.name || 'Manager'}</span>
+              <img
+                src={userInfo?.avatarUrl || ""}
+                alt="User"
+                className="w-9 h-9 rounded-full border-2 border-white shadow"
+              />
+            </div>
+          </div>
+        </Header>
+        <Content className="m-6 p-6 bg-white rounded-lg shadow-sm flex-1">
+          <Outlet />
+        </Content>
+      </Layout>
+    </Layout>
+  );
+};
+
+export default ManagerLayout;
