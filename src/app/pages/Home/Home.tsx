@@ -55,7 +55,6 @@ export default function Home() {
         </span>
         <span> Ho Chi Minh City</span>
       </div>
-
     </div>
   );
 }

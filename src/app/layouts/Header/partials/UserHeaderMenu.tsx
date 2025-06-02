@@ -36,7 +36,7 @@ const UserHeaderMenu: React.FC<{userInfo : UserInfo}> = ({ userInfo }) => {
 
   return (
     <Dropdown overlay={menu} trigger={["click"]}>
-      <Button type="text" className="flex items-center gap-2 !h-auto">
+      <Button type="text" className="flex items-center gap-2 !h-auto !border-gray-300 rounded-lg">
         <Space>
           {userInfo?.avatar ? (
             <Avatar src={userInfo.avatar} />
