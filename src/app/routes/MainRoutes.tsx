@@ -12,6 +12,9 @@ import VerifyEmail from "../pages/VerifyEmail/VerifyEmail";
 import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import ManagerDashboard from "../pages/Manager/ManagerDashboard";
 import StaffList from "../pages/Manager/StaffManagement/StaffList";
+import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
+import CreatePromotion from "../pages/Manager/PromotionManagement/CreatePromotion";
+import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
 
 export default function MainRoutes() {
   return (
@@ -32,6 +35,9 @@ export default function MainRoutes() {
         <Route element={<ManagerLayout/>}>
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/manager/staffs" element={<StaffList />} />
+        <Route path="/manager/revenue" element={<RevenueReport />} />
+        <Route path="/manager/create-promotion" element={<CreatePromotion />} />
+        <Route path="/manager/promotion" element={<PromotionList />} />
       </Route>
       
       </Routes>

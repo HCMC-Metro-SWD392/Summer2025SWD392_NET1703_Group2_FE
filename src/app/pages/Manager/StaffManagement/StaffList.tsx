@@ -221,8 +221,8 @@ const StaffList: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full h-full p-2 md:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Staff Management</h1>
         <Button
           type="primary"
@@ -233,18 +233,23 @@ const StaffList: React.FC = () => {
           Add New Staff
         </Button>
       </div>
-
-      <Table
-        columns={columns}
-        dataSource={staffs}
-        rowKey="id"
-        loading={loading}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `Total ${total} staff members`,
-        }}
-      />
+      <div className="w-full overflow-hidden">
+        <Table
+          columns={columns}
+          dataSource={staffs}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => `Total ${total} staff members`,
+            responsive: true,
+          }}
+          scroll={{ x: 'max-content' }}
+          className="w-full"
+          size="middle"
+        />
+      </div>
     </div>
   );
 };

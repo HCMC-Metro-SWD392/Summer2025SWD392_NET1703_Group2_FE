@@ -39,6 +39,11 @@ const ManagerLayout: React.FC = () => {
       icon: <DollarCircleOutlined />,
       label: 'Revenue',
     },
+    {
+      key: '/manager/promotion',
+      icon: <DollarCircleOutlined />,
+      label: 'Promotion',
+    },
   ];
 
   const handleMenuClick = (key: string) => {
@@ -87,23 +92,25 @@ const ManagerLayout: React.FC = () => {
         </div>
       </Sider>
       <Layout className="flex flex-col h-full">
-        <Header className="bg-[#001529] px-6 shadow-sm">
+        <Header className="bg-[#001529] px-4 md:px-6 shadow-sm">
           <div className="flex items-center justify-between h-full">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-white truncate">
               {menuItems.find(item => item.key === location.pathname)?.label || 'Dashboard'}
             </h2>
             <div className="flex items-center gap-4">
-              <span className="text-white font-medium">{userInfo?.name || 'Manager'}</span>
+              <span className="text-white font-medium hidden sm:inline">{userInfo?.name || 'Manager'}</span>
               <img
                 src={userInfo?.avatarUrl || ""}
                 alt="User"
-                className="w-9 h-9 rounded-full border-2 border-white shadow"
+                className="w-8 h-8 md:w-9 md:h-9 rounded-full border-2 border-white shadow"
               />
             </div>
           </div>
         </Header>
-        <Content className="m-6 p-6 bg-white rounded-lg shadow-sm flex-1">
-          <Outlet />
+        <Content className="bg-white rounded-lg shadow-sm flex-1 overflow-auto">
+          <div className="h-full">
+            <Outlet />
+          </div>
         </Content>
       </Layout>
     </Layout>
