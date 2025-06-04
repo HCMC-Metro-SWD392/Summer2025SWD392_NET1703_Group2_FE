@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import UserHeaderMenu from "./partials/UserHeaderMenu";
+import TicketServiceMenu from "./partials/TicketServiceMenu";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -54,6 +55,8 @@ export default function Header() {
           
           <UserHeaderMenu userInfo={userInfo} />
         )} */}
+
+          <TicketServiceMenu/>
 
           <UserHeaderMenu userInfo={{
             id: "12345",
