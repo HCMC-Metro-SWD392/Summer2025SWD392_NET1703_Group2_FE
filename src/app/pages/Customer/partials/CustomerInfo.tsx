@@ -10,8 +10,9 @@ const { Title, Text } = Typography;
 
 const CustomerInfo: React.FC = () => {
     const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    // console.log(user);
     const customerId = user.id;
-
+    // console.log(customerId);
     const [customerData, setCustomerData] = useState<UserInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -25,8 +26,14 @@ const CustomerInfo: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        axiosInstance.get(`/api/Customer/${customerId}`)
-            .then(res => setCustomerData(res.data.result))
+        // Log customerId để kiểm tra
+        console.log('customerId:', customerId);
+
+        axiosInstance.get(`/api/Customer/user/${customerId}`)
+            .then(res => {
+                console.log('API response:', res.data);
+                setCustomerData(res.data.result);
+            })
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
     }, [customerId]);

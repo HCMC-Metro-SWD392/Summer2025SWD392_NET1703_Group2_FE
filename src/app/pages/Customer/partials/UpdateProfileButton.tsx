@@ -17,7 +17,7 @@ const UpdateProfileButton: React.FC = () => {
   const handleFinish = async (values: any) => {
     setLoading(true);
     try {
-      await axiosInstance.put(`/api/Customer/${customerId}`, values);
+      await axiosInstance.put(`/api/Customer/user/${customerId}`, values);
       message.success('Profile updated successfully!');
       setVisible(false);
       // Có thể gọi callback để reload lại thông tin nếu muốn
