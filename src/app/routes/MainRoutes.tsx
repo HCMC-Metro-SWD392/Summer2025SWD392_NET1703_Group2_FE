@@ -4,10 +4,10 @@ import Home from "../pages/Home";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import CommonLayout from "../layouts/CommonLayout/CommonLayout";
 import HeaderOnlyLayout from "../layouts/HeaderOnlyLayout/HeaderOnlyLayout";
-import SideBarLayout from "../layouts/SideBarLayout/SideBarLayout";
 import LoginForm from "../pages/Home/partials/Login/LoginForm";
 import RegisterForm from "../pages/Home/partials/Register/RegisterForm";
 import VerifyEmail from "../pages/Home/partials/Register/partials/VerifyEmail/VerifyEmail";
+import Staff from "../pages/Staff/Staff";
 
 export default function MainRoutes() {
   return (
@@ -25,9 +25,9 @@ export default function MainRoutes() {
           <Route path="/register" element={<RegisterForm />} />
         </Route>
 
-        <Route element={<SideBarLayout/>}>
-          <Route path="/test" element={<LoginForm />} />
-        </Route>
+
+        <Route path="/staff" element={<Staff />} />
+
         
       </Routes>
     </BrowserRouter>

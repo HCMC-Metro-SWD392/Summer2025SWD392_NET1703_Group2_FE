@@ -4,10 +4,11 @@ import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import logoMetro from "../../assets/logo.png";
-import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
-import type { LoginPayload } from "../../../types/types";
-import { login } from "../../../api/auth/auth";
+import logoMetro from "../../../../assets/logo.png";
+import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
+import type { LoginPayload } from "../../../../../types/types";
+import { login } from "../../../../../api/auth/auth";
+
 
 const { Title } = Typography;
 
