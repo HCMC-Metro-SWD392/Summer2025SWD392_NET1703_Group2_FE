@@ -132,115 +132,162 @@ const ManagerDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Statistics Cards */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Customers"
-              value={1128}
-              prefix={<UserOutlined />}
-              valueStyle={{ color: '#3f8600' }}
-            />
-            <div className="mt-2">
-              <span className="text-green-500">
-                <RiseOutlined /> 12%
-              </span>
-              <span className="text-gray-500 ml-2">vs last month</span>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Tickets Bought"
-              value={93}
-              prefix={<ShoppingCartOutlined />}
-              valueStyle={{ color: '#1890ff' }}
-            />
-            <div className="mt-2">
-              <span className="text-green-500">
-                <RiseOutlined /> 8%
-              </span>
-              <span className="text-gray-500 ml-2">vs last month</span>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Revenue"
-              value={11280}
-              prefix={<DollarOutlined />}
-              valueStyle={{ color: '#cf1322' }}
-            />
-            <div className="mt-2">
-              <span className="text-red-500">
-                <FallOutlined /> 3%
-              </span>
-              <span className="text-gray-500 ml-2">vs last month</span>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={6}>
-          <Card>
-            <Statistic
-              title="Conversion Rate"
-              value={68}
-              suffix="%"
-              valueStyle={{ color: '#722ed1' }}
-            />
-            <div className="mt-2">
-              <span className="text-green-500">
-                <RiseOutlined /> 5%
-              </span>
-              <span className="text-gray-500 ml-2">vs last month</span>
-            </div>
-          </Card>
-        </Col>
-      </Row>
+    <div className="w-full h-full p-2 md:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+      </div>
 
-      {/* Progress Section */}
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={12}>
-          <Card title="Monthly Goals">
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Sales Target</span>
-                  <span>75%</span>
-                </div>
-                <Progress percent={75} status="active" />
+      {/* Statistics Cards */}
+      <div className="mb-6">
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Total Customers"
+                value={1128}
+                prefix={<UserOutlined />}
+                valueStyle={{ color: '#3f8600' }}
+              />
+              <div className="mt-2">
+                <span className="text-green-500">
+                  <RiseOutlined /> 12%
+                </span>
+                <span className="text-gray-500 ml-2">vs last month</span>
               </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Customer Satisfaction</span>
-                  <span>90%</span>
-                </div>
-                <Progress percent={90} status="active" />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Total Tickets Bought"
+                value={93}
+                prefix={<ShoppingCartOutlined />}
+                valueStyle={{ color: '#1890ff' }}
+              />
+              <div className="mt-2">
+                <span className="text-green-500">
+                  <RiseOutlined /> 8%
+                </span>
+                <span className="text-gray-500 ml-2">vs last month</span>
               </div>
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>New Users</span>
-                  <span>60%</span>
-                </div>
-                <Progress percent={60} status="active" />
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Revenue"
+                value={11280}
+                prefix={<DollarOutlined />}
+                valueStyle={{ color: '#cf1322' }}
+              />
+              <div className="mt-2">
+                <span className="text-red-500">
+                  <FallOutlined /> 3%
+                </span>
+                <span className="text-gray-500 ml-2">vs last month</span>
               </div>
-            </div>
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card title="Recent Ticket Sales">
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Conversion Rate"
+                value={68}
+                suffix="%"
+                valueStyle={{ color: '#722ed1' }}
+              />
+              <div className="mt-2">
+                <span className="text-green-500">
+                  <RiseOutlined /> 5%
+                </span>
+                <span className="text-gray-500 ml-2">vs last month</span>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Progress and Recent Sales Section */}
+      <div className="mb-6">
+        <Row gutter={[16, 16]}>
+          <Col xs={24} lg={12}>
+            <Card 
+              title="Monthly Goals" 
+              className="h-full"
+              headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
+            >
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">Sales Target</span>
+                  </div>
+                  <Progress percent={75} status="active" />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">Customer Satisfaction</span>
+                  </div>
+                  <Progress percent={90} status="active" />
+                </div>
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <span className="font-medium">New Users</span>
+                  </div>
+                  <Progress percent={60} status="active" />
+                </div>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card 
+              title="Recent Ticket Sales" 
+              className="h-full"
+              headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
+            >
+              <div className="w-full overflow-hidden">
+                <Table
+                  dataSource={recentTicketSales}
+                  columns={ticketColumns}
+                  pagination={{
+                    pageSize: 5,
+                    showSizeChanger: true,
+                    showTotal: (total) => `Total ${total} sales`,
+                    responsive: true,
+                  }}
+                  scroll={{ x: 'max-content' }}
+                  className="w-full"
+                  size="middle"
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Recent Activities Section */}
+      <div className="mb-6">
+        <Card 
+          title="Recent Activities" 
+          className="w-full"
+          headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
+        >
+          <div className="w-full overflow-hidden">
             <Table
-              dataSource={recentTicketSales}
-              columns={ticketColumns}
-              pagination={false}
-              size="small"
+              dataSource={recentActivities}
+              columns={columns}
+              pagination={{
+                pageSize: 5,
+                showSizeChanger: true,
+                showTotal: (total) => `Total ${total} activities`,
+                responsive: true,
+              }}
+              scroll={{ x: 'max-content' }}
+              className="w-full"
+              size="middle"
             />
-          </Card>
-        </Col>
-      </Row>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

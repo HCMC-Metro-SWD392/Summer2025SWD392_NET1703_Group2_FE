@@ -115,71 +115,73 @@ const RevenueReport: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="mb-6">
-        <Title level={4}>Revenue Report</Title>
-        <Text type="secondary">View and analyze revenue data from ticket sales</Text>
+    <div className="w-full h-full p-2 md:p-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">Revenue Report</h1>
+          <Text type="secondary">View and analyze revenue data from ticket sales</Text>
+        </div>
+        <Space>
+          <Button
+            icon={<FileExcelOutlined />}
+            onClick={() => handleExport('csv')}
+            size="large"
+          >
+            Export CSV
+          </Button>
+          <Button
+            icon={<FilePdfOutlined />}
+            onClick={() => handleExport('pdf')}
+            size="large"
+          >
+            Export PDF
+          </Button>
+        </Space>
       </div>
 
       {/* Filters Section */}
-      <div className="mb-6">
+      <Card className="mb-6">
         <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={6}>
-            <Text strong>Date Range:</Text>
+          <Col xs={24} md={8}>
+            <Text strong className="block mb-2">Date Range:</Text>
             <RangePicker
               value={dateRange}
               onChange={handleDateRangeChange}
-              style={{ width: '100%' }}
+              className="w-full"
             />
           </Col>
-          <Col xs={24} md={6}>
-            <Text strong>Ticket Type:</Text>
+          <Col xs={24} md={8}>
+            <Text strong className="block mb-2">Ticket Type:</Text>
             <Select
               value={ticketType}
               onChange={setTicketType}
-              style={{ width: '100%' }}
+              className="w-full"
             >
               <Select.Option value="all">All Types</Select.Option>
               <Select.Option value="single">Single Ride</Select.Option>
               <Select.Option value="periodic">Periodic</Select.Option>
             </Select>
           </Col>
-          <Col xs={24} md={6}>
-            <Text strong>Report Type:</Text>
+          <Col xs={24} md={8}>
+            <Text strong className="block mb-2">Report Type:</Text>
             <Select
               value={reportType}
               onChange={setReportType}
-              style={{ width: '100%' }}
+              className="w-full"
             >
               <Select.Option value="daily">Daily</Select.Option>
               <Select.Option value="weekly">Weekly</Select.Option>
               <Select.Option value="monthly">Monthly</Select.Option>
             </Select>
           </Col>
-          <Col xs={24} md={6}>
-            <Space>
-              <Button
-                icon={<FileExcelOutlined />}
-                onClick={() => handleExport('csv')}
-              >
-                Export CSV
-              </Button>
-              <Button
-                icon={<FilePdfOutlined />}
-                onClick={() => handleExport('pdf')}
-              >
-                Export PDF
-              </Button>
-            </Space>
-          </Col>
         </Row>
-      </div>
+      </Card>
 
       {/* Summary Statistics */}
       <div className="mb-6">
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
-            <Card>
+            <Card className="h-full">
               <Statistic
                 title="Total Revenue"
                 value={3750000}
@@ -190,7 +192,7 @@ const RevenueReport: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card>
+            <Card className="h-full">
               <Statistic
                 title="Total Tickets Sold"
                 value={225}
@@ -199,7 +201,7 @@ const RevenueReport: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card>
+            <Card className="h-full">
               <Statistic
                 title="Total Refunds"
                 value={50000}
@@ -210,7 +212,7 @@ const RevenueReport: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Card>
+            <Card className="h-full">
               <Statistic
                 title="Net Revenue"
                 value={3700000}
@@ -225,25 +227,35 @@ const RevenueReport: React.FC = () => {
 
       {/* View Type Toggle */}
       <div className="mb-4">
-        <Radio.Group value={viewType} onChange={handleViewTypeChange}>
-          <Radio.Button value="table"><LineChartOutlined /> Table View</Radio.Button>
-          <Radio.Button value="chart"><BarChartOutlined /> Chart View</Radio.Button>
+        <Radio.Group value={viewType} onChange={handleViewTypeChange} className="w-full sm:w-auto">
+          <Radio.Button value="table" className="flex items-center gap-2">
+            <LineChartOutlined /> Table View
+          </Radio.Button>
+          <Radio.Button value="chart" className="flex items-center gap-2">
+            <BarChartOutlined /> Chart View
+          </Radio.Button>
         </Radio.Group>
       </div>
 
       {/* Data Display */}
       {viewType === 'table' ? (
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-hidden">
           <Table
             columns={columns}
             dataSource={mockData}
-            pagination={{ pageSize: 10 }}
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: true,
+              showTotal: (total) => `Total ${total} records`,
+              responsive: true,
+            }}
             scroll={{ x: 'max-content' }}
+            className="w-full"
+            size="middle"
           />
         </div>
       ) : (
-        <Card>
-          {/* TODO: Add chart visualization component */}
+        <Card className="w-full">
           <div className="h-96 flex items-center justify-center">
             <Text type="secondary">Chart visualization will be implemented here</Text>
           </div>
