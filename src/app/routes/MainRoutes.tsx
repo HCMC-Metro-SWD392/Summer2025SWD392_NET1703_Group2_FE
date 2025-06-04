@@ -8,6 +8,7 @@ import SideBarLayout from "../layouts/SideBarLayout/SideBarLayout";
 import LoginForm from "../pages/Home/partials/Login/LoginForm";
 import RegisterForm from "../pages/Home/partials/Register/RegisterForm";
 import VerifyEmail from "../pages/Home/partials/Register/partials/VerifyEmail/VerifyEmail";
+import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
 
 export default function MainRoutes() {
   return (
@@ -17,6 +18,7 @@ export default function MainRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="*" element={<PageNotFound />} />
           <Route path="/verifyEmail" element={<VerifyEmail />} />
+          <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
 
         
