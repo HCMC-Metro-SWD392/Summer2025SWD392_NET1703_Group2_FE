@@ -6,6 +6,9 @@ import {
   UserOutlined,
   DollarCircleOutlined,
   LogoutOutlined,
+  ApartmentOutlined,
+  CarOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import logoImg from "../../assets/logo.png";
 import { logout } from '../../../api/auth/auth';
@@ -30,6 +33,47 @@ const ManagerLayout: React.FC = () => {
       label: 'Dashboard',
     },
     {
+      key: 'station-management',
+      icon: <ApartmentOutlined />,
+      label: 'Station Management',
+      children: [
+        {
+          key: '/manager/station',
+          label: 'Station List',
+        },
+        {
+          key: '/manager/create-station',
+          label: 'Create Station',
+        },
+      ],
+    },
+    {
+      key: 'metro-line-management',
+      icon: <CarOutlined />,
+      label: 'Metro Line Management',
+      children: [
+        {
+          key: '/manager/metro-lines',
+          label: 'Metro Line List',
+        },
+        {
+          key: '/manager/metro-lines/create',
+          label: 'Create Metro Line',
+        },
+      ],
+    },
+    {
+      key: 'fare-management',
+      icon: <DollarCircleOutlined />,
+      label: 'Fare Management',
+      children: [
+        {
+          key: '/manager/fare-rule',
+          label: 'Fare Rules',
+        },
+      ],
+    },
+    {
       key: '/manager/staffs',
       icon: <UserOutlined />,
       label: 'Staff Management',
@@ -46,13 +90,29 @@ const ManagerLayout: React.FC = () => {
     },
   ];
 
-  const handleMenuClick = (key: string) => {
+  const handleMenuClick = ({ key }: { key: string }) => {
     navigate(key);
   };
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  // Get the current menu label for the header
+  const getCurrentMenuLabel = () => {
+    const findLabel = (items: any[], path: string): string | undefined => {
+      for (const item of items) {
+        if (item.key === path) return item.label;
+        if (item.children) {
+          const childLabel = findLabel(item.children, path);
+          if (childLabel) return childLabel;
+        }
+      }
+      return undefined;
+    };
+
+    return findLabel(menuItems, location.pathname) || 'Dashboard';
   };
 
   return (
@@ -75,8 +135,9 @@ const ManagerLayout: React.FC = () => {
             <Menu
               mode="inline"
               selectedKeys={[location.pathname]}
+              defaultOpenKeys={['station-management', 'metro-line-management', 'fare-management']}
               items={menuItems}
-              onClick={({ key }) => handleMenuClick(key)}
+              onClick={handleMenuClick}
               className="border-r-0"
             />
           </div>
@@ -95,7 +156,7 @@ const ManagerLayout: React.FC = () => {
         <Header className="bg-[#001529] px-4 md:px-6 shadow-sm">
           <div className="flex items-center justify-between h-full">
             <h2 className="text-lg font-semibold text-white truncate">
-              {menuItems.find(item => item.key === location.pathname)?.label || 'Dashboard'}
+              {getCurrentMenuLabel()}
             </h2>
             <div className="flex items-center gap-4">
               <span className="text-white font-medium hidden sm:inline">{userInfo?.name || 'Manager'}</span>
