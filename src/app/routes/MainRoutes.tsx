@@ -15,6 +15,14 @@ import StaffList from "../pages/Manager/StaffManagement/StaffList";
 import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
 import CreatePromotion from "../pages/Manager/PromotionManagement/CreatePromotion";
 import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
+import StaffDetails from "../pages/Manager/StaffManagement/StaffDetails";
+import AssignStaffShift from "../pages/Manager/StaffManagement/AssignStaffShift";
+import EditStaff from "../pages/Manager/StaffManagement/EditStaff";
+import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSubscriptionTicket";
+import FareRule from "../pages/Manager/FareManagement/FareRule";
+import StationDetails from "../pages/Manager/StationManagement/StationDetails";
+import StationList from "../pages/Manager/StationManagement/StationList";
+import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
 
 export default function MainRoutes() {
   return (
@@ -35,9 +43,17 @@ export default function MainRoutes() {
         <Route element={<ManagerLayout/>}>
         <Route path="/manager" element={<ManagerDashboard />} />
         <Route path="/manager/staffs" element={<StaffList />} />
+        <Route path="/manager/staffs/:id" element={<StaffDetails />} />
+        <Route path="/manager/staffs/:id/edit" element={<EditStaff />} />
+        <Route path="/manager/staffs/:id/assign-shift" element={<AssignStaffShift />} />
         <Route path="/manager/revenue" element={<RevenueReport />} />
         <Route path="/manager/create-promotion" element={<CreatePromotion />} />
         <Route path="/manager/promotion" element={<PromotionList />} />
+        <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
+        <Route path="/manager/fare-rule" element={<FareRule />} />
+        <Route path="/manager/station/:id" element={<StationDetails />} />
+        <Route path="/manager/station" element={<StationList />} />
+        <Route path="/manager/create-metro-line" element={<CreateMetroLine />} />
       </Route>
       
       </Routes>
