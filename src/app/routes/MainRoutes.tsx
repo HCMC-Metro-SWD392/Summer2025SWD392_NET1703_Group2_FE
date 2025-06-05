@@ -1,14 +1,12 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "../pages/Home";
-import Header from "../layouts/Header";
-import Footer from "../layouts/Footer";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
-import LoginForm from "../pages/Login/LoginForm";
-import RegisterForm from "../pages/Register/RegisterForm";
 import CommonLayout from "../layouts/CommonLayout/CommonLayout";
 import HeaderOnlyLayout from "../layouts/HeaderOnlyLayout/HeaderOnlyLayout";
-import VerifyEmail from "../pages/VerifyEmail/VerifyEmail";
+import LoginForm from "../pages/Home/partials/Login/LoginForm";
+import RegisterForm from "../pages/Home/partials/Register/RegisterForm";
+import VerifyEmail from "../pages/Home/partials/Register/partials/VerifyEmail/VerifyEmail";
 import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import ManagerDashboard from "../pages/Manager/ManagerDashboard";
 import StaffList from "../pages/Manager/StaffManagement/StaffList";
@@ -23,6 +21,7 @@ import FareRule from "../pages/Manager/FareManagement/FareRule";
 import StationDetails from "../pages/Manager/StationManagement/StationDetails";
 import StationList from "../pages/Manager/StationManagement/StationList";
 import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
+import Staff from "../pages/Staff/Staff";
 
 export default function MainRoutes() {
   return (
@@ -56,6 +55,11 @@ export default function MainRoutes() {
         <Route path="/manager/create-metro-line" element={<CreateMetroLine />} />
       </Route>
       
+
+
+        <Route path="/staff" element={<Staff />} />
+
+        
       </Routes>
 
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { Dropdown, Avatar, Menu, Button, Space, Typography } from "antd";
-import { UserOutlined, LogoutOutlined, ProfileOutlined } from "@ant-design/icons";
+import { UserOutlined, LogoutOutlined, ProfileOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../../../api/auth/auth";
 import type { UserInfo } from "../../../../types/types";
@@ -25,6 +25,12 @@ const UserHeaderMenu: React.FC<{userInfo : UserInfo}> = ({ userInfo }) => {
           onClick: () => navigate("/profile"),
         },
         {
+          key: "service",
+          icon: <AppstoreOutlined />,
+          label: "Dịch vụ",
+          onClick: () => navigate("/service"),
+        },
+        {
           key: "logout",
           icon: <LogoutOutlined />,
           label: "Đăng xuất",
@@ -36,8 +42,8 @@ const UserHeaderMenu: React.FC<{userInfo : UserInfo}> = ({ userInfo }) => {
 
   return (
     <Dropdown overlay={menu} trigger={["click"]}>
-      <Button type="text" className="flex items-center gap-2 !h-auto">
-        <Space>
+      <Button type="text" className="flex items-center gap-2 !h-auto !border-gray-300 rounded-lg">
+        <Space className="!block sm:!flex">
           {userInfo?.avatar ? (
             <Avatar src={userInfo.avatar} />
           ) : (

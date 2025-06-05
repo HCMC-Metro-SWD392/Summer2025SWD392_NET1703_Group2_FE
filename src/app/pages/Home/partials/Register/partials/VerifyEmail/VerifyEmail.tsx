@@ -1,25 +1,28 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Spin, Result, Alert } from "antd";
-import axiosInstance, { BASE_URL } from "../../../settings/axiosInstance";
-import endpoints from "../../../api/endpoints";
+
 import axios from "axios";
+import endpoints from "../../../../../../../api/endpoints";
+import { BASE_URL } from "../../../../../../../settings/axiosInstance";
 
 type Status = "loading" | "success" | "error" | "invalid";
 
 const VerifyEmail = () => {
+
     const [searchParams] = useSearchParams();
     const email = searchParams.get("email");
     const token = searchParams.get("token");
     const [status, setStatus] = useState<Status>("loading");
-    const hasVerified = useRef(false);
+    let called = false;
 
     useEffect(() => {
         const verifyEmail = async () => {
-            if (hasVerified.current) return;
-            hasVerified.current = true;
+            if (called) return;
+            called = true;
+
             try {
-                const response = await axiosInstance.post(endpoints.verifyEmail,
+                const response = await axios.post(endpoints.verifyEmail,
                     {},
                     {
                         baseURL: BASE_URL,
