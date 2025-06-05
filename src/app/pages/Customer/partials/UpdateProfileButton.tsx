@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Button, Modal, Form, Input, message } from 'antd';
+import { Button, Modal, Form, Input, message, DatePicker, Select } from 'antd';
 import axiosInstance from '../../../../settings/axiosInstance';
+import dayjs from 'dayjs';
 
-const UpdateProfileButton: React.FC = () => {
+const { Option } = Select;
+
+interface UpdateProfileButtonProps {
+  onUpdate?: () => void; // callback để reload lại thông tin customer nếu cần
+}
+
+const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) => {
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -17,10 +24,18 @@ const UpdateProfileButton: React.FC = () => {
   const handleFinish = async (values: any) => {
     setLoading(true);
     try {
-      await axiosInstance.put(`/api/Customer/user/${customerId}`, values);
+      // Chuyển dateOfBirth về dạng string ISO nếu là dayjs object
+      const payload = {
+        ...values,
+        dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : undefined,
+      };
+      const res = await axiosInstance.put(`/api/Customer/user/${customerId}`, payload);
       message.success('Profile updated successfully!');
       setVisible(false);
-      // Có thể gọi callback để reload lại thông tin nếu muốn
+      // Cập nhật lại localStorage với thông tin mới
+      localStorage.setItem('userInfo', JSON.stringify({ ...user, ...payload }));
+      // Gọi callback để reload lại thông tin customer nếu có
+      if (onUpdate) onUpdate();
     } catch (err: any) {
       message.error('Update failed: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -51,6 +66,9 @@ const UpdateProfileButton: React.FC = () => {
             email: user.email,
             phoneNumber: user.phoneNumber,
             address: user.address,
+            dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : undefined,
+            identityId: user.identityId,
+            sex: user.sex,
           }}
         >
           <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your name' }]}> 
@@ -64,6 +82,19 @@ const UpdateProfileButton: React.FC = () => {
           </Form.Item>
           <Form.Item label="Address" name="address"> 
             <Input />
+          </Form.Item>
+          <Form.Item label="Date of Birth" name="dateOfBirth">
+            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+          </Form.Item>
+          <Form.Item label="Identity ID" name="identityId">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Sex" name="sex">
+            <Select>
+              <Option value="Male">Male</Option>
+              <Option value="Female">Female</Option>
+              <Option value="Other">Other</Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>

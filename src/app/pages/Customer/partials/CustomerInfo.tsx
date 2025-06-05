@@ -8,6 +8,18 @@ import type { UserInfo } from '../../../../types/types';
 
 const { Title, Text } = Typography;
 
+const mockCustomerData: UserInfo = {
+    id: "MOCKID001",
+    fullName: "Mock User",
+    address: "123 Mock Street",
+    phoneNumber: "0123456789",
+    email: "mockuser@example.com",
+    dateOfBirth: "2000-01-01T00:00:00.000Z",
+    identityId: "MOCK123456",
+    sex: "Male",
+    customerType: 0
+};
+
 const CustomerInfo: React.FC = () => {
     const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     // console.log(user);
@@ -16,6 +28,7 @@ const CustomerInfo: React.FC = () => {
     const [customerData, setCustomerData] = useState<UserInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isMock, setIsMock] = useState(false);
 
     useEffect(() => {
         if (!customerId) {
@@ -25,6 +38,7 @@ const CustomerInfo: React.FC = () => {
         }
         setLoading(true);
         setError(null);
+        setIsMock(false);
 
         // Log customerId để kiểm tra
         console.log('customerId:', customerId);
@@ -34,7 +48,11 @@ const CustomerInfo: React.FC = () => {
                 console.log('API response:', res.data);
                 setCustomerData(res.data.result);
             })
-            .catch(err => setError(err.message))
+            .catch(err => {
+                setError("API unavailable, using mock data.");
+                setCustomerData(mockCustomerData);
+                setIsMock(true);
+            })
             .finally(() => setLoading(false));
     }, [customerId]);
 
@@ -45,17 +63,10 @@ const CustomerInfo: React.FC = () => {
             </div>
         );
     }
-    if (error) {
-        return (
-            <div className="flex min-h-screen justify-center items-center">
-                <Alert message="Error" description={error} type="error" showIcon />
-            </div>
-        );
-    }
     if (!customerData) {
         return (
             <div className="flex min-h-screen justify-center items-center">
-                <Alert message="No customer data found." type="info" showIcon />
+                <Alert message={error || "No customer data found."} type="info" showIcon />
             </div>
         );
     }
