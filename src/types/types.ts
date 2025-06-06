@@ -18,3 +18,25 @@ export interface UserInfo  {
   fullName: string;
   email: string;
 };
+
+export interface Station {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+};
+
+export interface Line {
+  id: string;
+  metroName: string;
+};
+
+export interface Ticket {
+  id: string;
+  fromStation: string;
+  toStation: string;
+  price: number;
+  createdAt: string;
+  expirationDate: string;
+  status: "unused" | "active" | "used";
+}
