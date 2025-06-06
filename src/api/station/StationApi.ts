@@ -4,10 +4,10 @@ import axiosInstance from '../../settings/axiosInstance';
 
 // API Endpoints
 const STATION_ENDPOINTS = {
-    CREATE: '/station/create-station',
-    UPDATE: '/station/update-station',
-    GET_ALL: '/station/get-all-stations',
-    GET_BY_ID: '/station/get-station-by-id'
+    CREATE: 'api/Station/create-station',
+    UPDATE: 'api/Station/update-station',
+    GET_ALL: 'api/Station/get-all-stations',
+    GET_BY_ID: 'api/Station/get-station-by-id'
 };
 
 // Station API Service

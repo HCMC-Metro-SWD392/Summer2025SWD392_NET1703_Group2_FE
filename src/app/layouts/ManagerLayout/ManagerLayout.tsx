@@ -88,6 +88,11 @@ const ManagerLayout: React.FC = () => {
       icon: <DollarCircleOutlined />,
       label: 'Promotion',
     },
+    {
+      key: '/manager/create-subscription-ticket',
+      icon: <DollarCircleOutlined />,
+      label: 'Create Subscription Ticket',
+    },
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {

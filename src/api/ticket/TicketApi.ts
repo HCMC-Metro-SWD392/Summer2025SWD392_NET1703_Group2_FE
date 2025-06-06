@@ -17,7 +17,13 @@ export const TicketApi = {
         try {
             const response: AxiosResponse<ResponseDTO<GetSubscriptionTicketDTO>> = await axiosInstance.post(
                 SUBSCRIPTION_TICKET_ENDPOINTS.CREATE,
-                data
+                {
+                    dto: {
+                        TicketName: data.ticketName,
+                        ticketType: data.ticketType,
+                        price: data.price
+                    }
+                }
             );
             return response.data;
         } catch (error: any) {
