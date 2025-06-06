@@ -11,6 +11,7 @@ import Staff from "../pages/Staff/Staff";
 import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
 import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
 import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
+import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
 
 export default function MainRoutes() {
   return (
@@ -25,6 +26,7 @@ export default function MainRoutes() {
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
           </Route>
+          <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
 
 

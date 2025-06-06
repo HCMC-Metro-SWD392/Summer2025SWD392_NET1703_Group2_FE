@@ -13,10 +13,16 @@ export interface LoginPayload {
 }
 
 export interface UserInfo  {
-  id: string;
+  id: string; 
   avatar?: string;
   fullName: string;
   email: string;
+  phoneNumber: string;
+  address: string;
+  dateOfBirth: string;
+  identityId: string;
+  sex: string;
+  customerType: number;
 };
 
 export interface Station {

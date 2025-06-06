@@ -8,7 +8,10 @@ import logoMetro from "../../../../assets/logo.png";
 import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
 import type { LoginPayload } from "../../../../../types/types";
 import { login } from "../../../../../api/auth/auth";
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Thien-Branch
 
 const { Title } = Typography;
 
