@@ -79,19 +79,23 @@ const ManagerLayout: React.FC = () => {
       label: 'Staff Management',
     },
     {
-      key: '/manager/revenue',
+      key: 'sales-finance',
       icon: <DollarCircleOutlined />,
-      label: 'Revenue',
-    },
-    {
-      key: '/manager/promotion',
-      icon: <DollarCircleOutlined />,
-      label: 'Promotion',
-    },
-    {
-      key: '/manager/create-subscription-ticket',
-      icon: <DollarCircleOutlined />,
-      label: 'Create Subscription Ticket',
+      label: 'Sales & Finance',
+      children: [
+        {
+          key: '/manager/revenue',
+          label: 'Revenue',
+        },
+        {
+          key: '/manager/promotion',
+          label: 'Promotion',
+        },
+        {
+          key: '/manager/create-subscription-ticket',
+          label: 'Create Subscription Ticket',
+        },
+      ],
     },
   ];
 
