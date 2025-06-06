@@ -20,6 +20,7 @@ const LoginForm: React.FC = () => {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
       localStorage.setItem("userInfo", JSON.stringify(data.result?.user));
+      localStorage.setItem("token", data.result?.accessToken) ;
       navigate("/");
     } catch (err: any) {
       const errorMessage =

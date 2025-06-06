@@ -22,9 +22,9 @@ export default function Header() {
         <a className="w-45" href="/">
           <img src={logoImg} alt="" />
         </a>
-
+        <Button type="primary" value={"Chat"} onClick={() => navigate("/chat")} />
         <div className="flex gap-3">
-          {/* <div className="flex items-center gap-2 bg-gray-200 rounded-md px-3 py-2">
+          <div className="flex items-center gap-2 bg-gray-200 rounded-md px-3 py-2">
             <div className="w-4 h-4 border-4 border-green-500 rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full" />
             </div>
@@ -32,9 +32,9 @@ export default function Header() {
               <div className="text-gray-600">Service Information</div>
               <div className="text-blue-800 font-semibold">Normal service</div>
             </div>
-          </div> */}
+          </div>
 
-          {/* {!userInfo ? (
+          {!userInfo ? (
           <>
             {[
               { label: "Đăng nhập", icon: <LoginOutlined className="text-xl" />, path: "/login" },
@@ -54,16 +54,16 @@ export default function Header() {
         ) : (
           
           <UserHeaderMenu userInfo={userInfo} />
-        )} */}
+        )}
 
           <TicketServiceMenu/>
 
-          <UserHeaderMenu userInfo={{
+          {/* <UserHeaderMenu userInfo={{
             id: "12345",
             fullName: "Nguyen Van A",
             email: "nguyenvana@example.com"
-          }} />
-
+          }} /> */}
+          
         </div>
       </header>
 

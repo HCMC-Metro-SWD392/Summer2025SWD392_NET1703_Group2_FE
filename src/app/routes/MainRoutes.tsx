@@ -8,6 +8,8 @@ import LoginForm from "../pages/Home/partials/Login/LoginForm";
 import RegisterForm from "../pages/Home/partials/Register/RegisterForm";
 import VerifyEmail from "../pages/Home/partials/Register/partials/VerifyEmail/VerifyEmail";
 import Staff from "../pages/Staff/Staff";
+import Chat from "../components/Test/Chat/Chat";
+import ChatPage from "../components/Test/Chat/ChatPage";
 
 export default function MainRoutes() {
   return (
@@ -24,7 +26,7 @@ export default function MainRoutes() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
         </Route>
-
+      <Route path="/chat" element={<ChatPage />} />
 
         <Route path="/staff" element={<Staff />} />
 
