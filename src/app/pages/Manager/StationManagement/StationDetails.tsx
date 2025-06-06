@@ -11,13 +11,13 @@ import {
   Table,
   Tag,
   Spin,
-  Row,
-  Col,
 } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import type { TabsProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import { StationApi } from '../../../../api/station/StationApi';
+import type { Station, ResponseDTO } from '../../../../api/station/StationInterface';
 
 const { Title } = Typography;
 
@@ -35,22 +35,7 @@ enum TrainScheduleStatus {
   Completed = 'Completed'
 }
 
-// Interfaces
-interface Station {
-  id: string;
-  name: string;
-  address: string;
-  description: string;
-  ticketRoutesAsFirstStation: TicketRoute[];
-  ticketRoutesAsLastStation: TicketRoute[];
-  checkInProcesses: Process[];
-  checkOutProcesses: Process[];
-  startStations: MetroLine[];
-  endStations: MetroLine[];
-  strainSchedules: TrainSchedule[];
-  metroLineStations: MetroLineStation[];
-}
-
+// Interfaces for related entities
 interface TicketRoute {
   id: string;
   ticketName: string;
@@ -125,17 +110,26 @@ const StationDetails: React.FC = () => {
 
   useEffect(() => {
     const fetchStationData = async () => {
+      if (!id) {
+        message.error('Không tìm thấy ID trạm');
+        navigate('/manager/station');
+        return;
+      }
+
       try {
         setLoading(true);
-        const response = await fetch(`/api/stations/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch station data');
+        const response = await StationApi.getStationById(id);
+        
+        if (response.isSuccess && response.result) {
+          setStation(response.result);
+        } else {
+          message.error(response.message || 'Không thể tải thông tin trạm');
+          navigate('/manager/station');
         }
-        const data = await response.json();
-        setStation(data);
       } catch (error) {
-        message.error('Failed to fetch station data');
-        navigate('/manager/stations');
+        console.error('Error fetching station:', error);
+        message.error('Có lỗi xảy ra khi tải thông tin trạm');
+        navigate('/manager/station');
       } finally {
         setLoading(false);
       }
@@ -173,72 +167,81 @@ const StationDetails: React.FC = () => {
   };
 
   const formatTimeSpan = (timeSpan: string) => {
-    const [hours, minutes] = timeSpan.split(':');
-    return `${hours}h ${minutes}m`;
+    try {
+      const [hours, minutes] = timeSpan.split(':');
+      return `${hours}h ${minutes}m`;
+    } catch (error) {
+      console.error('Error formatting time span:', error);
+      return 'Invalid time format';
+    }
   };
 
   const ticketRouteColumns: ColumnsType<TicketRoute> = [
     {
-      title: 'Ticket Name',
+      title: 'Tên Vé',
       dataIndex: 'ticketName',
       key: 'ticketName',
     },
     {
-      title: 'Start Station',
+      title: 'Trạm Đi',
       dataIndex: ['startStation', 'name'],
       key: 'startStation',
     },
     {
-      title: 'End Station',
+      title: 'Trạm Đến',
       dataIndex: ['endStation', 'name'],
       key: 'endStation',
     },
     {
-      title: 'Distance (km)',
+      title: 'Khoảng Cách (km)',
       dataIndex: 'distance',
       key: 'distance',
       render: (distance: number | null) => distance?.toFixed(2) ?? 'N/A',
     },
     {
-      title: 'Expiration',
+      title: 'Thời Hạn',
       dataIndex: 'expiration',
       key: 'expiration',
       render: (expiration: string) => formatTimeSpan(expiration),
     },
     {
-      title: 'Status',
+      title: 'Trạng Thái',
       dataIndex: 'status',
       key: 'status',
       render: (status: TicketRouteStatus) => (
-        <Tag color={getTicketRouteStatusColor(status)}>{status}</Tag>
+        <Tag color={getTicketRouteStatusColor(status)}>
+          {status === TicketRouteStatus.Active ? 'Hoạt Động' :
+           status === TicketRouteStatus.Inactive ? 'Không Hoạt Động' :
+           status === TicketRouteStatus.Maintenance ? 'Bảo Trì' : status}
+        </Tag>
       ),
     },
   ];
 
   const processColumns: ColumnsType<Process> = [
     {
-      title: 'Ticket ID',
+      title: 'Mã Vé',
       dataIndex: 'ticketId',
       key: 'ticketId',
     },
     {
-      title: 'Check-in Station',
+      title: 'Trạm Check-in',
       dataIndex: ['stationCheckIn', 'name'],
       key: 'stationCheckIn',
     },
     {
-      title: 'Check-out Station',
+      title: 'Trạm Check-out',
       dataIndex: ['stationCheckOut', 'name'],
       key: 'stationCheckOut',
     },
     {
-      title: 'Check-in Time',
+      title: 'Thời Gian Check-in',
       dataIndex: 'checkInTime',
       key: 'checkInTime',
       render: (time: string) => dayjs(time).format('DD/MM/YYYY HH:mm:ss'),
     },
     {
-      title: 'Check-out Time',
+      title: 'Thời Gian Check-out',
       dataIndex: 'checkOutTime',
       key: 'checkOutTime',
       render: (time: string) => dayjs(time).format('DD/MM/YYYY HH:mm:ss'),
@@ -247,23 +250,23 @@ const StationDetails: React.FC = () => {
 
   const metroLineColumns: ColumnsType<MetroLine> = [
     {
-      title: 'Line Number',
+      title: 'Số Tuyến',
       dataIndex: 'metroLineNumber',
       key: 'metroLineNumber',
     },
     {
-      title: 'Line Name',
+      title: 'Tên Tuyến',
       dataIndex: 'metroName',
       key: 'metroName',
       render: (name: string | null) => name ?? 'N/A',
     },
     {
-      title: 'Start Station',
+      title: 'Trạm Đi',
       dataIndex: ['startStation', 'name'],
       key: 'startStation',
     },
     {
-      title: 'End Station',
+      title: 'Trạm Đến',
       dataIndex: ['endStation', 'name'],
       key: 'endStation',
     },
@@ -271,45 +274,50 @@ const StationDetails: React.FC = () => {
 
   const trainScheduleColumns: ColumnsType<TrainSchedule> = [
     {
-      title: 'Train ID',
+      title: 'Mã Tàu',
       dataIndex: 'trainId',
       key: 'trainId',
     },
     {
-      title: 'Start Time',
+      title: 'Giờ Khởi Hành',
       dataIndex: 'startTime',
       key: 'startTime',
       render: (time: string) => formatTimeSpan(time),
     },
     {
-      title: 'Status',
+      title: 'Trạng Thái',
       dataIndex: 'status',
       key: 'status',
       render: (status: TrainScheduleStatus) => (
-        <Tag color={getTrainScheduleStatusColor(status)}>{status}</Tag>
+        <Tag color={getTrainScheduleStatusColor(status)}>
+          {status === TrainScheduleStatus.OnTime ? 'Đúng Giờ' :
+           status === TrainScheduleStatus.Delayed ? 'Trễ' :
+           status === TrainScheduleStatus.Cancelled ? 'Hủy' :
+           status === TrainScheduleStatus.Completed ? 'Hoàn Thành' : status}
+        </Tag>
       ),
     },
   ];
 
   const metroLineStationColumns: ColumnsType<MetroLineStation> = [
     {
-      title: 'Line Number',
+      title: 'Số Tuyến',
       dataIndex: ['metroLine', 'metroLineNumber'],
       key: 'metroLineNumber',
     },
     {
-      title: 'Line Name',
+      title: 'Tên Tuyến',
       dataIndex: ['metroLine', 'metroName'],
       key: 'metroName',
       render: (name: string | null) => name ?? 'N/A',
     },
     {
-      title: 'Station Order',
+      title: 'Thứ Tự Trạm',
       dataIndex: 'stationOrder',
       key: 'stationOrder',
     },
     {
-      title: 'Distance from Start (km)',
+      title: 'Khoảng Cách Từ Điểm Đầu (km)',
       dataIndex: 'distanceFromStart',
       key: 'distanceFromStart',
       render: (distance: number) => distance.toFixed(2),
@@ -319,56 +327,61 @@ const StationDetails: React.FC = () => {
   const items: TabsProps['items'] = [
     {
       key: '1',
-      label: 'Ticket Routes',
+      label: 'Tuyến Vé',
       children: (
         <Table
           columns={ticketRouteColumns}
           dataSource={[...(station?.ticketRoutesAsFirstStation || []), ...(station?.ticketRoutesAsLastStation || [])]}
           rowKey="id"
+          locale={{ emptyText: 'Không có dữ liệu' }}
         />
       ),
     },
     {
       key: '2',
-      label: 'Processes',
+      label: 'Quá Trình',
       children: (
         <Table
           columns={processColumns}
           dataSource={[...(station?.checkInProcesses || []), ...(station?.checkOutProcesses || [])]}
           rowKey="id"
+          locale={{ emptyText: 'Không có dữ liệu' }}
         />
       ),
     },
     {
       key: '3',
-      label: 'Metro Lines',
+      label: 'Tuyến Metro',
       children: (
         <Table
           columns={metroLineColumns}
           dataSource={[...(station?.startStations || []), ...(station?.endStations || [])]}
           rowKey="id"
+          locale={{ emptyText: 'Không có dữ liệu' }}
         />
       ),
     },
     {
       key: '4',
-      label: 'Train Schedules',
+      label: 'Lịch Tàu',
       children: (
         <Table
           columns={trainScheduleColumns}
           dataSource={station?.strainSchedules}
           rowKey="id"
+          locale={{ emptyText: 'Không có dữ liệu' }}
         />
       ),
     },
     {
       key: '5',
-      label: 'Station in Metro Lines',
+      label: 'Trạm Trong Tuyến',
       children: (
         <Table
           columns={metroLineStationColumns}
           dataSource={station?.metroLineStations}
           rowKey="id"
+          locale={{ emptyText: 'Không có dữ liệu' }}
         />
       ),
     },
@@ -377,7 +390,7 @@ const StationDetails: React.FC = () => {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <Spin size="large" />
+        <Spin size="large" tip="Đang tải thông tin trạm..." />
       </div>
     );
   }
@@ -385,7 +398,7 @@ const StationDetails: React.FC = () => {
   if (!station) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <Typography.Text>Station not found</Typography.Text>
+        <Typography.Text>Không tìm thấy thông tin trạm</Typography.Text>
       </div>
     );
   }
@@ -395,23 +408,23 @@ const StationDetails: React.FC = () => {
       <Space>
         <Button 
           icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate('/manager/stations')}
+          onClick={() => navigate('/manager/station')}
         >
-          Back to Stations
+          Quay lại
         </Button>
-        <Title level={2} style={{ margin: 0 }}>Station Details</Title>
+        <Title level={2} style={{ margin: 0 }}>Chi Tiết Trạm Metro</Title>
       </Space>
 
       <Card>
-        <Descriptions title="Basic Information" bordered>
-          <Descriptions.Item label="Station Name" span={3}>
+        <Descriptions title="Thông Tin Cơ Bản" bordered>
+          <Descriptions.Item label="Tên Trạm" span={3}>
             {station.name}
           </Descriptions.Item>
-          <Descriptions.Item label="Address" span={3}>
-            {station.address}
+          <Descriptions.Item label="Địa Chỉ" span={3}>
+            {station.address || 'N/A'}
           </Descriptions.Item>
-          <Descriptions.Item label="Description" span={3}>
-            {station.description}
+          <Descriptions.Item label="Mô Tả" span={3}>
+            {station.description || 'N/A'}
           </Descriptions.Item>
         </Descriptions>
       </Card>

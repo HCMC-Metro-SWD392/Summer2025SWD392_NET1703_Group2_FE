@@ -53,11 +53,11 @@ const ManagerLayout: React.FC = () => {
       label: 'Metro Line Management',
       children: [
         {
-          key: '/manager/metro-lines',
+          key: '/manager/metro-line',
           label: 'Metro Line List',
         },
         {
-          key: '/manager/metro-lines/create',
+          key: '/manager/create-metro-line',
           label: 'Create Metro Line',
         },
       ],

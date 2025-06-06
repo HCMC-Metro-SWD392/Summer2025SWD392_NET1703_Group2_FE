@@ -22,6 +22,10 @@ import StationDetails from "../pages/Manager/StationManagement/StationDetails";
 import StationList from "../pages/Manager/StationManagement/StationList";
 import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
 import Staff from "../pages/Staff/Staff";
+import CreateStation from "../pages/Manager/StationManagement/CreateStation";
+import EditStation from "../pages/Manager/StationManagement/EditStation";
+import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
+import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
 
 export default function MainRoutes() {
   return (
@@ -52,7 +56,11 @@ export default function MainRoutes() {
         <Route path="/manager/fare-rule" element={<FareRule />} />
         <Route path="/manager/station/:id" element={<StationDetails />} />
         <Route path="/manager/station" element={<StationList />} />
+        <Route path="/manager/create-station" element={<CreateStation />} />
         <Route path="/manager/create-metro-line" element={<CreateMetroLine />} />
+        <Route path="/manager/station/:id/edit" element={<EditStation />} />
+        <Route path="/manager/metro-line" element={<MetroLineList />} />
+        <Route path="/manager/metro-line/:id" element={<MetroLineDetails />} />
       </Route>
       
 

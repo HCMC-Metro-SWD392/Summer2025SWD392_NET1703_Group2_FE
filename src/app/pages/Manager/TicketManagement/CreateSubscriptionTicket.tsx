@@ -15,75 +15,45 @@ import {
   Col,
 } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { TicketApi } from '../../../../api/ticket/TicketApi';
+import type { CreateSubscriptionDTO } from '../../../../api/ticket/TicketInterface';
+import { 
+  SubscriptionTicketType,
+  TICKET_TYPE_CONFIG 
+} from '../../../../api/ticket/TicketInterface';
 
 const { Title } = Typography;
 const { Option } = Select;
-
-// Enum for ticket types
-enum SubscriptionTicketType {
-  OneWay = 'OneWay',
-  Monthly = 'Monthly',
-  Student = 'Student'
-}
-
-interface SubscriptionTicket {
-  id: string;
-  ticketName: string;
-  ticketType: SubscriptionTicketType;
-  price: number;
-  expiration: number;
-}
 
 const CreateSubscriptionTicket: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: CreateSubscriptionDTO) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/subscription-tickets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ticketName: values.ticketName,
-          ticketType: values.ticketType,
-          price: values.price,
-          expiration: values.expiration,
-        }),
-      });
+      const response = await TicketApi.createSubscription(values);
 
-      if (!response.ok) {
-        throw new Error('Failed to create subscription ticket');
+      if (response.isSuccess) {
+        message.success('Tạo vé đăng ký thành công');
+        navigate('/manager/tickets');
+      } else {
+        message.error(response.message || 'Không thể tạo vé đăng ký');
       }
-
-      message.success('Subscription ticket created successfully');
-      navigate('/manager/tickets');
     } catch (error) {
-      message.error('Failed to create subscription ticket');
+      console.error('Error creating subscription ticket:', error);
+      message.error('Có lỗi xảy ra khi tạo vé đăng ký');
     } finally {
       setLoading(false);
     }
   };
 
-  const getExpirationLabel = (type: SubscriptionTicketType) => {
-    switch (type) {
-      case SubscriptionTicketType.OneWay:
-        return 'Days';
-      case SubscriptionTicketType.Monthly:
-        return 'Months';
-      case SubscriptionTicketType.Student:
-        return 'Years';
-      default:
-        return 'Units';
-    }
-  };
-
   const handleTicketTypeChange = (value: SubscriptionTicketType) => {
-    // Reset expiration when ticket type changes
-    form.setFieldValue('expiration', undefined);
+    // Reset form when ticket type changes
+    form.setFieldsValue({
+      price: undefined
+    });
   };
 
   return (
@@ -93,9 +63,9 @@ const CreateSubscriptionTicket: React.FC = () => {
           icon={<ArrowLeftOutlined />} 
           onClick={() => navigate('/manager/tickets')}
         >
-          Back to Ticket List
+          Quay lại danh sách vé
         </Button>
-        <Title level={2} style={{ margin: 0 }}>Create Subscription Ticket</Title>
+        <Title level={2} style={{ margin: 0 }}>Tạo Vé Đăng Ký Mới</Title>
       </Space>
 
       <Card>
@@ -110,29 +80,31 @@ const CreateSubscriptionTicket: React.FC = () => {
               <Col xs={24} md={12}>
                 <Form.Item
                   name="ticketName"
-                  label="Ticket Name"
+                  label="Tên Vé"
                   rules={[
-                    { required: true, message: 'Please enter ticket name' },
-                    { max: 100, message: 'Ticket name cannot exceed 100 characters' }
+                    { required: true, message: 'Vui lòng nhập tên vé' },
+                    { max: 100, message: 'Tên vé không được vượt quá 100 ký tự' }
                   ]}
                 >
-                  <Input placeholder="Enter ticket name" />
+                  <Input placeholder="Nhập tên vé" />
                 </Form.Item>
               </Col>
 
               <Col xs={24} md={12}>
                 <Form.Item
                   name="ticketType"
-                  label="Ticket Type"
-                  rules={[{ required: true, message: 'Please select ticket type' }]}
+                  label="Loại Vé"
+                  rules={[{ required: true, message: 'Vui lòng chọn loại vé' }]}
                 >
                   <Select 
-                    placeholder="Select ticket type"
+                    placeholder="Chọn loại vé"
                     onChange={handleTicketTypeChange}
                   >
-                    <Option value={SubscriptionTicketType.OneWay}>OneWay</Option>
-                    <Option value={SubscriptionTicketType.Monthly}>Monthly</Option>
-                    <Option value={SubscriptionTicketType.Student}>Student</Option>
+                    {Object.entries(TICKET_TYPE_CONFIG).map(([type, config]) => (
+                      <Option key={type} value={type}>
+                        {config.label}
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>
@@ -140,43 +112,39 @@ const CreateSubscriptionTicket: React.FC = () => {
               <Col xs={24} md={12}>
                 <Form.Item
                   name="price"
-                  label="Price (VND)"
+                  label="Giá Vé (VND)"
                   rules={[
-                    { required: true, message: 'Please enter price' },
-                    { type: 'number', min: 0, message: 'Price must be greater than 0' }
+                    { required: true, message: 'Vui lòng nhập giá vé' },
+                    { type: 'number', min: 0, message: 'Giá vé phải lớn hơn 0' }
                   ]}
                 >
                   <InputNumber
                     style={{ width: '100%' }}
-                    placeholder="Enter price"
+                    placeholder="Nhập giá vé"
                     min={0}
                     addonBefore="₫"
                   />
                 </Form.Item>
               </Col>
 
-              <Col xs={24} md={12}>
+              <Col xs={24}>
                 <Form.Item
-                  name="expiration"
-                  label="Expiration"
-                  rules={[
-                    { required: true, message: 'Please enter expiration period' },
-                    { type: 'number', min: 1, message: 'Expiration must be at least 1' }
-                  ]}
-                  dependencies={['ticketType']}
+                  noStyle
+                  shouldUpdate={(prevValues, currentValues) => 
+                    prevValues.ticketType !== currentValues.ticketType
+                  }
                 >
                   {({ getFieldValue }) => {
-                    const ticketType = getFieldValue('ticketType');
-                    const label = ticketType ? getExpirationLabel(ticketType) : 'Units';
+                    const ticketType = getFieldValue('ticketType') as SubscriptionTicketType;
+                    const config = ticketType ? TICKET_TYPE_CONFIG[ticketType] : null;
                     
-                    return (
-                      <InputNumber
-                        style={{ width: '100%' }}
-                        placeholder={`Enter number of ${label.toLowerCase()}`}
-                        min={1}
-                        addonAfter={label}
-                      />
-                    );
+                    return config ? (
+                      <div style={{ marginBottom: 24 }}>
+                        <Typography.Text type="secondary">
+                          {config.description}
+                        </Typography.Text>
+                      </div>
+                    ) : null;
                   }}
                 </Form.Item>
               </Col>
@@ -185,10 +153,10 @@ const CreateSubscriptionTicket: React.FC = () => {
             <Form.Item>
               <Space>
                 <Button type="primary" htmlType="submit" loading={loading}>
-                  Create Ticket
+                  Tạo Vé
                 </Button>
                 <Button onClick={() => navigate('/manager/tickets')}>
-                  Cancel
+                  Hủy
                 </Button>
               </Space>
             </Form.Item>

@@ -16,15 +16,10 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { FareApi } from '../../../../api/fareRule/FareApi';
+import type { FareRule, CreateFareRuleDTO, UpdateFareRuleDTO, ResponseDTO } from '../../../../api/fareRule/FareInterface';
 
 const { Title } = Typography;
-
-interface FareRule {
-  id: string;
-  minDistance: number;
-  maxDistance: number;
-  fare: number;
-}
 
 const FareRuleManagement: React.FC = () => {
   const [form] = Form.useForm();
@@ -33,7 +28,6 @@ const FareRuleManagement: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRule, setEditingRule] = useState<FareRule | null>(null);
 
-  // Fetch fare rules
   useEffect(() => {
     fetchFareRules();
   }, []);
@@ -41,47 +35,47 @@ const FareRuleManagement: React.FC = () => {
   const fetchFareRules = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/fare-rules');
-      if (!response.ok) {
-        throw new Error('Failed to fetch fare rules');
+      const response = await FareApi.getAllFareRules();
+      
+      if (response.isSuccess && response.result) {
+        setFareRules(response.result);
+      } else {
+        message.error(response.message || 'Không thể tải danh sách quy tắc giá vé');
       }
-      const data = await response.json();
-      setFareRules(data);
     } catch (error) {
-      message.error('Failed to fetch fare rules');
+      console.error('Error fetching fare rules:', error);
+      message.error('Có lỗi xảy ra khi tải danh sách quy tắc giá vé');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: CreateFareRuleDTO | UpdateFareRuleDTO) => {
     try {
       setLoading(true);
-      const url = editingRule 
-        ? `/api/fare-rules/${editingRule.id}`
-        : '/api/fare-rules';
-      
-      const method = editingRule ? 'PUT' : 'POST';
+      let response: ResponseDTO<FareRule>;
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to ${editingRule ? 'update' : 'create'} fare rule`);
+      if (editingRule) {
+        response = await FareApi.updateFareRule({
+          id: editingRule.id,
+          ...values
+        } as UpdateFareRuleDTO);
+      } else {
+        response = await FareApi.createFareRule(values as CreateFareRuleDTO);
       }
 
-      message.success(`Fare rule ${editingRule ? 'updated' : 'created'} successfully`);
-      setIsModalVisible(false);
-      form.resetFields();
-      setEditingRule(null);
-      fetchFareRules();
+      if (response.isSuccess) {
+        message.success(`Quy tắc giá vé đã được ${editingRule ? 'cập nhật' : 'tạo mới'} thành công`);
+        setIsModalVisible(false);
+        form.resetFields();
+        setEditingRule(null);
+        fetchFareRules();
+      } else {
+        message.error(response.message || `Không thể ${editingRule ? 'cập nhật' : 'tạo mới'} quy tắc giá vé`);
+      }
     } catch (error) {
-      message.error(`Failed to ${editingRule ? 'update' : 'create'} fare rule`);
+      console.error('Error submitting fare rule:', error);
+      message.error(`Có lỗi xảy ra khi ${editingRule ? 'cập nhật' : 'tạo mới'} quy tắc giá vé`);
     } finally {
       setLoading(false);
     }
@@ -90,18 +84,11 @@ const FareRuleManagement: React.FC = () => {
   const handleDelete = async (id: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/fare-rules/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete fare rule');
-      }
-
-      message.success('Fare rule deleted successfully');
-      fetchFareRules();
+      // TODO: Implement delete endpoint in FareApi
+      message.error('Chức năng xóa chưa được triển khai');
     } catch (error) {
-      message.error('Failed to delete fare rule');
+      console.error('Error deleting fare rule:', error);
+      message.error('Có lỗi xảy ra khi xóa quy tắc giá vé');
     } finally {
       setLoading(false);
     }
@@ -125,20 +112,20 @@ const FareRuleManagement: React.FC = () => {
 
   const columns: ColumnsType<FareRule> = [
     {
-      title: 'Distance Range (km)',
+      title: 'Khoảng Cách (km)',
       key: 'distance',
       render: (_, record) => `${record.minDistance} - ${record.maxDistance}`,
       sorter: (a, b) => a.minDistance - b.minDistance,
     },
     {
-      title: 'Fare (VND)',
+      title: 'Giá Vé (VND)',
       dataIndex: 'fare',
       key: 'fare',
       render: (fare: number) => fare.toLocaleString('vi-VN'),
       sorter: (a, b) => a.fare - b.fare,
     },
     {
-      title: 'Actions',
+      title: 'Thao Tác',
       key: 'actions',
       render: (_, record) => (
         <Space>
@@ -147,17 +134,17 @@ const FareRuleManagement: React.FC = () => {
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           >
-            Edit
+            Chỉnh Sửa
           </Button>
           <Popconfirm
-            title="Delete fare rule"
-            description="Are you sure you want to delete this fare rule?"
+            title="Xóa quy tắc giá vé"
+            description="Bạn có chắc chắn muốn xóa quy tắc giá vé này?"
             onConfirm={() => handleDelete(record.id)}
-            okText="Yes"
-            cancelText="No"
+            okText="Có"
+            cancelText="Không"
           >
             <Button danger icon={<DeleteOutlined />}>
-              Delete
+              Xóa
             </Button>
           </Popconfirm>
         </Space>
@@ -168,13 +155,13 @@ const FareRuleManagement: React.FC = () => {
   return (
     <Space direction="vertical" size="large" style={{ width: '100%', padding: '24px' }}>
       <Space style={{ justifyContent: 'space-between', width: '100%' }}>
-        <Title level={2}>Fare Rules Management</Title>
+        <Title level={2}>Quản Lý Quy Tắc Giá Vé</Title>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={showModal}
         >
-          Add New Rule
+          Thêm Quy Tắc Mới
         </Button>
       </Space>
 
@@ -185,12 +172,18 @@ const FareRuleManagement: React.FC = () => {
             dataSource={fareRules}
             rowKey="id"
             pagination={false}
+            locale={{
+              emptyText: 'Không có dữ liệu',
+              triggerDesc: 'Sắp xếp giảm dần',
+              triggerAsc: 'Sắp xếp tăng dần',
+              cancelSort: 'Hủy sắp xếp',
+            }}
           />
         </Spin>
       </Card>
 
       <Modal
-        title={editingRule ? 'Edit Fare Rule' : 'Add New Fare Rule'}
+        title={editingRule ? 'Chỉnh Sửa Quy Tắc Giá Vé' : 'Thêm Quy Tắc Giá Vé Mới'}
         open={isModalVisible}
         onCancel={() => {
           setIsModalVisible(false);
@@ -209,16 +202,16 @@ const FareRuleManagement: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="minDistance"
-                label="Minimum Distance (km)"
+                label="Khoảng Cách Tối Thiểu (km)"
                 rules={[
-                  { required: true, message: 'Please enter minimum distance' },
-                  { type: 'number', min: 0, message: 'Distance must be greater than or equal to 0' }
+                  { required: true, message: 'Vui lòng nhập khoảng cách tối thiểu' },
+                  { type: 'number', min: 0, message: 'Khoảng cách phải lớn hơn hoặc bằng 0' }
                 ]}
                 dependencies={['maxDistance']}
               >
                 <InputNumber
                   style={{ width: '100%' }}
-                  placeholder="Enter minimum distance"
+                  placeholder="Nhập khoảng cách tối thiểu"
                   min={0}
                   step={0.1}
                 />
@@ -228,16 +221,16 @@ const FareRuleManagement: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="maxDistance"
-                label="Maximum Distance (km)"
+                label="Khoảng Cách Tối Đa (km)"
                 rules={[
-                  { required: true, message: 'Please enter maximum distance' },
-                  { type: 'number', min: 0, message: 'Distance must be greater than or equal to 0' },
+                  { required: true, message: 'Vui lòng nhập khoảng cách tối đa' },
+                  { type: 'number', min: 0, message: 'Khoảng cách phải lớn hơn hoặc bằng 0' },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       if (!value || !getFieldValue('minDistance') || value > getFieldValue('minDistance')) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('Maximum distance must be greater than minimum distance'));
+                      return Promise.reject(new Error('Khoảng cách tối đa phải lớn hơn khoảng cách tối thiểu'));
                     },
                   }),
                 ]}
@@ -245,7 +238,7 @@ const FareRuleManagement: React.FC = () => {
               >
                 <InputNumber
                   style={{ width: '100%' }}
-                  placeholder="Enter maximum distance"
+                  placeholder="Nhập khoảng cách tối đa"
                   min={0}
                   step={0.1}
                 />
@@ -255,15 +248,15 @@ const FareRuleManagement: React.FC = () => {
             <Col span={24}>
               <Form.Item
                 name="fare"
-                label="Fare (VND)"
+                label="Giá Vé (VND)"
                 rules={[
-                  { required: true, message: 'Please enter fare' },
-                  { type: 'number', min: 0, message: 'Fare must be greater than or equal to 0' }
+                  { required: true, message: 'Vui lòng nhập giá vé' },
+                  { type: 'number', min: 0, message: 'Giá vé phải lớn hơn hoặc bằng 0' }
                 ]}
               >
                 <InputNumber
                   style={{ width: '100%' }}
-                  placeholder="Enter fare"
+                  placeholder="Nhập giá vé"
                   min={0}
                   addonBefore="₫"
                 />
@@ -274,7 +267,7 @@ const FareRuleManagement: React.FC = () => {
           <Form.Item>
             <Space>
               <Button type="primary" htmlType="submit" loading={loading}>
-                {editingRule ? 'Update Rule' : 'Add Rule'}
+                {editingRule ? 'Cập Nhật' : 'Thêm Mới'}
               </Button>
               <Button 
                 onClick={() => {
@@ -283,7 +276,7 @@ const FareRuleManagement: React.FC = () => {
                   form.resetFields();
                 }}
               >
-                Cancel
+                Hủy
               </Button>
             </Space>
           </Form.Item>

@@ -8,7 +8,6 @@ import {
   Input,
   Typography,
   Tag,
-  Popconfirm,
   message,
   Tooltip,
   Row,
@@ -18,28 +17,41 @@ import {
   PlusOutlined,
   SearchOutlined,
   EditOutlined,
-  DeleteOutlined,
   EyeOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import { StationApi } from '../../../../api/station/StationApi';
+import type { Station, ResponseDTO } from '../../../../api/station/StationInterface';
 
 const { Title } = Typography;
 const { Search } = Input;
 
-interface Station {
-  id: string;
-  name: string;
-  address: string;
-  description: string;
-  ticketRoutesAsFirstStation: any[];
-  ticketRoutesAsLastStation: any[];
-  checkInProcesses: any[];
-  checkOutProcesses: any[];
-  startStations: any[];
-  endStations: any[];
-  strainSchedules: any[];
-  metroLineStations: any[];
-}
+// Station status types
+type StationStatus = 'Active' | 'Partially Active' | 'Inactive';
+type StatusConfig = {
+  status: StationStatus;
+  color: string;
+  label: string;
+};
+
+const STATION_STATUS_CONFIG: Record<StationStatus, StatusConfig> = {
+  'Active': {
+    status: 'Active',
+    color: 'success',
+    label: 'Hoạt Động'
+  },
+  'Partially Active': {
+    status: 'Partially Active',
+    color: 'warning',
+    label: 'Hoạt Động Một Phần'
+  },
+  'Inactive': {
+    status: 'Inactive',
+    color: 'default',
+    label: 'Không Hoạt Động'
+  }
+};
 
 const StationList: React.FC = () => {
   const navigate = useNavigate();
@@ -54,147 +66,132 @@ const StationList: React.FC = () => {
   const fetchStations = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/stations');
-      if (!response.ok) {
-        throw new Error('Failed to fetch stations');
+      const response = await StationApi.getAllStations();
+      
+      if (response.isSuccess && response.result) {
+        setStations(response.result);
+      } else {
+        message.error(response.message || 'Không thể tải danh sách trạm');
       }
-      const data = await response.json();
-      setStations(data);
     } catch (error) {
-      message.error('Failed to fetch stations');
+      console.error('Error fetching stations:', error);
+      message.error('Có lỗi xảy ra khi tải danh sách trạm');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await fetch(`/api/stations/${id}`, {
-        method: 'DELETE',
-      });
+  const getStationStatus = (station: Station): StatusConfig => {
+    const hasActiveRoutes = (station.ticketRoutesAsFirstStation?.length || 0) > 0 || 
+                          (station.ticketRoutesAsLastStation?.length || 0) > 0;
+    const hasActiveSchedules = (station.strainSchedules?.length || 0) > 0;
+    const isMetroLineStation = (station.metroLineStations?.length || 0) > 0;
 
-      if (!response.ok) {
-        throw new Error('Failed to delete station');
-      }
-
-      message.success('Station deleted successfully');
-      fetchStations(); // Refresh the list
-    } catch (error) {
-      message.error('Failed to delete station');
+    if (hasActiveRoutes && hasActiveSchedules) {
+      return STATION_STATUS_CONFIG['Active'];
+    } else if (isMetroLineStation) {
+      return STATION_STATUS_CONFIG['Partially Active'];
+    } else {
+      return STATION_STATUS_CONFIG['Inactive'];
     }
   };
 
-  const getStationStatus = (station: Station) => {
-    const hasActiveRoutes = station.ticketRoutesAsFirstStation.length > 0 || 
-                          station.ticketRoutesAsLastStation.length > 0;
-    const hasActiveSchedules = station.strainSchedules.length > 0;
-    const isMetroLineStation = station.metroLineStations.length > 0;
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+  };
 
-    if (hasActiveRoutes && hasActiveSchedules) {
-      return { status: 'Active', color: 'success' };
-    } else if (isMetroLineStation) {
-      return { status: 'Partially Active', color: 'warning' };
-    } else {
-      return { status: 'Inactive', color: 'default' };
-    }
+  const handleRefresh = () => {
+    fetchStations();
+    setSearchText('');
   };
 
   const columns: ColumnsType<Station> = [
     {
-      title: 'Station Name',
+      title: 'Tên Trạm',
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
       filteredValue: searchText ? [searchText] : null,
-      onFilter: (value, record) =>
-        record.name.toLowerCase().includes((value as string).toLowerCase()) ||
-        record.address.toLowerCase().includes((value as string).toLowerCase()),
+      onFilter: (value, record) => {
+        const searchValue = (value as string).toLowerCase();
+        return (
+          record.name.toLowerCase().includes(searchValue) ||
+          (record.address?.toLowerCase() || '').includes(searchValue) ||
+          (record.description?.toLowerCase() || '').includes(searchValue)
+        );
+      },
     },
     {
-      title: 'Address',
+      title: 'Địa Chỉ',
       dataIndex: 'address',
       key: 'address',
       ellipsis: true,
+      render: (address: string | undefined) => address || 'N/A',
     },
     {
-      title: 'Description',
+      title: 'Mô Tả',
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
+      render: (description: string | undefined) => description || 'N/A',
     },
     {
-      title: 'Status',
+      title: 'Trạng Thái',
       key: 'status',
       render: (_, record) => {
-        const { status, color } = getStationStatus(record);
-        return <Tag color={color}>{status}</Tag>;
+        const statusConfig = getStationStatus(record);
+        return <Tag color={statusConfig.color}>{statusConfig.label}</Tag>;
       },
-      filters: [
-        { text: 'Active', value: 'Active' },
-        { text: 'Partially Active', value: 'Partially Active' },
-        { text: 'Inactive', value: 'Inactive' },
-      ],
+      filters: Object.values(STATION_STATUS_CONFIG).map(config => ({
+        text: config.label,
+        value: config.status
+      })),
       onFilter: (value, record) => getStationStatus(record).status === value,
     },
     {
-      title: 'Routes',
+      title: 'Tuyến Vé',
       key: 'routes',
       render: (_, record) => (
         <Space direction="vertical" size="small">
-          <Tooltip title="Routes starting from this station">
-            <Tag color="blue">Start: {record.ticketRoutesAsFirstStation.length}</Tag>
+          <Tooltip title="Tuyến vé bắt đầu từ trạm này">
+            <Tag color="blue">Đi: {record.ticketRoutesAsFirstStation?.length || 0}</Tag>
           </Tooltip>
-          <Tooltip title="Routes ending at this station">
-            <Tag color="green">End: {record.ticketRoutesAsLastStation.length}</Tag>
+          <Tooltip title="Tuyến vé kết thúc tại trạm này">
+            <Tag color="green">Đến: {record.ticketRoutesAsLastStation?.length || 0}</Tag>
           </Tooltip>
         </Space>
       ),
     },
     {
-      title: 'Metro Lines',
+      title: 'Tuyến Metro',
       key: 'metroLines',
       render: (_, record) => (
         <Space direction="vertical" size="small">
-          <Tooltip title="Lines starting from this station">
-            <Tag color="purple">Start: {record.startStations.length}</Tag>
+          <Tooltip title="Tuyến metro bắt đầu từ trạm này">
+            <Tag color="purple">Đi: {record.startStations?.length || 0}</Tag>
           </Tooltip>
-          <Tooltip title="Lines ending at this station">
-            <Tag color="orange">End: {record.endStations.length}</Tag>
+          <Tooltip title="Tuyến metro kết thúc tại trạm này">
+            <Tag color="orange">Đến: {record.endStations?.length || 0}</Tag>
           </Tooltip>
         </Space>
       ),
     },
     {
-      title: 'Actions',
+      title: 'Thao Tác',
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="View Details">
+          <Tooltip title="Xem Chi Tiết">
             <Button
               icon={<EyeOutlined />}
-              onClick={() => navigate(`/manager/stations/${record.id}`)}
+              onClick={() => navigate(`/manager/station/${record.id}`)}
             />
           </Tooltip>
-          <Tooltip title="Edit Station">
+          <Tooltip title="Chỉnh Sửa">
             <Button
               icon={<EditOutlined />}
-              onClick={() => navigate(`/manager/stations/${record.id}/edit`)}
+              onClick={() => navigate(`/manager/station/${record.id}/edit`)}
             />
-          </Tooltip>
-          <Tooltip title="Delete Station">
-            <Popconfirm
-              title="Delete Station"
-              description="Are you sure you want to delete this station? This action cannot be undone."
-              onConfirm={() => handleDelete(record.id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                disabled={getStationStatus(record).status === 'Active'}
-              />
-            </Popconfirm>
           </Tooltip>
         </Space>
       ),
@@ -205,23 +202,29 @@ const StationList: React.FC = () => {
     <Space direction="vertical" size="large" style={{ width: '100%', padding: '24px' }}>
       <Row justify="space-between" align="middle">
         <Col>
-          <Title level={2} style={{ margin: 0 }}>Stations</Title>
+          <Title level={2} style={{ margin: 0 }}>Quản Lý Trạm Metro</Title>
         </Col>
         <Col>
           <Space>
             <Search
-              placeholder="Search stations..."
+              placeholder="Tìm kiếm trạm..."
               allowClear
               enterButton={<SearchOutlined />}
-              onSearch={setSearchText}
+              onSearch={handleSearch}
               style={{ width: 300 }}
             />
+            <Tooltip title="Làm mới">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+              />
+            </Tooltip>
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => navigate('/manager/stations/create')}
+              onClick={() => navigate('/manager/station/create')}
             >
-              Add Station
+              Thêm Trạm
             </Button>
           </Space>
         </Col>
@@ -236,7 +239,19 @@ const StationList: React.FC = () => {
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
-            showTotal: (total) => `Total ${total} stations`,
+            showTotal: (total) => `Tổng số ${total} trạm`,
+            locale: {
+              items_per_page: 'trạm / trang',
+              jump_to: 'Đi đến',
+              jump_to_confirm: 'Xác nhận',
+              page: 'Trang',
+            }
+          }}
+          locale={{
+            emptyText: 'Không có dữ liệu',
+            triggerDesc: 'Sắp xếp giảm dần',
+            triggerAsc: 'Sắp xếp tăng dần',
+            cancelSort: 'Hủy sắp xếp',
           }}
         />
       </Card>
