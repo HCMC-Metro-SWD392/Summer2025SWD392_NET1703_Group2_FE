@@ -22,7 +22,7 @@ const UserHeaderMenu: React.FC<{userInfo : UserInfo}> = ({ userInfo }) => {
           key: "profile",
           icon: <ProfileOutlined />,
           label: "Hồ sơ cá nhân",
-          onClick: () => navigate("/profile"),
+          onClick: () => navigate("/customerInfor"),
         },
         {
           key: "service",

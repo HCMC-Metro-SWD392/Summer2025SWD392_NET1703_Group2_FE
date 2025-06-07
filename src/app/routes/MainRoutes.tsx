@@ -22,6 +22,10 @@ import StationDetails from "../pages/Manager/StationManagement/StationDetails";
 import StationList from "../pages/Manager/StationManagement/StationList";
 import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
 import Staff from "../pages/Staff/Staff";
+import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
+import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
+import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
+import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
 import CreateStation from "../pages/Manager/StationManagement/CreateStation";
 import EditStation from "../pages/Manager/StationManagement/EditStation";
 import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
@@ -36,7 +40,14 @@ export default function MainRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="*" element={<PageNotFound />} />
           <Route path="/verifyEmail" element={<VerifyEmail />} />
+          <Route path="/tickets">
+            <Route path="buy-route" element={<BuyRouteTicket />}/>
+            <Route path="my-tickets" element={<MyTickets />}/>
+            <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
+          </Route>
+          <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
+
 
         
         <Route element={<HeaderOnlyLayout/>}>
@@ -69,6 +80,7 @@ export default function MainRoutes() {
 
         <Route path="/staff" element={<Staff />} />
 
+        
         
       </Routes>
 

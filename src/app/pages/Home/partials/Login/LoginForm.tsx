@@ -9,7 +9,6 @@ import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
 import type { LoginPayload } from "../../../../../types/types";
 import { login } from "../../../../../api/auth/auth";
 
-
 const { Title } = Typography;
 
 const LoginForm: React.FC = () => {

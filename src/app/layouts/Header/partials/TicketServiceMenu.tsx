@@ -1,6 +1,6 @@
 import React from "react";
 import { Dropdown, Menu, Button, Space, Typography } from "antd";
-import { UnorderedListOutlined, HistoryOutlined, SettingOutlined } from "@ant-design/icons";
+import { UnorderedListOutlined, HistoryOutlined, SettingOutlined, ClockCircleOutlined, CheckCircleOutlined, ShoppingCartOutlined, CalendarOutlined, CreditCardOutlined, ProfileOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
@@ -12,22 +12,29 @@ const TicketServiceMenu: React.FC = () => {
     <Menu
       items={[
         {
+          key: "ticket-buy",
+          label: "Mua vé",
+          icon: <CreditCardOutlined />,
+          children: [
+            {
+              key: "buy-single",
+              label: "Mua vé lượt",
+              icon: <ShoppingCartOutlined />,
+              onClick: () => navigate("/tickets/buy-route"),
+            },
+            {
+              key: "buy-monthly",
+              label: "Mua vé tháng",
+              icon: <CalendarOutlined />,
+              onClick: () => navigate("/tickets/buy-monthly"),
+            },
+          ],
+        },
+        {
           key: "ticket-list",
-          icon: <UnorderedListOutlined />,
-          label: "Danh sách vé",
-          onClick: () => navigate("/tickets"),
-        },
-        {
-          key: "history",
-          icon: <HistoryOutlined />,
-          label: "Lịch sử đặt vé",
-          onClick: () => navigate("/tickets/history"),
-        },
-        {
-          key: "settings",
-          icon: <SettingOutlined />,
-          label: "Cài đặt dịch vụ",
-          onClick: () => navigate("/tickets/settings"),
+          icon: <ProfileOutlined />,
+          label: "Quản lý vé",
+          onClick: () => navigate("/tickets/my-tickets")
         },
       ]}
     />
@@ -39,10 +46,11 @@ const TicketServiceMenu: React.FC = () => {
         type="text"
         className="flex items-center gap-2 !h-auto !border-gray-300 rounded-lg"
       >
-        <Space>
+        <Space className="!block sm:!flex">
           <UnorderedListOutlined />
           {/* Chỉ hiện trên màn hình >= sm */}
           <Text strong className="hidden sm:inline">Dịch vụ vé tàu</Text>
+
         </Space>
       </Button>
     </Dropdown>

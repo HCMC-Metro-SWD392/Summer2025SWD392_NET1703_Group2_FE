@@ -13,8 +13,36 @@ export interface LoginPayload {
 }
 
 export interface UserInfo  {
-  id: string;
+  id: string; 
   avatar?: string;
   fullName: string;
   email: string;
+  phoneNumber: string;
+  address: string;
+  dateOfBirth: string;
+  identityId: string;
+  sex: string;
+  customerType: number;
 };
+
+export interface Station {
+  id: string;
+  name: string;
+  address: string;
+  description: string;
+};
+
+export interface Line {
+  id: string;
+  metroName: string;
+};
+
+export interface Ticket {
+  id: string;
+  fromStation: string;
+  toStation: string;
+  price: number;
+  createdAt: string;
+  expirationDate: string;
+  status: "unused" | "active" | "used";
+}
