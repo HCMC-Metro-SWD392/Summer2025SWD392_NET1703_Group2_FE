@@ -16,13 +16,20 @@ const CreateStation: React.FC = () => {
       address: '',
       description: ''
     },
-    mode: 'onBlur' // Validate on blur for better UX
+    mode: 'onBlur'
   });
 
   const onSubmit = async (data: CreateStationDTO) => {
+    // Trim all fields before submission
+    const trimmedData = {
+      name: data.name.trim(),
+      address: data.address.trim(),
+      description: data.description.trim()
+    };
+
     try {
       setLoading(true);
-      const response = await StationApi.createStation(data);
+      const response = await StationApi.createStation(trimmedData);
       
       if (response.isSuccess) {
         message.success('Tạo trạm Metro thành công');
@@ -39,12 +46,44 @@ const CreateStation: React.FC = () => {
   };
 
   const renderField = (field: ControllerRenderProps<CreateStationDTO, keyof CreateStationDTO>) => (
-    <Input {...field} />
+    <Input 
+      {...field} 
+      onChange={(e) => {
+        // Prevent multiple consecutive spaces
+        const value = e.target.value.replace(/\s+/g, ' ');
+        field.onChange(value);
+      }}
+      onBlur={(e) => {
+        // Trim on blur
+        const value = e.target.value.trim();
+        field.onChange(value);
+      }}
+    />
   );
 
   const renderTextArea = (field: ControllerRenderProps<CreateStationDTO, keyof CreateStationDTO>) => (
-    <Input.TextArea {...field} rows={4} />
+    <Input.TextArea 
+      {...field} 
+      rows={4}
+      onChange={(e) => {
+        // Prevent multiple consecutive spaces
+        const value = e.target.value.replace(/\s+/g, ' ');
+        field.onChange(value);
+      }}
+      onBlur={(e) => {
+        // Trim on blur
+        const value = e.target.value.trim();
+        field.onChange(value);
+      }}
+    />
   );
+
+  const validateNoOnlySpaces = (value: string) => {
+    if (!value || value.trim().length === 0) {
+      return 'Không được để trống';
+    }
+    return true;
+  };
 
   return (
     <div className="p-6">
@@ -74,6 +113,7 @@ const CreateStation: React.FC = () => {
               control={control}
               rules={{
                 required: 'Vui lòng nhập tên trạm',
+                validate: validateNoOnlySpaces,
                 minLength: {
                   value: 2,
                   message: 'Tên trạm phải có ít nhất 2 ký tự'
@@ -102,6 +142,7 @@ const CreateStation: React.FC = () => {
               control={control}
               rules={{
                 required: 'Vui lòng nhập địa chỉ',
+                validate: validateNoOnlySpaces,
                 minLength: {
                   value: 5,
                   message: 'Địa chỉ phải có ít nhất 5 ký tự'
@@ -126,6 +167,7 @@ const CreateStation: React.FC = () => {
               control={control}
               rules={{
                 required: 'Vui lòng nhập mô tả',
+                validate: validateNoOnlySpaces,
                 minLength: {
                   value: 10,
                   message: 'Mô tả phải có ít nhất 10 ký tự'

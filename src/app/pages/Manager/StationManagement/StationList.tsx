@@ -135,19 +135,7 @@ const StationList: React.FC = () => {
       ellipsis: true,
       render: (description: string | undefined) => description || 'N/A',
     },
-    {
-      title: 'Trạng Thái',
-      key: 'status',
-      render: (_, record) => {
-        const statusConfig = getStationStatus(record);
-        return <Tag color={statusConfig.color}>{statusConfig.label}</Tag>;
-      },
-      filters: Object.values(STATION_STATUS_CONFIG).map(config => ({
-        text: config.label,
-        value: config.status
-      })),
-      onFilter: (value, record) => getStationStatus(record).status === value,
-    },
+    
     {
       title: 'Tuyến Vé',
       key: 'routes',
@@ -222,7 +210,7 @@ const StationList: React.FC = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => navigate('/manager/station/create')}
+              onClick={() => navigate('/manager/create-station')}
             >
               Thêm Trạm
             </Button>
