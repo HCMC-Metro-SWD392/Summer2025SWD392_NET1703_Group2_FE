@@ -26,6 +26,7 @@ import CreateStation from "../pages/Manager/StationManagement/CreateStation";
 import EditStation from "../pages/Manager/StationManagement/EditStation";
 import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
 import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
+import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
 
 export default function MainRoutes() {
   return (
@@ -53,6 +54,7 @@ export default function MainRoutes() {
         <Route path="/manager/create-promotion" element={<CreatePromotion />} />
         <Route path="/manager/promotion" element={<PromotionList />} />
         <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
+        <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
         <Route path="/manager/fare-rule" element={<FareRule />} />
         <Route path="/manager/station/:id" element={<StationDetails />} />
         <Route path="/manager/station" element={<StationList />} />

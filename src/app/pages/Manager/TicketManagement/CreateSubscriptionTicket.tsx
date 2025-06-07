@@ -61,7 +61,7 @@ const CreateSubscriptionTicket: React.FC = () => {
       <Space>
         <Button 
           icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate('/manager/tickets')}
+          onClick={() => navigate('/manager/subscription-ticket')}
         >
           Quay lại danh sách vé
         </Button>
