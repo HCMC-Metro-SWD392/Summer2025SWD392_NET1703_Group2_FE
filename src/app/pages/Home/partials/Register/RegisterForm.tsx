@@ -6,15 +6,9 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import logoMetro from "../../../../assets/logo.png";
 import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
-<<<<<<< HEAD
-
-import type { RegisterPayload } from "../../../../../types/types";
-import { register } from "../../../../../api/auth/auth";
-=======
 import type { RegisterPayload } from "../../../../../types/types";
 import { register } from "../../../../../api/auth/auth";
 
->>>>>>> origin/Thien-Branch
 
 const { Title } = Typography;
 
