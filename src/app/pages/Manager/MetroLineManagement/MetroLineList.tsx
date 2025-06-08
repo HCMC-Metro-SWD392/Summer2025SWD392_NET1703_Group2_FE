@@ -86,11 +86,6 @@ const MetroLineList: React.FC = () => {
           >
             Chi Tiết
           </Button>
-          <Button
-            onClick={() => navigate(`/manager/metro-line/${record.id}/edit`)}
-          >
-            Chỉnh Sửa
-          </Button>
         </Space>
       ),
     },

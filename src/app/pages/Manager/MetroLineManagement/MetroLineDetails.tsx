@@ -123,13 +123,6 @@ const MetroLineDetails: React.FC = () => {
             Chi Tiết Tuyến Metro {metroLine.metroLineNumber}
           </Title>
         </Space>
-        <Button
-          type="primary"
-          icon={<EditOutlined />}
-          onClick={() => navigate(`/manager/metro-line/${id}/edit`)}
-        >
-          Chỉnh Sửa
-        </Button>
       </Space>
 
       <Row gutter={24}>

@@ -155,7 +155,7 @@ const CreateSubscriptionTicket: React.FC = () => {
                 <Button type="primary" htmlType="submit" loading={loading}>
                   Tạo Vé
                 </Button>
-                <Button onClick={() => navigate('/manager/tickets')}>
+                <Button onClick={() => navigate('/manager/subscription-ticket')}>
                   Hủy
                 </Button>
               </Space>

@@ -84,18 +84,11 @@ const SubscriptionTicketList: React.FC = () => {
       render: (price: number) => formatPrice(price),
     },
     {
-      title: 'Ngày Bắt Đầu',
-      dataIndex: 'startDate',
-      key: 'startDate',
+      title: 'Thời hạn',
+      dataIndex: 'expiration',
+      key: 'expiration',
       width: '15%',
-      render: (date: string) => formatDate(date),
-    },
-    {
-      title: 'Ngày Kết Thúc',
-      dataIndex: 'endDate',
-      key: 'endDate',
-      width: '15%',
-      render: (date: string) => formatDate(date),
+      render: (expiration: number) => `${expiration} ngày`,
     },
     {
       title: 'Thao Tác',
@@ -104,7 +97,7 @@ const SubscriptionTicketList: React.FC = () => {
       render: (_: any, record: GetSubscriptionTicketDTO) => (
         <Space size="middle">
           <Tooltip title="Xem chi tiết">
-            <Button type="link" onClick={() => navigate(`/manager/tickets/${record.id}`)}>
+            <Button type="link" onClick={() => navigate(`/manager/subscription-ticket/${record.id}`)}>
               Chi tiết
             </Button>
           </Tooltip>
@@ -120,7 +113,7 @@ const SubscriptionTicketList: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={() => navigate('/manager/tickets/create')}
+          onClick={() => navigate('/manager/create-subscription-ticket')}
         >
           Tạo Vé Mới
         </Button>

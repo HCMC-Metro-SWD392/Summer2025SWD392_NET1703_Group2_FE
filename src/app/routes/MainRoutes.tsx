@@ -13,10 +13,13 @@ import StaffList from "../pages/Manager/StaffManagement/StaffList";
 import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
 import CreatePromotion from "../pages/Manager/PromotionManagement/CreatePromotion";
 import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
+import EditPromotion from "../pages/Manager/PromotionManagement/EditPromotion";
+import PromotionDetails from "../pages/Manager/PromotionManagement/PromotionDetails";
 import StaffDetails from "../pages/Manager/StaffManagement/StaffDetails";
 import AssignStaffShift from "../pages/Manager/StaffManagement/AssignStaffShift";
 import EditStaff from "../pages/Manager/StaffManagement/EditStaff";
 import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSubscriptionTicket";
+import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import FareRule from "../pages/Manager/FareManagement/FareRule";
 import StationDetails from "../pages/Manager/StationManagement/StationDetails";
 import StationList from "../pages/Manager/StationManagement/StationList";
@@ -64,8 +67,11 @@ export default function MainRoutes() {
         <Route path="/manager/revenue" element={<RevenueReport />} />
         <Route path="/manager/create-promotion" element={<CreatePromotion />} />
         <Route path="/manager/promotion" element={<PromotionList />} />
+        <Route path="/manager/promotion/:id" element={<PromotionDetails />} />
+        <Route path="/manager/promotion/:id/edit" element={<EditPromotion />} />
         <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
         <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
+        <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
         <Route path="/manager/fare-rule" element={<FareRule />} />
         <Route path="/manager/station/:id" element={<StationDetails />} />
         <Route path="/manager/station" element={<StationList />} />

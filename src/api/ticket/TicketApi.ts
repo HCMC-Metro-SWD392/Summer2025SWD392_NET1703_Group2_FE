@@ -2,7 +2,8 @@ import type { AxiosResponse } from 'axios';
 import type { 
     CreateSubscriptionDTO, 
     GetSubscriptionTicketDTO, 
-    ResponseDTO 
+    ResponseDTO,
+    UpdateSubscriptionDTO
 } from './TicketInterface';
 import { SubscriptionTicketType } from './TicketInterface';
 import axiosInstance from '../../settings/axiosInstance';
@@ -26,7 +27,9 @@ const getTicketTypeNumericValue = (type: SubscriptionTicketType): number => {
 // API Endpoints
 const SUBSCRIPTION_TICKET_ENDPOINTS = {
     CREATE: '/api/SubcriptionTicket',
-    GET_ALL: '/api/SubcriptionTicket/all'
+    GET_ALL: '/api/SubcriptionTicket/all',
+    GET_BY_ID: '/api/SubcriptionTicket/',
+    UPDATE: '/api/SubcriptionTicket/update/'
 } as const;
 
 // Subscription Ticket API Service
@@ -42,6 +45,20 @@ export const TicketApi = {
                 return error.response.data;
             }
             throw new Error('Có lỗi xảy ra khi lấy danh sách vé đăng ký');
+        }
+    },
+
+    getSubscriptionById: async (id: string): Promise<ResponseDTO<GetSubscriptionTicketDTO>> => {
+        try {
+            const response: AxiosResponse<ResponseDTO<GetSubscriptionTicketDTO>> = await axiosInstance.get(
+                `${SUBSCRIPTION_TICKET_ENDPOINTS.GET_BY_ID}${id}`
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response) {
+                return error.response.data;
+            }
+            throw new Error('Có lỗi xảy ra khi lấy thông tin vé đăng ký');
         }
     },
 
@@ -63,6 +80,25 @@ export const TicketApi = {
             }
             // Handle network errors or other unexpected errors
             throw new Error('Có lỗi xảy ra khi tạo vé đăng ký');
+        }
+    },
+
+    updateSubscription: async (id: string, data: UpdateSubscriptionDTO): Promise<ResponseDTO<GetSubscriptionTicketDTO>> => {
+        try {
+            const response: AxiosResponse<ResponseDTO<GetSubscriptionTicketDTO>> = await axiosInstance.put(
+                `${SUBSCRIPTION_TICKET_ENDPOINTS.UPDATE}${id}`,
+                {
+                    TicketName: data.ticketName,
+                    ticketType: data.ticketType ? getTicketTypeNumericValue(data.ticketType) : undefined,
+                    price: data.price
+                }
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response) {
+                return error.response.data;
+            }
+            throw new Error('Có lỗi xảy ra khi cập nhật vé đăng ký');
         }
     }
 };

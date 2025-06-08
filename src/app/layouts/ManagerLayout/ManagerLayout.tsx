@@ -30,70 +30,70 @@ const ManagerLayout: React.FC = () => {
     {
       key: '/manager',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: 'Bảng Điều Khiển',
     },
     {
       key: 'station-management',
       icon: <ApartmentOutlined />,
-      label: 'Station Management',
+      label: 'Quản Lý Trạm',
       children: [
         {
           key: '/manager/station',
-          label: 'Station List',
+          label: 'Danh Sách Trạm',
         },
         {
           key: '/manager/create-station',
-          label: 'Create Station',
+          label: 'Tạo Trạm',
         },
       ],
     },
     {
       key: 'metro-line-management',
       icon: <CarOutlined />,
-      label: 'Metro Line Management',
+      label: 'Quản Lý Tuyến Metro',
       children: [
         {
           key: '/manager/metro-line',
-          label: 'Metro Line List',
+          label: 'Danh Sách Tuyến Metro',
         },
         {
           key: '/manager/create-metro-line',
-          label: 'Create Metro Line',
+          label: 'Tạo Tuyến Metro',
         },
       ],
     },
     {
       key: 'fare-management',
       icon: <DollarCircleOutlined />,
-      label: 'Fare Management',
+      label: 'Quản Lý Giá Vé',
       children: [
         {
           key: '/manager/fare-rule',
-          label: 'Fare Rules',
+          label: 'Quy Tắc Giá Vé',
         },
       ],
     },
     {
       key: '/manager/staffs',
       icon: <UserOutlined />,
-      label: 'Staff Management',
+      label: 'Quản Lý Nhân Viên',
     },
     {
       key: 'sales-finance',
       icon: <DollarCircleOutlined />,
-      label: 'Sales & Finance',
+      label: 'Bán Hàng & Tài Chính',
       children: [
         {
           key: '/manager/revenue',
-          label: 'Revenue',
+          label: 'Doanh Thu',
         },
         {
           key: '/manager/promotion',
-          label: 'Promotion',
+          label: 'Khuyến Mãi',
         },
         {
-          key: '/manager/create-subscription-ticket',
-          label: 'Create Subscription Ticket',
+          key: '/manager/subscription-ticket',
+          label: 'Vé Đăng Ký',
         },
       ],
     },
@@ -144,7 +144,6 @@ const ManagerLayout: React.FC = () => {
             <Menu
               mode="inline"
               selectedKeys={[location.pathname]}
-              defaultOpenKeys={['station-management', 'metro-line-management', 'fare-management']}
               items={menuItems}
               onClick={handleMenuClick}
               className="border-r-0"
@@ -156,7 +155,7 @@ const ManagerLayout: React.FC = () => {
               className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
             >
               <LogoutOutlined />
-              <span>Logout</span>
+              <span>Đăng Xuất</span>
             </button>
           </div>
         </div>
@@ -178,8 +177,10 @@ const ManagerLayout: React.FC = () => {
           </div>
         </Header>
         <Content className="bg-white rounded-lg shadow-sm flex-1 overflow-auto">
-          <div className="h-full">
-            <Outlet />
+          <div className="h-full flex flex-col items-center">
+            <div className="w-full max-w-[1400px] px-6">
+              <Outlet />
+            </div>
           </div>
         </Content>
       </Layout>
