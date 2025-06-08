@@ -1,0 +1,66 @@
+import type { AxiosResponse } from 'axios';
+import type { 
+    CreateMetroLineDTO, 
+    GetMetroLineDTO, 
+    ResponseDTO 
+} from './MetroLineInterface';
+import axiosInstance from '../../settings/axiosInstance';
+
+// API Endpoints
+const METRO_LINE_ENDPOINTS = {
+    CREATE: '/api/MetroLine/create-metro-line',
+    GET_ALL: '/api/MetroLine/metro-lines/all',
+    GET_BY_ID: (id: string) => `/api/MetroLine/metro-line/${id}`
+} as const;
+
+// Metro Line API Service
+export const MetroLineApi = {
+    createMetroLine: async (data: CreateMetroLineDTO): Promise<ResponseDTO<GetMetroLineDTO>> => {
+        try {
+            const response: AxiosResponse<ResponseDTO<GetMetroLineDTO>> = await axiosInstance.post(
+                METRO_LINE_ENDPOINTS.CREATE,
+                data
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response) {
+                // Return backend error response
+                return error.response.data;
+            }
+            // Handle network errors or other unexpected errors
+            throw new Error('Có lỗi xảy ra khi tạo tuyến Metro');
+        }
+    },
+
+    getAllMetroLines: async (): Promise<ResponseDTO<GetMetroLineDTO[]>> => {
+        try {
+            const response: AxiosResponse<ResponseDTO<GetMetroLineDTO[]>> = await axiosInstance.get(
+                METRO_LINE_ENDPOINTS.GET_ALL
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response) {
+                // Return backend error response
+                return error.response.data;
+            }
+            // Handle network errors or other unexpected errors
+            throw new Error('Có lỗi xảy ra khi lấy danh sách tuyến Metro');
+        }
+    },
+
+    getMetroLineById: async (id: string): Promise<ResponseDTO<GetMetroLineDTO>> => {
+        try {
+            const response: AxiosResponse<ResponseDTO<GetMetroLineDTO>> = await axiosInstance.get(
+                METRO_LINE_ENDPOINTS.GET_BY_ID(id)
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response) {
+                // Return backend error response
+                return error.response.data;
+            }
+            // Handle network errors or other unexpected errors
+            throw new Error('Có lỗi xảy ra khi lấy thông tin tuyến Metro');
+        }
+    }
+};

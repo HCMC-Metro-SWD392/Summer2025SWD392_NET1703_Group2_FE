@@ -1,7 +1,7 @@
 // src/api/axiosInstance.ts
 import axios from "axios";
 import endpoints from "../api/endpoints";
-import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "../api/auth/tokenUtils";
+import { removeTokens, getAccessToken, getRefreshToken, setTokens } from "../api/auth/tokenUtils";
 
 export const BASE_URL = import.meta.env.VITE_BASE_URL;
 let isRefreshing = false;
@@ -20,6 +20,7 @@ const axiosInstance = axios.create({
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
 });
 
@@ -64,7 +65,7 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        clearTokens();
+        removeTokens();
         window.location.href = "/login"; // hoặc chuyển về trang đăng nhập
         return Promise.reject(err);
       } finally {

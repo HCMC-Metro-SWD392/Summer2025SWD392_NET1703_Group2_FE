@@ -8,7 +8,10 @@ import logoMetro from "../../../../assets/logo.png";
 import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
 import type { LoginPayload } from "../../../../../types/types";
 import { login } from "../../../../../api/auth/auth";
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/Thien-Branch
 
 const { Title } = Typography;
 
@@ -19,9 +22,21 @@ const LoginForm: React.FC = () => {
     try {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
-      localStorage.setItem("userInfo", JSON.stringify(data.result?.user));
-      localStorage.setItem("token", data.result?.accessToken) ;
-      navigate("/");
+      
+      // Handle role-based redirection
+      switch (data.userRole) {
+        case 'manager':
+          navigate('/manager');
+          break;
+        case 'staff':
+          navigate('/staff');
+          break;
+        case 'admin':
+          navigate('/admin');
+          break;
+        default:
+          navigate('/');
+      }
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
