@@ -9,7 +9,7 @@ env:
   EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
   EC2_HOST: ${{ secrets.EC2_HOST_PUBLIC }}
   EC2_USER: ${{ secrets.EC2_USER }}
-  FRONTEND_DIR: client  # đổi nếu thư mục frontend của bạn không tên là "client"
+  FRONTEND_DIR: Summer2025SWD392_NET1703_Group2_FE
 
 jobs:
   build:
