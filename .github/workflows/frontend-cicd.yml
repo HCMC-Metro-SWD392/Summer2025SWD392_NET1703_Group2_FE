@@ -9,7 +9,6 @@ env:
   EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
   EC2_HOST: ${{ secrets.EC2_HOST_PUBLIC }}
   EC2_USER: ${{ secrets.EC2_USER }}
-  FRONTEND_DIR: .
 
 jobs:
   build:
@@ -20,28 +19,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify directory structure
+        run: ls -la
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install dependencies
-        working-directory: ${{ env.FRONTEND_DIR }}
         run: npm install
 
       - name: Build project
-        working-directory: ${{ env.FRONTEND_DIR }}
         run: npm run build
 
       - name: Zip dist folder
-        working-directory: ${{ env.FRONTEND_DIR }}
         run: zip -r dist.zip dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
-          path: ${{ env.FRONTEND_DIR }}/dist.zip
+          path: dist.zip
 
   deploy:
     name: Deploy to EC2
