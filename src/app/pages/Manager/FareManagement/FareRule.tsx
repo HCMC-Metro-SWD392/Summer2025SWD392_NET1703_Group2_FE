@@ -115,20 +115,18 @@ const FareRuleManagement: React.FC = () => {
       title: 'Khoảng Cách (km)',
       key: 'distance',
       render: (_, record) => `${record.minDistance} - ${record.maxDistance}`,
-      sorter: (a, b) => a.minDistance - b.minDistance,
     },
     {
       title: 'Giá Vé (VND)',
       dataIndex: 'fare',
       key: 'fare',
       render: (fare: number) => fare.toLocaleString('vi-VN'),
-      sorter: (a, b) => a.fare - b.fare,
     },
     {
       title: 'Thao Tác',
       key: 'actions',
       render: (_, record) => (
-        <Space>
+        <Space size="small">
           <Button
             type="primary"
             icon={<EditOutlined />}
@@ -153,7 +151,7 @@ const FareRuleManagement: React.FC = () => {
   ];
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%', padding: '24px' }}>
+    <Space direction="vertical" size="large" style={{ width: '100%', padding: '16px' }}>
       <Space style={{ justifyContent: 'space-between', width: '100%' }}>
         <Title level={2}>Quản Lý Quy Tắc Giá Vé</Title>
         <Button

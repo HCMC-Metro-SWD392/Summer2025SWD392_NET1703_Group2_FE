@@ -16,8 +16,7 @@ export interface GetSubscriptionTicketDTO {
     ticketName: string;    
     ticketType: SubscriptionTicketType;  
     price: number;            
-    startDate: string;        
-    endDate: string;         
+    expiration: number;
 }
 
 export interface ResponseDTO<T = any> {
@@ -63,3 +62,9 @@ export const TICKET_TYPE_CONFIG: Record<SubscriptionTicketType, TicketTypeConfig
         durationInDays: 365
     }
 };
+
+export interface UpdateSubscriptionDTO {
+    ticketName?: string;
+    ticketType?: SubscriptionTicketType;
+    price?: number;
+}

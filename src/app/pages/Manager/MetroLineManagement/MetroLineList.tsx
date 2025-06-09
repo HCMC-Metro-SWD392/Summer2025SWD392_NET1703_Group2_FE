@@ -86,11 +86,6 @@ const MetroLineList: React.FC = () => {
           >
             Chi Tiết
           </Button>
-          <Button
-            onClick={() => navigate(`/manager/metro-line/${record.id}/edit`)}
-          >
-            Chỉnh Sửa
-          </Button>
         </Space>
       ),
     },
@@ -111,7 +106,7 @@ const MetroLineList: React.FC = () => {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => navigate('/manager/metro-line/create')}
+            onClick={() => navigate('/manager/create-metro-line')}
           >
             Thêm Tuyến Mới
           </Button>

@@ -111,6 +111,8 @@ const StationList: React.FC = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
+      defaultSortOrder: 'descend',
+      sortDirections: ['ascend', 'descend'],
       filteredValue: searchText ? [searchText] : null,
       onFilter: (value, record) => {
         const searchValue = (value as string).toLowerCase();
@@ -135,64 +137,24 @@ const StationList: React.FC = () => {
       ellipsis: true,
       render: (description: string | undefined) => description || 'N/A',
     },
-    {
-      title: 'Trạng Thái',
-      key: 'status',
-      render: (_, record) => {
-        const statusConfig = getStationStatus(record);
-        return <Tag color={statusConfig.color}>{statusConfig.label}</Tag>;
-      },
-      filters: Object.values(STATION_STATUS_CONFIG).map(config => ({
-        text: config.label,
-        value: config.status
-      })),
-      onFilter: (value, record) => getStationStatus(record).status === value,
-    },
-    {
-      title: 'Tuyến Vé',
-      key: 'routes',
-      render: (_, record) => (
-        <Space direction="vertical" size="small">
-          <Tooltip title="Tuyến vé bắt đầu từ trạm này">
-            <Tag color="blue">Đi: {record.ticketRoutesAsFirstStation?.length || 0}</Tag>
-          </Tooltip>
-          <Tooltip title="Tuyến vé kết thúc tại trạm này">
-            <Tag color="green">Đến: {record.ticketRoutesAsLastStation?.length || 0}</Tag>
-          </Tooltip>
-        </Space>
-      ),
-    },
-    {
-      title: 'Tuyến Metro',
-      key: 'metroLines',
-      render: (_, record) => (
-        <Space direction="vertical" size="small">
-          <Tooltip title="Tuyến metro bắt đầu từ trạm này">
-            <Tag color="purple">Đi: {record.startStations?.length || 0}</Tag>
-          </Tooltip>
-          <Tooltip title="Tuyến metro kết thúc tại trạm này">
-            <Tag color="orange">Đến: {record.endStations?.length || 0}</Tag>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    
     {
       title: 'Thao Tác',
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="Xem Chi Tiết">
-            <Button
-              icon={<EyeOutlined />}
-              onClick={() => navigate(`/manager/station/${record.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="Chỉnh Sửa">
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/manager/station/${record.id}/edit`)}
-            />
-          </Tooltip>
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => navigate(`/manager/station/${record.id}`)}
+          >
+            Xem Chi Tiết
+          </Button>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => navigate(`/manager/station/${record.id}/edit`)}
+          >
+            Chỉnh Sửa
+          </Button>
         </Space>
       ),
     },
@@ -222,7 +184,7 @@ const StationList: React.FC = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => navigate('/manager/station/create')}
+              onClick={() => navigate('/manager/create-station')}
             >
               Thêm Trạm
             </Button>
@@ -233,7 +195,7 @@ const StationList: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={stations}
+          dataSource={stations.sort((a, b) => Number(b.id) - Number(a.id))}
           rowKey="id"
           loading={loading}
           pagination={{
