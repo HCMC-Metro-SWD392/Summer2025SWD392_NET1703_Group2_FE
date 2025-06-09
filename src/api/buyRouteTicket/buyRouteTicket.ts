@@ -46,3 +46,13 @@ export const createPaymentLink = async ({
   );
   return response.data;
 };
+
+export const fetchTimetable = async (stationId: string) => {
+  const response = await axiosInstance.get(endpoints.getMetroSchedule, {
+    params: {
+      filterOn: stationId,
+    },
+  });
+  return response.data;
+
+};

@@ -34,7 +34,7 @@ export default function Header() {
             </div>
           </div> */}
 
-          {/* {!userInfo ? (
+          {!userInfo ? (
           <>
             {[
               { label: "Đăng nhập", icon: <LoginOutlined className="text-xl" />, path: "/login" },
@@ -52,17 +52,19 @@ export default function Header() {
             ))}
           </>
         ) : (
-          
-          <UserHeaderMenu userInfo={userInfo} />
-        )} */}
+          <>
+            <TicketServiceMenu/>
+            <UserHeaderMenu userInfo={userInfo} />
+          </>
+        )}
 
-          <TicketServiceMenu/>
+          {/* <TicketServiceMenu/>
 
           <UserHeaderMenu userInfo={{
             id: "12345",
             fullName: "Nguyen Van A",
             email: "nguyenvana@example.com"
-          }} />
+          }} /> */}
 
         </div>
       </header>

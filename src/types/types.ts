@@ -37,12 +37,27 @@ export interface Line {
   metroName: string;
 };
 
+// export interface Ticket {
+//   id: string;
+//   fromStation: string;
+//   toStation: string;
+//   price: number;
+//   createdAt: string;
+//   expirationDate: string;
+//   status: "unused" | "active" | "used";
+// }
+
 export interface Ticket {
   id: string;
+  customerId: string;
+  subscriptionTicketId: string | null;
+  ticketRouteId: string;
+  transactionId: string;
+  ticketSerial: string;
+  startDate: string;
+  endDate: string;
+  qrCode: string;
   fromStation: string;
   toStation: string;
   price: number;
-  createdAt: string;
-  expirationDate: string;
-  status: "unused" | "active" | "used";
 }

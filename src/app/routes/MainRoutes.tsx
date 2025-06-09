@@ -30,6 +30,8 @@ import CreateStation from "../pages/Manager/StationManagement/CreateStation";
 import EditStation from "../pages/Manager/StationManagement/EditStation";
 import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
 import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
+import BuyMonthlyTickets from "../pages/Customer/partials/BuyMonthTickets/BuyMonthlyTickets";
+import StudentVerificationForm from "../pages/Customer/partials/BuyMonthTickets/partials/StudentVerificationForm";
 
 export default function MainRoutes() {
   return (
@@ -41,8 +43,10 @@ export default function MainRoutes() {
           <Route path="/verifyEmail" element={<VerifyEmail />} />
           <Route path="/tickets">
             <Route path="buy-route" element={<BuyRouteTicket />}/>
+            <Route path="buy-monthly" element={<BuyMonthlyTickets />}/>
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
+            <Route path="studentVerify" element={<StudentVerificationForm />}/>
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>

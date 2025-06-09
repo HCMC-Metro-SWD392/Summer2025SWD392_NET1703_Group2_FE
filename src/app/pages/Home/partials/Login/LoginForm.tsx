@@ -1,5 +1,12 @@
-import React from "react";
-import { Form, Input, Button, Typography, message, notification } from "antd";
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Typography,
+  message,
+  notification,
+} from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -8,43 +15,44 @@ import logoMetro from "../../../../assets/logo.png";
 import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
 import type { LoginPayload } from "../../../../../types/types";
 import { login } from "../../../../../api/auth/auth";
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/Thien-Branch
 
 const { Title } = Typography;
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
   const onFinish = async (values: LoginPayload) => {
+    setLoading(true);
     try {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
-      
+
       // Handle role-based redirection
       switch (data.userRole) {
-        case 'manager':
-          navigate('/manager');
+        case "manager":
+          navigate("/manager");
           break;
-        case 'staff':
-          navigate('/staff');
+        case "staff":
+          navigate("/staff");
           break;
-        case 'admin':
-          navigate('/admin');
+        case "admin":
+          navigate("/admin");
           break;
         default:
-          navigate('/');
+          navigate("/");
       }
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
-        notification.error({
-          message: "Lỗi",
-          description: errorMessage,
-          placement: "topRight",
-        });
+      notification.error({
+        message: "Lỗi",
+        description: errorMessage,
+        placement: "topRight",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,7 +79,12 @@ const LoginForm: React.FC = () => {
           </p>
         </div>
 
-        <Form form={Form.useForm()[0]} layout="vertical" onFinish={onFinish} size="large">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          size="large"
+        >
           <Form.Item
             name="email"
             label="Email"
@@ -106,6 +119,7 @@ const LoginForm: React.FC = () => {
               block
               className="rounded-full"
               size="large"
+              loading={loading}
             >
               Đăng nhập
             </Button>
