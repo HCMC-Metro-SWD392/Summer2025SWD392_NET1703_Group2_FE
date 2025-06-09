@@ -11,6 +11,9 @@ const endpoints = {
   getTicketRoute: (startStationId: string, endStationId: string) => `/api/TicketRoute/get-ticket-route-by-from-to/${startStationId}/${endStationId}`,
   createTicketRoute: "/api/TicketRoute/create-ticket-route",
   createPaymentLink: "/api/Payment/create-link-payment-ticket-route",
+  createTicket: (orderCode: string) => `/api/Payment/payment-transactions/update-status/${orderCode}`,
+  getCustomerTicket: "/api/Ticket/get-all-ticket-routes",
+  getMetroSchedule: "/api/TrainSchedule/get-all-metro-schedule",
 };
 
 export default endpoints;

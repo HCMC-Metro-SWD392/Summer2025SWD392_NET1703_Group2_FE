@@ -13,10 +13,12 @@ import StaffList from "../pages/Manager/StaffManagement/StaffList";
 import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
 import CreatePromotion from "../pages/Manager/PromotionManagement/CreatePromotion";
 import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
+import EditPromotion from "../pages/Manager/PromotionManagement/EditPromotion";
 import StaffDetails from "../pages/Manager/StaffManagement/StaffDetails";
 import AssignStaffShift from "../pages/Manager/StaffManagement/AssignStaffShift";
 import EditStaff from "../pages/Manager/StaffManagement/EditStaff";
 import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSubscriptionTicket";
+import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import FareRule from "../pages/Manager/FareManagement/FareRule";
 import StationDetails from "../pages/Manager/StationManagement/StationDetails";
 import StationList from "../pages/Manager/StationManagement/StationList";
@@ -30,6 +32,10 @@ import CreateStation from "../pages/Manager/StationManagement/CreateStation";
 import EditStation from "../pages/Manager/StationManagement/EditStation";
 import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
 import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
+import BuyMonthlyTickets from "../pages/Customer/partials/BuyMonthTickets/BuyMonthlyTickets";
+import StudentVerificationForm from "../pages/Customer/partials/BuyMonthTickets/partials/StudentVerificationForm";
+import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
+import PromotionDetails from "../pages/Manager/PromotionManagement/PromotionDetails";
 
 export default function MainRoutes() {
   return (
@@ -41,8 +47,10 @@ export default function MainRoutes() {
           <Route path="/verifyEmail" element={<VerifyEmail />} />
           <Route path="/tickets">
             <Route path="buy-route" element={<BuyRouteTicket />}/>
+            <Route path="buy-monthly" element={<BuyMonthlyTickets />}/>
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
+            <Route path="studentVerify" element={<StudentVerificationForm />}/>
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
@@ -63,7 +71,11 @@ export default function MainRoutes() {
         <Route path="/manager/revenue" element={<RevenueReport />} />
         <Route path="/manager/create-promotion" element={<CreatePromotion />} />
         <Route path="/manager/promotion" element={<PromotionList />} />
+        <Route path="/manager/promotion/:id" element={<PromotionDetails />} />
+        <Route path="/manager/promotion/:id/edit" element={<EditPromotion />} />
         <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
+        <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
+        <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
         <Route path="/manager/fare-rule" element={<FareRule />} />
         <Route path="/manager/station/:id" element={<StationDetails />} />
         <Route path="/manager/station" element={<StationList />} />
