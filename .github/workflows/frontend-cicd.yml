@@ -1,0 +1,74 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - Hieu-Branch
+
+env:
+  EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+  EC2_HOST: ${{ secrets.EC2_HOST_PUBLIC }}
+  EC2_USER: ${{ secrets.EC2_USER }}
+  FRONTEND_DIR: client  # đổi nếu thư mục frontend của bạn không tên là "client"
+
+jobs:
+  build:
+    name: Build React App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: npm install
+
+      - name: Build project
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: npm run build
+
+      - name: Zip dist folder
+        working-directory: ${{ env.FRONTEND_DIR }}
+        run: zip -r dist.zip dist
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: ${{ env.FRONTEND_DIR }}/dist.zip
+
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    runs-on: ubuntu-latest
+    environment: Ticket_Metro
+
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ env.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ env.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Upload dist.zip to EC2
+        run: |
+          scp dist.zip ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/home/${{ env.EC2_USER }}/
+          ssh ${{ env.EC2_USER }}@${{ env.EC2_HOST }} "
+            rm -rf ~/frontend_temp &&
+            mkdir -p ~/frontend_temp &&
+            unzip -o dist.zip -d ~/frontend_temp &&
+            sudo rm -rf /var/www/html/* &&
+            sudo cp -r ~/frontend_temp/dist/* /var/www/html/
+          "
