@@ -19,9 +19,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Verify directory structure
-        run: ls -la
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -29,6 +26,13 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Create .env file
+        run: |
+          echo "VITE_OPENWEATHER_KEY=${{ secrets.VITE_OPENWEATHER_KEY }}" >> .env
+          echo "VITE_GOOGLE_OAUTH_CLIENT_ID=${{ secrets.VITE_GOOGLE_OAUTH_CLIENT_ID }}" >> .env
+          echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" >> .env"
+          echo ".env created"
 
       - name: Build project
         run: npm run build
@@ -61,7 +65,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ env.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Upload dist.zip to EC2
+      - name: Upload dist.zip to EC2 and deploy
         run: |
           scp dist.zip ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/home/${{ env.EC2_USER }}/
           ssh ${{ env.EC2_USER }}@${{ env.EC2_HOST }} "
