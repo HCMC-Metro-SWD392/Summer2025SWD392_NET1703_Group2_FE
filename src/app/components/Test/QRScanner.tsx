@@ -1,6 +1,6 @@
 // QRScanner.tsx
-import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
+import React, { useEffect, useRef, useState } from 'react';
 
 const QRScanner: React.FC<{ onScanSuccess: (decodedText: string) => void }> = ({ onScanSuccess }) => {
   const qrCodeRegionId = 'qr-reader';

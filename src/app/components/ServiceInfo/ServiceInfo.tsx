@@ -1,6 +1,6 @@
-import React from "react";
+import { CaretRightOutlined, CheckCircleFilled } from "@ant-design/icons";
 import { Collapse } from "antd";
-import { CheckCircleFilled, CaretRightOutlined } from "@ant-design/icons";
+import React from "react";
 
 const { Panel } = Collapse;
 

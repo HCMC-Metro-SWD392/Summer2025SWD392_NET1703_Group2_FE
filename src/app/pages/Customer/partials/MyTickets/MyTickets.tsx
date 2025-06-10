@@ -1,10 +1,9 @@
+import { Spin, Tabs, Typography } from "antd";
 import React, { useEffect, useState } from "react";
-import { Tabs, Typography, Spin } from "antd";
-import type { TabsProps } from "antd";
-import TicketList from "./partials/TicketList";
-import type { Ticket } from "../../../../../types/types";
-import axiosInstance from "../../../../../settings/axiosInstance";
 import endpoints from "../../../../../api/endpoints";
+import axiosInstance from "../../../../../settings/axiosInstance";
+import type { Ticket } from "../../../../../types/types";
+import TicketList from "./partials/TicketList";
 
 const { Title } = Typography;
 

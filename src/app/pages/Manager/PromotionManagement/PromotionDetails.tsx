@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Card, DatePicker, message, Spin, Descriptions, Space, Typography } from 'antd';
 import { RollbackOutlined } from '@ant-design/icons';
+import { Button, Card, DatePicker, Descriptions, message, Space, Spin, Typography } from 'antd';
 import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PromotionApi } from '../../../../api/promotion/PromotionApi';
 import type { GetPromotionDTO } from '../../../../api/promotion/PromotionInterface';
 import { PromotionType } from '../../../../api/promotion/PromotionInterface';
