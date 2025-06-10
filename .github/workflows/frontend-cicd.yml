@@ -32,13 +32,15 @@ jobs:
           echo "VITE_OPENWEATHER_KEY=${{ secrets.VITE_OPENWEATHER_KEY }}" >> .env
           echo "VITE_GOOGLE_OAUTH_CLIENT_ID=${{ secrets.VITE_GOOGLE_OAUTH_CLIENT_ID }}" >> .env
           echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" >> .env
+          cat .env # Debug: In nội dung file .env
           echo ".env created"
 
       - name: Build project
         run: npm run build
 
-      - name: Zip dist folder
-        run: zip -r dist.zip dist
+      - name: Zip dist folder and .env
+        run: |
+          zip -r dist.zip dist .env
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -73,5 +75,6 @@ jobs:
             mkdir -p ~/frontend_temp &&
             unzip -o dist.zip -d ~/frontend_temp &&
             sudo rm -rf /var/www/html/* &&
-            sudo cp -r ~/frontend_temp/dist/* /var/www/html/
+            sudo cp -r ~/frontend_temp/dist/* /var/www/html/ &&
+            sudo mv ~/frontend_temp/.env /var/www/html/.env
           "
