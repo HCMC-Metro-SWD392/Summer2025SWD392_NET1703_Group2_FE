@@ -1,5 +1,13 @@
-import React from "react";
-import { Form, Input, Button, Typography, Checkbox, message, notification } from "antd";
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Typography,
+  Checkbox,
+  message,
+  notification,
+} from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -15,8 +23,10 @@ const { Title } = Typography;
 const RegisterForm: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: any) => {
+    setLoading(true);
     const fullName = `${values.firstName} ${values.lastName}`;
     const submitData: RegisterPayload = { ...values, fullName };
 
@@ -30,7 +40,6 @@ const RegisterForm: React.FC = () => {
       navigate("/login");
     } catch (error: any) {
       const errors = error.response?.data?.errors;
-
       if (errors && typeof errors === "object") {
         Object.entries(errors).forEach(([field, messages]) => {
           if (Array.isArray(messages)) {
@@ -44,36 +53,44 @@ const RegisterForm: React.FC = () => {
           }
         });
       } else {
-        const errMsg = error.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
+        const errMsg =
+          error.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
         notification.error({
           message: "Lỗi",
           description: errMsg,
           placement: "topRight",
         });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-white px-4" style={{
-      backgroundImage: `url(${backgroundHcmCity})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-    }}>
+    <div
+      className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-white px-4"
+      style={{
+        backgroundImage: `url(${backgroundHcmCity})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-xl px-8 py-5">
         <div className="flex justify-center mb-4">
           <img src={logoMetro} alt="Logo" className="w-35" />
         </div>
 
-        <Title level={2} className="text-center font-bold mb-2">Đăng ký</Title>
+        <Title level={2} className="text-center font-bold mb-2">
+          Đăng ký
+        </Title>
         <p className="text-center text-gray-500 mb-6">
           Hãy bắt đầu tạo tài khoản cá nhân của bạn.
         </p>
 
         <Form form={form} layout="vertical" onFinish={onFinish} size="large">
           <div className="flex gap-4">
-            <Form.Item style={{ margin: 1 }}
+            <Form.Item
               name="firstName"
               label="Họ"
               className="w-full"
@@ -82,7 +99,7 @@ const RegisterForm: React.FC = () => {
               <Input placeholder="Nhập họ" />
             </Form.Item>
 
-            <Form.Item style={{ margin: 1 }}
+            <Form.Item
               name="lastName"
               label="Tên"
               className="w-full"
@@ -93,7 +110,7 @@ const RegisterForm: React.FC = () => {
           </div>
 
           <div className="flex gap-4">
-            <Form.Item style={{ margin: 1 }}
+            <Form.Item
               name="email"
               label="Email"
               className="w-full"
@@ -105,31 +122,38 @@ const RegisterForm: React.FC = () => {
               <Input prefix={<MailOutlined />} placeholder="Nhập email" />
             </Form.Item>
 
-            <Form.Item style={{ margin: 1 }} name="phoneNumber" label="Số điện thoại" className="w-full">
+            <Form.Item
+              name="phoneNumber"
+              label="Số điện thoại"
+              className="w-full"
+            >
               <Input placeholder="Nhập số điện thoại (không bắt buộc)" />
             </Form.Item>
           </div>
 
           <div className="flex gap-4">
             <Form.Item
-              style={{ margin: 1 }}
               name="password"
               label="Mật khẩu"
               className="w-full"
               rules={[
                 { required: true, message: "Vui lòng nhập mật khẩu" },
                 {
-                  pattern: /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/,
+                  pattern:
+                    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/,
                   message:
-                    "Mật khẩu yêu cầu phải có ít nhất 1 ký tự đặc biệt, 1 chữ cái in hoa, 1 chữ số và tối thiểu 8 ký tự",
+                    "Mật khẩu phải có ít nhất 8 ký tự, 1 ký tự hoa, 1 số và 1 ký tự đặc biệt",
                 },
               ]}
               hasFeedback
             >
-              <Input.Password prefix={<LockOutlined />} placeholder="Nhập mật khẩu" />
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Nhập mật khẩu"
+              />
             </Form.Item>
 
-            <Form.Item style={{ margin: 1 }}
+            <Form.Item
               name="confirmPassword"
               label="Xác nhận mật khẩu"
               className="w-full"
@@ -142,16 +166,21 @@ const RegisterForm: React.FC = () => {
                     if (!value || getFieldValue("password") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Mật khẩu xác nhận không khớp"));
+                    return Promise.reject(
+                      new Error("Mật khẩu xác nhận không khớp")
+                    );
                   },
                 }),
               ]}
             >
-              <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu" />
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder="Nhập lại mật khẩu"
+              />
             </Form.Item>
           </div>
 
-          <Form.Item style={{ margin: 1 }}
+          <Form.Item
             name="agreement"
             valuePropName="checked"
             rules={[
@@ -159,24 +188,32 @@ const RegisterForm: React.FC = () => {
                 validator: (_, value) =>
                   value
                     ? Promise.resolve()
-                    : Promise.reject(new Error("Bạn cần đồng ý với Điều khoản sử dụng")),
+                    : Promise.reject(
+                        new Error("Bạn cần đồng ý với Điều khoản sử dụng")
+                      ),
               },
             ]}
           >
             <Checkbox>
               Tôi đồng ý với{" "}
               <span className="text-blue-500 cursor-pointer">Điều khoản</span> và{" "}
-              <span className="text-blue-500 cursor-pointer">Chính sách bảo mật</span>
+              <span className="text-blue-500 cursor-pointer">
+                Chính sách bảo mật
+              </span>
             </Checkbox>
           </Form.Item>
 
-          <Form.Item style={{ margin: 5 }}>
-            <Button type="primary" htmlType="submit" block className="rounded-full">
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              className="rounded-full"
+              loading={loading}
+            >
               Tạo tài khoản
             </Button>
           </Form.Item>
-
-
         </Form>
 
         <div className="text-center text-sm mt-2">
@@ -191,20 +228,18 @@ const RegisterForm: React.FC = () => {
 
         <div className="mt-2 flex flex-col items-center">
           <p className="text-gray-500 text-sm mb-2">Hoặc đăng nhập bằng</p>
-          <div className="flex justify-center mb-3">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (credentialResponse.credential) {
-                  const user = jwtDecode(credentialResponse.credential);
-                  console.log("Google user info:", user);
-                  message.success("Đăng nhập Google thành công!");
-                }
-              }}
-              onError={() => {
-                message.error("Đăng nhập Google thất bại");
-              }}
-            />
-          </div>
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              if (credentialResponse.credential) {
+                const user = jwtDecode(credentialResponse.credential);
+                console.log("Google user info:", user);
+                message.success("Đăng nhập Google thành công!");
+              }
+            }}
+            onError={() => {
+              message.error("Đăng nhập Google thất bại");
+            }}
+          />
         </div>
       </div>
     </div>
