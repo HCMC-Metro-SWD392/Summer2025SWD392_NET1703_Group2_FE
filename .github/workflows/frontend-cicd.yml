@@ -31,7 +31,7 @@ jobs:
         run: |
           echo "VITE_OPENWEATHER_KEY=${{ secrets.VITE_OPENWEATHER_KEY }}" >> .env
           echo "VITE_GOOGLE_OAUTH_CLIENT_ID=${{ secrets.VITE_GOOGLE_OAUTH_CLIENT_ID }}" >> .env
-          echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" >> .env"
+          echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" >> .env
           echo ".env created"
 
       - name: Build project
