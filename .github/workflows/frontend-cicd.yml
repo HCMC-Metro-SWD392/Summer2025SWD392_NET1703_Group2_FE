@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 21
 
       - name: Install dependencies
         run: npm install
@@ -33,7 +33,6 @@ jobs:
           echo "VITE_OPENWEATHER_KEY=${{ secrets.VITE_OPENWEATHER_KEY }}" >> .env
           echo "VITE_GOOGLE_OAUTH_CLIENT_ID=${{ secrets.VITE_GOOGLE_OAUTH_CLIENT_ID }}" >> .env
           echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" >> .env
-          cat .env # Debug: In nội dung file .env
           echo ".env created"
 
       - name: Build project
