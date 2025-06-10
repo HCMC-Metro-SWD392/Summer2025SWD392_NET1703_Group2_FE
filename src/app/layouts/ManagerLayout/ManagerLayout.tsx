@@ -1,18 +1,17 @@
-import React, { useEffect } from 'react';
-import { Layout, Menu } from 'antd';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
-  DashboardOutlined,
-  UserOutlined,
-  DollarCircleOutlined,
-  LogoutOutlined,
   ApartmentOutlined,
   CarOutlined,
-  SettingOutlined,
+  DashboardOutlined,
+  DollarCircleOutlined,
+  LogoutOutlined,
+  UserOutlined
 } from '@ant-design/icons';
-import logoImg from "../../assets/logo.png";
+import { Layout, Menu } from 'antd';
+import React, { useEffect } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { logout } from '../../../api/auth/auth';
 import { getUserInfo, logTokenContents } from '../../../api/auth/tokenUtils';
+import logoImg from "../../assets/logo.png";
 
 const { Header, Sider, Content } = Layout;
 

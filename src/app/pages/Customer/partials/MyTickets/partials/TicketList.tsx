@@ -1,5 +1,5 @@
+import { Empty } from "antd";
 import React from "react";
-import { Card, Typography, Empty, Tag } from "antd";
 import type { Ticket } from "../../../../../../types/types";
 import TicketCard from "./TicketCard";
 

@@ -1,6 +1,6 @@
+import { CalendarOutlined, CreditCardOutlined, ProfileOutlined, ShoppingCartOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Menu, Space, Typography } from "antd";
 import React from "react";
-import { Dropdown, Menu, Button, Space, Typography } from "antd";
-import { UnorderedListOutlined, HistoryOutlined, SettingOutlined, ClockCircleOutlined, CheckCircleOutlined, ShoppingCartOutlined, CalendarOutlined, CreditCardOutlined, ProfileOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
@@ -23,10 +23,10 @@ const TicketServiceMenu: React.FC = () => {
               onClick: () => navigate("/tickets/buy-route"),
             },
             {
-              key: "buy-monthly",
-              label: "Mua vé tháng",
+              key: "buy-subcription",
+              label: "Mua vé kỳ",
               icon: <CalendarOutlined />,
-              onClick: () => navigate("/tickets/buy-monthly"),
+              onClick: () => navigate("/tickets/buy-subcription"),
             },
           ],
         },

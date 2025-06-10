@@ -1,8 +1,8 @@
+import { Alert, Button, message, Result, Spin } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Spin, Result, Alert, message, Button } from "antd";
-import axiosInstance from "../../../../../settings/axiosInstance";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import endpoints from "../../../../../api/endpoints";
+import axiosInstance from "../../../../../settings/axiosInstance";
 
 type Status = "loading" | "success" | "error" | "invalid" | "cancelled";
 

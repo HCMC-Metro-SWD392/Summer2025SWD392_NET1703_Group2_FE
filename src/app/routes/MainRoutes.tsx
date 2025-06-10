@@ -1,41 +1,40 @@
-import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "../pages/Home";
-import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import CommonLayout from "../layouts/CommonLayout/CommonLayout";
 import HeaderOnlyLayout from "../layouts/HeaderOnlyLayout/HeaderOnlyLayout";
+import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
+import PageNotFound from "../layouts/PageNotFound/PageNotFound";
+import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
+import BuySubscriptionTicket from "../pages/Customer/partials/BuySubscriptionTicket/BuySubscriptionTicket";
+import StudentVerificationForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/StudentVerificationForm";
+import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
+import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
+import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
+import Home from "../pages/Home";
 import LoginForm from "../pages/Home/partials/Login/LoginForm";
 import RegisterForm from "../pages/Home/partials/Register/RegisterForm";
 import VerifyEmail from "../pages/Home/partials/Register/partials/VerifyEmail/VerifyEmail";
-import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
+import FareRule from "../pages/Manager/FareManagement/FareRule";
 import ManagerDashboard from "../pages/Manager/ManagerDashboard";
-import StaffList from "../pages/Manager/StaffManagement/StaffList";
-import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
+import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
+import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
+import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
 import CreatePromotion from "../pages/Manager/PromotionManagement/CreatePromotion";
-import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
 import EditPromotion from "../pages/Manager/PromotionManagement/EditPromotion";
-import StaffDetails from "../pages/Manager/StaffManagement/StaffDetails";
+import PromotionDetails from "../pages/Manager/PromotionManagement/PromotionDetails";
+import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
+import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
 import AssignStaffShift from "../pages/Manager/StaffManagement/AssignStaffShift";
 import EditStaff from "../pages/Manager/StaffManagement/EditStaff";
-import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSubscriptionTicket";
-import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
-import FareRule from "../pages/Manager/FareManagement/FareRule";
-import StationDetails from "../pages/Manager/StationManagement/StationDetails";
-import StationList from "../pages/Manager/StationManagement/StationList";
-import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
-import Staff from "../pages/Staff/Staff";
-import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
-import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
-import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
-import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
+import StaffDetails from "../pages/Manager/StaffManagement/StaffDetails";
+import StaffList from "../pages/Manager/StaffManagement/StaffList";
 import CreateStation from "../pages/Manager/StationManagement/CreateStation";
 import EditStation from "../pages/Manager/StationManagement/EditStation";
-import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
-import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
-import BuyMonthlyTickets from "../pages/Customer/partials/BuyMonthTickets/BuyMonthlyTickets";
-import StudentVerificationForm from "../pages/Customer/partials/BuyMonthTickets/partials/StudentVerificationForm";
+import StationDetails from "../pages/Manager/StationManagement/StationDetails";
+import StationList from "../pages/Manager/StationManagement/StationList";
+import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSubscriptionTicket";
+import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
-import PromotionDetails from "../pages/Manager/PromotionManagement/PromotionDetails";
+import Staff from "../pages/Staff/Staff";
 
 export default function MainRoutes() {
   return (
@@ -47,7 +46,7 @@ export default function MainRoutes() {
           <Route path="/verifyEmail" element={<VerifyEmail />} />
           <Route path="/tickets">
             <Route path="buy-route" element={<BuyRouteTicket />}/>
-            <Route path="buy-monthly" element={<BuyMonthlyTickets />}/>
+            <Route path="buy-subcription" element={<BuySubscriptionTicket />}/>
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
             <Route path="studentVerify" element={<StudentVerificationForm />}/>

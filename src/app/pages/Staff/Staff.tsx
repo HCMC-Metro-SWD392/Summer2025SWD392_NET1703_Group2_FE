@@ -1,6 +1,3 @@
-import React, { useState } from 'react';
-import { Layout, Menu } from 'antd';
-import type { MenuProps } from 'antd';
 import {
     AppstoreOutlined,
     BarChartOutlined,
@@ -11,6 +8,9 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { Layout } from 'antd';
+import React, { useState } from 'react';
 
 import Sidebar from '../../components/SideBar/Sidebar';
 import LoginForm from '../Home/partials/Login/LoginForm';

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
-import type { MenuProps } from 'antd';
 import { MenuUnfoldOutlined } from '@ant-design/icons';
-import logoMetro from "../../assets/logo.png"
+import type { MenuProps } from 'antd';
+import { Layout, Menu } from 'antd';
+import React from 'react';
+import logoMetro from "../../assets/logo.png";
 
 const { Sider } = Layout;
 
