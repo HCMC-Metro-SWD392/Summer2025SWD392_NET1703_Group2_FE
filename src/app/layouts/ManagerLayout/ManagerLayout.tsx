@@ -9,6 +9,7 @@ import {
   ApartmentOutlined,
   CarOutlined,
   SettingOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
 import logoImg from "../../assets/logo.png";
 import { logout } from '../../../api/auth/auth';
@@ -59,6 +60,17 @@ const ManagerLayout: React.FC = () => {
         {
           key: '/manager/create-metro-line',
           label: 'Tạo Tuyến Metro',
+        },
+      ],
+    },
+    {
+      key: 'train-schedule',
+      icon: <ClockCircleOutlined />,
+      label: 'Quản Lý Lịch Trình Tàu',
+      children: [
+        {
+          key: '/manager/train-schedule',
+          label: 'Danh Sách Lịch Trình Tàu',
         },
       ],
     },
