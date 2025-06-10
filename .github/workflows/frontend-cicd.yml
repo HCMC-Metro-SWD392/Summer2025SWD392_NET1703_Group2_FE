@@ -3,7 +3,7 @@ name: Frontend CI/CD
 on:
   push:
     branches:
-      - Hieu-Branch
+      - main
 
 env:
   EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
