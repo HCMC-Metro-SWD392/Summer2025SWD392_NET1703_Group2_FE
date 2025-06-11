@@ -37,7 +37,7 @@ const TicketCard = ({ ticket, status }: { ticket: Ticket, status: "unused" | "ac
             <div className="flex justify-between items-start mb-2">
               <div>
                 <div className="text-cyan-800 font-bold text-base">HCMC METRO</div>
-                <div className="text-xs text-gray-600 font-semibold">{ticket.ticketRouteId ? "Vé lượt" : "Vé Kỳ"}</div>
+                <div className="text-xs text-gray-600 font-semibold">Vé lượt</div>
               </div>
               <Tag color={getStatusColor(status)}>
                 {getStatusLabel(status)}
@@ -46,7 +46,7 @@ const TicketCard = ({ ticket, status }: { ticket: Ticket, status: "unused" | "ac
 
             {/* Route Info */}
             <div className="text-sm mb-1">
-              <Text className="font-semibold">Tuyến: </Text> {ticket.ticketRouteId ? `${ticket.fromStation} → ${ticket.toStation}` : "Không giới hạn"}
+              <Text className="font-semibold">Tuyến:</Text> {ticket.fromStation} → {ticket.toStation}
             </div>
 
             {/* Details */}
