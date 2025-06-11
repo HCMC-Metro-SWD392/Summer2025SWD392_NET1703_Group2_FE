@@ -50,7 +50,10 @@ export const createPaymentLink = async ({
 export const fetchTimetable = async (stationId: string) => {
   const response = await axiosInstance.get(endpoints.getMetroSchedule, {
     params: {
-      filterOn: stationId,
+      filterOn: "stationId",
+      filterQuery: stationId,
+      sortBy: "startTime",
+      isAcsending: true,
     },
   });
   return response.data;
