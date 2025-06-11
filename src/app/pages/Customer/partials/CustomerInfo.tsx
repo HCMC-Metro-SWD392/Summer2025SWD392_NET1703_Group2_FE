@@ -8,27 +8,12 @@ import type { UserInfo } from '../../../../types/types';
 
 const { Title, Text } = Typography;
 
-const mockCustomerData: UserInfo = {
-    id: "MOCKID001",
-    fullName: "Mock User",
-    address: "123 Mock Street",
-    phoneNumber: "0123456789",
-    email: "mockuser@example.com",
-    dateOfBirth: "2000-01-01T00:00:00.000Z",
-    identityId: "MOCK123456",
-    sex: "Male",
-    customerType: 0
-};
-
 const CustomerInfo: React.FC = () => {
     const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    // console.log(user);
     const customerId = user.id;
-    // console.log(customerId);
     const [customerData, setCustomerData] = useState<UserInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isMock, setIsMock] = useState(false);
 
     useEffect(() => {
         if (!customerId) {
@@ -38,20 +23,22 @@ const CustomerInfo: React.FC = () => {
         }
         setLoading(true);
         setError(null);
-        setIsMock(false);
 
         // Log customerId để kiểm tra
         console.log('customerId:', customerId);
 
-        axiosInstance.get(`/api/Customer/user/${customerId}`)
+        axiosInstance.get(`/api/Customer/${customerId}`)
             .then(res => {
                 console.log('API response:', res.data);
-                setCustomerData(res.data.result);
+                if (res.data && res.data.result) {
+                    setCustomerData(res.data.result);
+                } else {
+                    setError('Invalid response format from server');
+                }
             })
             .catch(err => {
-                setError("API unavailable, using mock data.");
-                setCustomerData(mockCustomerData);
-                setIsMock(true);
+                console.error('Error fetching customer data:', err);
+                setError('Failed to fetch customer data. Please try again later.');
             })
             .finally(() => setLoading(false));
     }, [customerId]);
@@ -63,10 +50,19 @@ const CustomerInfo: React.FC = () => {
             </div>
         );
     }
+
+    if (error) {
+        return (
+            <div className="flex min-h-screen justify-center items-center">
+                <Alert message={error} type="error" showIcon />
+            </div>
+        );
+    }
+
     if (!customerData) {
         return (
             <div className="flex min-h-screen justify-center items-center">
-                <Alert message={error || "No customer data found."} type="info" showIcon />
+                <Alert message="No customer data found." type="info" showIcon />
             </div>
         );
     }
@@ -78,12 +74,10 @@ const CustomerInfo: React.FC = () => {
                     <Avatar
                         size={64}
                         icon={<UserOutlined />}
-                        // Nếu có avatar, bạn có thể truyền src={customerData.avatar}
                     />
                     <Title level={3} style={{ margin: '12px 0' }}>
                         {customerData.fullName}
                     </Title>
-                    <Text type="secondary">Customer ID: {customerData.identityId}</Text>
                 </div>
 
                 <Divider style={{ margin: '12px 0' }} />
@@ -126,9 +120,23 @@ const CustomerInfo: React.FC = () => {
                     </Col>
                 </Row>
 
-                {/* Nút cập nhật hồ sơ */}
                 <div style={{ textAlign: 'center' }}>
-                    <UpdateProfileButton />
+                    <UpdateProfileButton onUpdate={() => {
+                        // Force re-fetch data after update
+                        setLoading(true);
+                        setError(null);
+                        axiosInstance.get(`/api/Customer/user/${customerId}`)
+                            .then(res => {
+                                if (res.data && res.data.result) {
+                                    setCustomerData(res.data.result);
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error refreshing data:', err);
+                                setError('Failed to refresh data');
+                            })
+                            .finally(() => setLoading(false));
+                    }} />
                 </div>
             </Card>
         </div>
