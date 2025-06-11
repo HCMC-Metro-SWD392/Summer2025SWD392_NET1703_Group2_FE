@@ -27,7 +27,7 @@ const CustomerInfo: React.FC = () => {
         // Log customerId để kiểm tra
         console.log('customerId:', customerId);
 
-        axiosInstance.get(`/api/Customer/${customerId}`)
+        axiosInstance.get(`/api/Customer/user/${customerId}`)
             .then(res => {
                 console.log('API response:', res.data);
                 if (res.data && res.data.result) {

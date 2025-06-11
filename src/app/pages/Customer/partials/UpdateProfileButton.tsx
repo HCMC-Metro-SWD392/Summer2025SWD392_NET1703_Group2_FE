@@ -23,7 +23,7 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
     const fetchCustomerId = async () => {
       try {
         console.log('Fetching customer with userId:', userId);
-        const response = await axiosInstance.get(`/api/Customer/${userId}`);
+        const response = await axiosInstance.get(`/api/Customer/user/${userId}`);
         console.log('API Response:', response.data);
         setFetchedCustomerId(response.data.result.id);
       } catch (err: any) {
@@ -84,8 +84,17 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
         message.success('Profile updated successfully!');
         setVisible(false);
         
-        // Update localStorage with new data
-        const updatedUser = { ...user, ...res.data.result };
+        // Update localStorage with new data but preserve userId
+        const updatedUser = { 
+          ...user,  // Giữ lại userId và các thông tin cũ
+          fullName: res.data.result.fullName,
+          email: res.data.result.email,
+          phoneNumber: res.data.result.phoneNumber,
+          address: res.data.result.address,
+          dateOfBirth: res.data.result.dateOfBirth,
+          identityId: res.data.result.identityId,
+          sex: res.data.result.sex
+        };
         console.log('Updating localStorage with:', updatedUser);
         localStorage.setItem('userInfo', JSON.stringify(updatedUser));
         
