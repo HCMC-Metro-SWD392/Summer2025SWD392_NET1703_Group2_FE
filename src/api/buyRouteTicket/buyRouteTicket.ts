@@ -32,15 +32,18 @@ export const createTicketRoute = async (startStationId: string, endStationId: st
 
 export const createPaymentLink = async ({
   ticketRouteId,
+  subscriptionTicketId,
   codePromotion,
 }: {
-  ticketRouteId: string;
+  ticketRouteId?: string;
+  subscriptionTicketId?: string,
   codePromotion?: string;
 }) => {
   const response = await axiosInstance.post(
     endpoints.createPaymentLink,
     {
-      ticketRouteId,
+      ticketRouteId: ticketRouteId || null,
+      subscriptionTicketId: subscriptionTicketId || null,
       codePromotion: codePromotion || null,
     }
   );
