@@ -30,6 +30,7 @@ const BuyRouteTicket: React.FC = () => {
   const [loadingPrice, setLoadingPrice] = useState(false);
   const [ticketPrice, setTicketPrice] = useState<number | null>(null);
   const [ticketRouteId, setTicketRouteId] = useState<string | null>(null);
+  const [loadingPay, setLoadingPay] = useState(false);
 
   // Load all metro lines
   useEffect(() => {
@@ -113,6 +114,7 @@ const BuyRouteTicket: React.FC = () => {
       message.error("Không tìm thấy tuyến vé.");
       return;
     }
+    setLoadingPay(true);
     try {
       const res = await createPaymentLink({ ticketRouteId });
       const checkoutUrl = res?.result?.paymentLink?.checkoutUrl;
@@ -123,7 +125,9 @@ const BuyRouteTicket: React.FC = () => {
       window.location.href = checkoutUrl;
     } catch {
       message.error("Đã xảy ra lỗi khi tạo link thanh toán.");
-    }
+    } finally {
+    setLoadingPay(false);
+  }
   };
 
   return (
@@ -203,6 +207,7 @@ const BuyRouteTicket: React.FC = () => {
               <Button
                 type="primary"
                 onClick={handlePay}
+                loading={loadingPay}
                 disabled={loadingPrice || !ticketRouteId}
               >
                 Thanh toán
