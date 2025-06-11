@@ -14,44 +14,8 @@ const AdjustTicket: React.FC = () => {
   const [serialNumber, setSerialNumber] = useState('');
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
-  // API call to fetch ticket by serial number
-  const fetchTicketBySerial = async (serial: string) => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.put(`/api/Ticket/get-ticket/${serial}`);
-      if (response.data.result) {
-        return {
-          id: response.data.result.id,
-          eventName: response.data.result.eventName,
-          customerName: response.data.result.customerName,
-          status: response.data.result.status,
-          purchaseDate: response.data.result.purchaseDate,
-          serialNumber: response.data.result.serialNumber
-        };
-      }
-      return null;
-    } catch (error) {
-      message.error('Không tìm thấy vé với mã số này');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // API call to update ticket status
-  const updateTicketStatus = async (ticketId: string, newStatus: number) => {
-    setLoading(true);
-    try {
-      await axiosInstance.post(`/api/Ticket/change-ticket-route-status/${ticketId}`, { status: newStatus });
-      message.success('Cập nhật trạng thái vé thành công');
-      setSelectedTicket({ ...selectedTicket, status: newStatus });
-    } catch (error) {
-      message.error('Không thể cập nhật trạng thái vé');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [id, setId] = useState<number | null>(null);
+  const [newStatus, setNewStatus] = useState<number | null>(null);
 
   const handleSerialSearch = async () => {
     if (!serialNumber.trim()) {
@@ -59,28 +23,76 @@ const AdjustTicket: React.FC = () => {
       return;
     }
 
-    const ticket = await fetchTicketBySerial(serialNumber);
-    if (ticket) {
-      setSelectedTicket(ticket);
-    } else {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`/api/Ticket/get-ticket/${serialNumber}`);
+      if (response.data.result) {
+        const ticketData = {
+          id: response.data.result.id,
+          serial: response.data.result.ticketSerial,
+          status: response.data.result.ticketRtStatus,
+          serialNumber: response.data.result.serialNumber,
+          fromStation: response.data.result.fromStation,
+          toStation: response.data.result.toStation,
+          price: response.data.result.price,
+          ticketSerial: response.data.result.ticketSerial,
+          startDate: response.data.result.startDate,
+          endDate: response.data.result.endDate
+        };
+        setSelectedTicket(ticketData);
+        setId(response.data.result.id);
+        setNewStatus(null); // Reset newStatus when searching for a new ticket
+        message.success('Tìm thấy thông tin vé');
+      } else {
+        setSelectedTicket(null);
+        setId(null);
+        setNewStatus(null);
+        message.error('Không tìm thấy vé với mã số này');
+      }
+    } catch (error) {
       setSelectedTicket(null);
+      setId(null);
+      setNewStatus(null);
+      message.error('Không tìm thấy vé với mã số này');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Add keyboard event handler for Enter key
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSerialSearch();
     }
   };
 
-  const handleStatusChange = async (newStatus: number) => {
-    if (!selectedTicket) return;
-    await updateTicketStatus(selectedTicket.id, newStatus);
+  const handleStatusChange = (value: number) => {
+    setNewStatus(value);
+    setSelectedTicket((prev: any) => ({
+      ...prev,
+      status: value
+    }));
+  };
+
+  const handleConfirmStatusChange = async () => {
+    if (!selectedTicket || newStatus === null || id === null) return;
+    setLoading(true);
+    try {
+      const statusNumber = Number(newStatus);
+      await axiosInstance.put(`/api/Ticket/change-ticket-route-status/${id}`, { status: statusNumber });
+      message.success('Cập nhật trạng thái vé thành công');
+      setNewStatus(null);
+    } catch (error) {
+      message.error('Không thể cập nhật trạng thái vé');
+      setSelectedTicket((prev: any) => ({
+        ...prev,
+        status: selectedTicket.status
+      }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleQRScan = () => {
-    // TODO: Implement QR code scanning functionality
     message.info('Chức năng quét mã QR sẽ được triển khai sau');
   };
 
@@ -88,7 +100,6 @@ const AdjustTicket: React.FC = () => {
     <div className="max-w-2xl mx-auto p-4">
       <Card title="Chỉnh sửa trạng thái vé" className="shadow-lg">
         <Space direction="vertical" size="large" className="w-full">
-          {/* Search Section */}
           <div className="flex gap-2">
             <Input
               placeholder="Nhập mã số vé"
@@ -113,39 +124,55 @@ const AdjustTicket: React.FC = () => {
             </Button>
           </div>
 
-          {/* Ticket Information */}
           {selectedTicket && (
             <div className="border rounded-lg p-4 bg-gray-50">
               <h3 className="text-lg font-semibold mb-4">Thông tin vé</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-gray-600">Mã số vé</p>
-                  <p className="font-medium">{selectedTicket.serialNumber}</p>
+                  <p className="text-gray-600">Ga đi</p>
+                  <p className="font-medium">{selectedTicket.fromStation}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Sự kiện</p>
-                  <p className="font-medium">{selectedTicket.eventName}</p>
+                  <p className="text-gray-600">Ga đến</p>
+                  <p className="font-medium">{selectedTicket.toStation}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Khách hàng</p>
-                  <p className="font-medium">{selectedTicket.customerName}</p>
+                  <p className="text-gray-600">Giá vé</p>
+                  <p className="font-medium">{selectedTicket.price?.toLocaleString('vi-VN')} VNĐ</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Ngày mua</p>
-                  <p className="font-medium">{selectedTicket.purchaseDate}</p>
+                  <p className="text-gray-600">Mã serial</p>
+                  <p className="font-medium">{selectedTicket.ticketSerial}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Ngày bắt đầu</p>
+                  <p className="font-medium">{new Date(selectedTicket.startDate).toLocaleString('vi-VN')}</p>
+                </div>
+                <div>
+                  <p className="text-gray-600">Ngày kết thúc</p>
+                  <p className="font-medium">{new Date(selectedTicket.endDate).toLocaleString('vi-VN')}</p>
                 </div>
               </div>
 
-              {/* Status Update Section */}
               <div className="mt-4">
                 <p className="text-gray-600 mb-2">Trạng thái hiện tại</p>
-                <Select
-                  value={selectedTicket.status}
-                  onChange={handleStatusChange}
-                  options={TICKET_STATUSES}
-                  className="w-full"
-                  loading={loading}
-                />
+                <div className="flex gap-2">
+                  <Select
+                    value={selectedTicket.status}
+                    onChange={handleStatusChange}
+                    options={TICKET_STATUSES}
+                    className="flex-1"
+                    loading={loading}
+                  />
+                  <Button
+                    type="primary"
+                    onClick={handleConfirmStatusChange}
+                    loading={loading}
+                    disabled={newStatus === null}
+                  >
+                    Xác nhận
+                  </Button>
+                </div>
               </div>
             </div>
           )}
