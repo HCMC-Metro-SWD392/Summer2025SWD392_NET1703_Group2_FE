@@ -115,6 +115,9 @@ const FareRuleManagement: React.FC = () => {
       title: 'Khoảng Cách (km)',
       key: 'distance',
       render: (_, record) => `${record.minDistance} - ${record.maxDistance}`,
+      sorter: (a, b) => a.minDistance - b.minDistance,
+      sortDirections: ['ascend', 'descend'],
+      defaultSortOrder: 'ascend',
     },
     {
       title: 'Giá Vé (VND)',
@@ -134,17 +137,6 @@ const FareRuleManagement: React.FC = () => {
           >
             Chỉnh Sửa
           </Button>
-          <Popconfirm
-            title="Xóa quy tắc giá vé"
-            description="Bạn có chắc chắn muốn xóa quy tắc giá vé này?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />}>
-              Xóa
-            </Button>
-          </Popconfirm>
         </Space>
       ),
     },
