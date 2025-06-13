@@ -29,6 +29,7 @@ const StationSelector: React.FC<StationSelectorProps> = ({
           label: station.name,
           value: station.id,
         }))}
+        disabled={stations.length == 0}
       />
     </div>
   );

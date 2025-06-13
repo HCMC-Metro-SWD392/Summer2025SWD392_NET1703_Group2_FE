@@ -43,7 +43,7 @@ export default function Header() {
                 onClick={() => navigate(path)}
                 className="flex items-center gap-2 px-4 border-blue-900 text-blue-900 hover:!bg-blue-900 hover:!text-white transition-colors rounded-lg shadow-sm !h-auto"
               >
-                <span className="text-sm">{label}</span>
+                <span className="hidden sm:text-sm sm:inline">{label}</span>
               </Button>
             ))}
           </>

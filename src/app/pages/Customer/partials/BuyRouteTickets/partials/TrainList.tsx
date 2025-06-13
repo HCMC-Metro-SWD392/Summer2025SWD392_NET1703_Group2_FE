@@ -66,10 +66,10 @@ const TrainList: React.FC<TrainListProps> = ({
 
   return (
     <>
-      <h5 className="font-semibold mb-2 flex items-center gap-2 text-gray-700">
+      {/* <h5 className="font-semibold mb-2 flex items-center gap-2 text-gray-700">
         <ClockCircleOutlined /> Giờ tàu
-      </h5>
-      <div ref={wrapperRef} style={{ maxHeight: 180, overflowY: "auto" }}>
+      </h5> */}
+      <div ref={wrapperRef} className="max-h-48 min-h-48" style={{ overflowY: "auto" }}>
         <List
           size="small"
           dataSource={upcomingTrains}

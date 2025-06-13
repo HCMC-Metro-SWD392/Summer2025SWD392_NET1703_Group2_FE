@@ -15,6 +15,7 @@ interface StepFromProps {
   loadingStations: boolean;
   onLineChange: (lineId: string) => void;
   onStationSelect: (station: Station | null) => void;
+  tourRef?: React.RefObject<HTMLDivElement | null>; // ✅ ref truyền từ ngoài vào
 }
 
 const StepFrom: React.FC<StepFromProps> = ({
@@ -26,9 +27,10 @@ const StepFrom: React.FC<StepFromProps> = ({
   loadingStations,
   onLineChange,
   onStationSelect,
+  tourRef, // ✅ nhận ref ở đây
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={tourRef}>
       <div>
         <Text strong>🚆 Chọn tuyến đi:</Text>
         <Select
