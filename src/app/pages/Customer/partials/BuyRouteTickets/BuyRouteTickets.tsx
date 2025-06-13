@@ -71,17 +71,17 @@ const BuyRouteTicket: React.FC = () => {
   const payRef = useRef(null);
 
   const selectedTicket = useMemo(
-  () => ticketType === "normal" ? null : ticketTypes.find((t) => t.name === ticketType),
-  [ticketType, ticketTypes]
-);
+    () => ticketType === "normal" ? null : ticketTypes.find((t) => t.name === ticketType),
+    [ticketType, ticketTypes]
+  );
   // const ticketDisplayName = ticketType === "normal" ? "Vé lượt" : selectedTicket?.displayName || "";
   // const ticketName = ticketType === "normal" ? "Vé lượt" : selectedTicket?.name || "";
   // const ticketticketEx = ticketType === "normal" ? "Vé lượt" : selectedTicket?.expiration || "";
   const ticketSubcriptionId = ticketType === "normal" ? "" : selectedTicket?.id || "";
   const ticketTypeObject: TicketType | null =
-  ticketType === "normal"
-    ? { id: "", name: "normal", displayName: "Vé lượt", expiration: 30 }
-    : selectedTicket ?? null;
+    ticketType === "normal"
+      ? { id: "", name: "normal", displayName: "Vé lượt", expiration: 30 }
+      : selectedTicket ?? null;
 
   useEffect(() => {
     const fetchLines = async () => {
@@ -212,8 +212,10 @@ const BuyRouteTicket: React.FC = () => {
       const url = res?.result?.paymentLink?.checkoutUrl;
       if (url) window.location.href = url;
       else message.error("Không lấy được link thanh toán.");
-    } catch {
-      message.error("Đã xảy ra lỗi khi tạo link thanh toán.");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "Đã xảy ra lỗi khi tạo link thanh toán.";
+      message.error(errorMessage);
     } finally {
       setLoadingPay(false);
     }
