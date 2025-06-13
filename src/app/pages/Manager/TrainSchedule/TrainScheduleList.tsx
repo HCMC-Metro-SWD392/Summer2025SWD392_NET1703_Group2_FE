@@ -35,7 +35,8 @@ const TrainScheduleList: React.FC = () => {
     try {
       setLoading(true);
       const response = await TrainScheduleApi.getAllTrainSchedules({
-        ...params,
+        pageNumber: params.pageNumber || 1,
+        pageSize: params.pageSize || 10,
         filterOn: filterQuery ? 'metroLineName' : undefined,
         filterQuery: filterQuery || undefined,
         sortBy: params.sortBy,
@@ -48,7 +49,9 @@ const TrainScheduleList: React.FC = () => {
           ...prev,
           pagination: {
             ...prev.pagination,
-            total: response.total ?? (response.result?.length ?? 0)
+            total: response.total || 0,
+            current: params.pageNumber || 1,
+            pageSize: params.pageSize || 10
           }
         }));
       } else if (response.statusCode === 404) {
@@ -57,7 +60,8 @@ const TrainScheduleList: React.FC = () => {
           ...prev,
           pagination: {
             ...prev.pagination,
-            total: 0
+            total: 0,
+            current: 1
           }
         }));
         message.info('No train schedules found');
@@ -86,22 +90,16 @@ const TrainScheduleList: React.FC = () => {
       title: 'Tuyến Metro',
       dataIndex: 'metroLineName',
       key: 'metroLineName',
-      sorter: true,
-      sortOrder: tableParams.sortField === 'metroLineName' ? (tableParams.sortOrder as SortOrder) : null,
     },
     {
       title: 'Ga',
       dataIndex: 'stationName',
       key: 'stationName',
-      sorter: true,
-      sortOrder: tableParams.sortField === 'stationName' ? (tableParams.sortOrder as SortOrder) : null,
     },
     {
       title: 'Thời Gian',
       dataIndex: 'startTime',
       key: 'startTime',
-      sorter: true,
-      sortOrder: tableParams.sortField === 'startTime' ? (tableParams.sortOrder as SortOrder) : null,
       render: (time: string) => {
         // Assuming time is in "HH:mm:ss" format from the backend
         const [hours, minutes] = time.split(':');
@@ -113,13 +111,13 @@ const TrainScheduleList: React.FC = () => {
       dataIndex: 'direction',
       key: 'direction',
       render: (direction: TrainScheduleType) => (
-        <Tag color={direction === TrainScheduleType.Up ? 'blue' : 'green'}>
-          {direction === TrainScheduleType.Up ? 'Hướng xuôi' : 'Hướng ngược'}
+        <Tag color={direction === TrainScheduleType.Forward ? 'blue' : 'green'}>
+          {direction === TrainScheduleType.Forward ? 'Hướng xuôi' : 'Hướng ngược'}
         </Tag>
       ),
       filters: [
-        { text: 'Hướng xuôi', value: TrainScheduleType.Up },
-        { text: 'Hướng ngược', value: TrainScheduleType.Down },
+        { text: 'Hướng xuôi', value: TrainScheduleType.Forward },
+        { text: 'Hướng ngược', value: TrainScheduleType.Backward },
       ],
       onFilter: (value, record) => record.direction === value,
     },
@@ -184,21 +182,6 @@ const TrainScheduleList: React.FC = () => {
     navigate('/manager/create-train-schedule');
   };
 
-  const handleTableChange = (
-    pagination: TablePaginationConfig,
-    filters: Record<string, FilterValue | null>,
-    sorter: SorterResult<GetTrainScheduleDTO> | SorterResult<GetTrainScheduleDTO>[]
-  ) => {
-    const sorterResult = Array.isArray(sorter) ? sorter[0] : sorter;
-    
-    setTableParams({
-      pagination,
-      sortField: sorterResult.field as string,
-      sortOrder: sorterResult.order as SortOrder,
-      filters
-    });
-  };
-
   const handleSearch = (value: string) => {
     setFilterQuery(value);
     setTableParams(prev => ({
@@ -238,8 +221,12 @@ const TrainScheduleList: React.FC = () => {
           dataSource={schedules}
           rowKey="id"
           loading={loading}
-          pagination={tableParams.pagination}
-          onChange={handleTableChange}
+          pagination={{
+            ...tableParams.pagination,
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} lịch trình`,
+            pageSizeOptions: ['10', '20', '50', '100']
+          }}
           scroll={{ x: 'max-content' }}
           className="w-full"
           size="middle"

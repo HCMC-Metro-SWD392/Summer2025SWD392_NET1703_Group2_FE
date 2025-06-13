@@ -61,11 +61,7 @@ const CreateTrainSchedule: React.FC = () => {
     }) => {
         setLoading(true);
         try {
-            const formattedValues: CreateTrainScheduleDTO = {
-                ...values,
-                startTime: values.startTime.format('HH:mm:ss'), // Format Dayjs to HH:mm:ss string
-            };
-            const response = await TrainScheduleApi.createTrainSchedule(formattedValues);
+            const response = await TrainScheduleApi.createTrainSchedule(values.metroLineId);
 
             if (response.isSuccess) {
                 message.success('Train Schedule created successfully!');
@@ -90,7 +86,7 @@ const CreateTrainSchedule: React.FC = () => {
                         layout="vertical"
                         onFinish={onFinish}
                         initialValues={{
-                            direction: TrainScheduleType.Up, // Default direction
+                            direction: TrainScheduleType.Forward, // Default direction
                         }}
                     >
                         <Form.Item
@@ -131,8 +127,8 @@ const CreateTrainSchedule: React.FC = () => {
                             rules={[{ required: true, message: 'Vui lòng chọn hướng!' }]}
                         >
                             <Select placeholder="Chọn hướng">
-                                <Option value={TrainScheduleType.Up}>Hướng xuôi</Option>
-                                <Option value={TrainScheduleType.Down}>Hướng ngược</Option>
+                                <Option value={TrainScheduleType.Forward}>Hướng xuôi</Option>
+                                <Option value={TrainScheduleType.Backward}>Hướng ngược</Option>
                             </Select>
                         </Form.Item>
 

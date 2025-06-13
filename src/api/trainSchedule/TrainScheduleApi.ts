@@ -29,11 +29,11 @@ export interface PaginationParams {
 }
 
 export const TrainScheduleApi = {
-    createTrainSchedule: async (data: CreateTrainScheduleDTO): Promise<ResponseDTO> => {
+    createTrainSchedule: async (metroLineId: string): Promise<ResponseDTO> => {
         try {
             const response: AxiosResponse<ResponseDTO> = await axiosInstance.post(
                 TRAIN_SCHEDULE_ENDPOINTS.CREATE,
-                data
+                metroLineId
             );
             return response.data;
         } catch (error: any) {

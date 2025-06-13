@@ -35,9 +35,10 @@ const PromotionList: React.FC = () => {
     try {
       setLoading(true);
       const response = await PromotionApi.getAllPromotions({
-        ...params,
+        pageNumber: params.pageNumber || 1,
+        pageSize: params.pageSize || 10,
         filterOn: filterQuery ? 'code' : undefined,
-        filterQuery: filterQuery || undefined,
+        filterQuery: filterQuery ? filterQuery.toUpperCase() : undefined,
         sortBy: params.sortBy,
         isAscending: params.sortBy ? params.isAscending : undefined
       });
@@ -48,7 +49,9 @@ const PromotionList: React.FC = () => {
           ...prev,
           pagination: {
             ...prev.pagination,
-            total: response.total ?? (response.result?.length ?? 0)
+            total: response.total || 0,
+            current: params.pageNumber || 1,
+            pageSize: params.pageSize || 10
           }
         }));
       } else if (response.statusCode === 404) {
@@ -57,10 +60,11 @@ const PromotionList: React.FC = () => {
           ...prev,
           pagination: {
             ...prev.pagination,
-            total: 0
+            total: 0,
+            current: 1
           }
         }));
-        message.info('No promotions found');
+        message.info('Không tìm thấy mã giảm giá nào');
       } else {
         message.error(response.message || 'Failed to fetch promotions');
       }
@@ -115,13 +119,13 @@ const PromotionList: React.FC = () => {
           : type;
         return (
           <Tag color={displayType === PromotionType.Percentage ? 'blue' : 'green'}>
-            {displayType === PromotionType.Percentage ? 'Percentage' : 'Fixed Amount'}
+            {displayType === PromotionType.Percentage ? 'Phần trăm' : 'Số tiền cố định'}
           </Tag>
         );
       },
       filters: [
-        { text: 'Percentage', value: PromotionType.Percentage },
-        { text: 'Fixed Amount', value: PromotionType.FixedAmount },
+        { text: 'Phần trăm', value: PromotionType.Percentage },
+        { text: 'Số tiền cố định', value: PromotionType.FixedAmount },
       ],
       onFilter: (value, record) => {
         const recordType = typeof record.promotionType === 'number' 
@@ -142,7 +146,7 @@ const PromotionList: React.FC = () => {
           <span>
             {displayType === PromotionType.Percentage 
               ? `${record.percentage ?? 'N/A'}%`
-              : `${record.fixedAmount ?? 'N/A'} đ`}
+              : `${record.fixedAmount?.toLocaleString('vi-VN') ?? 'N/A'} đ`}
           </span>
         );
       },
@@ -252,7 +256,12 @@ const PromotionList: React.FC = () => {
           dataSource={promotions}
           rowKey="id"
           loading={loading}
-          pagination={tableParams.pagination}
+          pagination={{
+            ...tableParams.pagination,
+            showSizeChanger: true,
+            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mã giảm giá`,
+            pageSizeOptions: ['10', '20', '50', '100']
+          }}
           onChange={handleTableChange}
           scroll={{ x: 'max-content' }}
           className="w-full"

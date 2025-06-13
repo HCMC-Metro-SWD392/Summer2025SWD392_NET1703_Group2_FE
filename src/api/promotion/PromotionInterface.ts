@@ -4,13 +4,13 @@ export enum PromotionType {
 }
 
 export interface CreatePromotionDTO {
-    code: string; // Required, non-nullable
-    percentage?: number | null; // Optional, but must be between 0-100 if provided
-    fixedAmount?: number | null; // Optional, but must be positive integer if provided
+    code: string; 
+    percentage?: number | null; 
+    fixedAmount?: number | null;
     promotionType: PromotionType | number;
     description?: string | null;
-    startDate: Date; // Required, non-nullable
-    endDate: Date; // Required, non-nullable
+    startDate: Date; 
+    endDate: Date;
 }
 
 export interface GetPromotionDTO {

@@ -1,6 +1,6 @@
 export enum TrainScheduleType {
-    Up = 0,    // tàu đi hướng xuôi
-    Down = 1   // tàu đi hướng ngược
+    Forward = 0,  // tàu đi hướng xuôi
+    Backward = 1  // tàu đi hướng ngược
 }
 
 export enum TrainScheduleStatus {
