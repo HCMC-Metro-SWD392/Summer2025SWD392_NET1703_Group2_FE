@@ -73,7 +73,7 @@ const TestQR: React.FC = () => {
         setProcessResult(response.data.message || "Thành công");
       } else {
         const response = await axiosInstance.put(
-          `/api/Ticket/check-in-ticket-process/${decodedText}/${selectedStation.id}`
+          `/api/Ticket/check-out-ticket-process/${decodedText}/${selectedStation.id}`
         );
         setProcessResult(response.data.message || "Thành công");
       }

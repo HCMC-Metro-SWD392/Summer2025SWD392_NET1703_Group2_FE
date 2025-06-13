@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Spin, Empty } from "antd";
+import { Spin, Empty, Typography } from "antd";
 import { fetchTimetable } from "../../../../../../api/buyRouteTicket/buyRouteTicket";
 import type { TimetableItem } from "./TrainList";
 import TrainList from "./TrainList";
-import type { LineStartAndEndStation } from "../../../../../../types/types";
+import type { LineStartAndEndStation, Station } from "../../../../../../types/types";
+
+const { Text } = Typography;
 
 interface Props {
-  stationId?: string | null;
+  station: Station | null;
   startAndEndStationOfLine: LineStartAndEndStation | null;
+  tourRef?: React.RefObject<HTMLDivElement | null>; // Ref để dùng với Tour
 }
 
-const StationTimetableChart: React.FC<Props> = ({ stationId, startAndEndStationOfLine }) => {
+const StationTimetableChart: React.FC<Props> = ({
+  station,
+  startAndEndStationOfLine,
+  tourRef,
+}) => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<TimetableItem[]>([]);
   const [closestIndex, setClosestIndex] = useState<number>(-1);
@@ -36,12 +43,12 @@ const StationTimetableChart: React.FC<Props> = ({ stationId, startAndEndStationO
   };
 
   useEffect(() => {
-    if (!stationId) return;
+    if (!station?.id) return;
 
     const loadData = async () => {
       setLoading(true);
       try {
-        const res = await fetchTimetable(stationId);
+        const res = await fetchTimetable(station.id);
         const sorted = res.result.sort(
           (a: TimetableItem, b: TimetableItem) =>
             parseTimeToDate(a.startTime).getTime() -
@@ -56,7 +63,7 @@ const StationTimetableChart: React.FC<Props> = ({ stationId, startAndEndStationO
     };
 
     loadData();
-  }, [stationId]);
+  }, [station?.id]);
 
   useEffect(() => {
     const index = findClosestIndex(data);
@@ -64,26 +71,34 @@ const StationTimetableChart: React.FC<Props> = ({ stationId, startAndEndStationO
     scrollToItem(index);
   }, [data]);
 
-  if (!stationId) {
+  if (station === null) {
     return (
-      <div className="mt-4 bg-white border border-dashed border-gray-500 rounded-xl p-6 text-center text-gray-500">
-        <Empty description="Chọn ga để xem giờ chạy" />
+      <div className="mt-3" ref={tourRef}>
+        <Text strong>🕒 Giờ tàu chạy:</Text>
+        <div className="mt-2 bg-white border border-dashed border-gray-500 rounded-xl p-4 text-center text-gray-500">
+          <div className="min-h-48 flex items-center justify-center">
+            <Empty description="Chọn ga để xem giờ chạy" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <Spin spinning={loading} tip="Đang tải dữ liệu...">
-      <div className="mt-4 bg-white border border-dashed border-gray-500 rounded-xl p-4 shadow-sm">
-        <TrainList
-          data={data}
-          closestIndex={closestIndex}
-          listRefs={listRefs}
-          wrapperRef={wrapperRef}
-          startAndEndStationOfLine={startAndEndStationOfLine}
-        />
-      </div>
-    </Spin>
+    <div className="mt-3" ref={tourRef}>
+      <Text strong>🕒 Giờ tàu chạy: Tại {station.name}</Text>
+      <Spin spinning={loading} tip="Đang tải dữ liệu...">
+        <div className="mt-2 bg-white border border-dashed border-gray-500 rounded-xl p-4 shadow-sm">
+          <TrainList
+            data={data}
+            closestIndex={closestIndex}
+            listRefs={listRefs}
+            wrapperRef={wrapperRef}
+            startAndEndStationOfLine={startAndEndStationOfLine}
+          />
+        </div>
+      </Spin>
+    </div>
   );
 };
 

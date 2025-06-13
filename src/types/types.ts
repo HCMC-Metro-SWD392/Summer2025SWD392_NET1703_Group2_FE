@@ -52,6 +52,13 @@ export interface LineStartAndEndStation {
 //   status: "unused" | "active" | "used";
 // }
 
+export interface TicketType {
+  id: string;
+  name: string;
+  displayName: string;
+  expiration: number;
+}
+
 export interface Ticket {
   id: string;
   customerId: string;

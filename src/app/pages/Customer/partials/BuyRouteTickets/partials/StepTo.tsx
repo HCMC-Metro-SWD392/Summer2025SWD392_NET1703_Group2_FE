@@ -16,6 +16,7 @@ interface StepToProps {
   loadingStations: boolean;
   onLineChange: (lineId: string) => void;
   onStationSelect: (station: Station | null) => void;
+  tourRef?: React.RefObject<HTMLDivElement | null>; // ✅ thêm tourRef
 }
 
 const StepTo: React.FC<StepToProps> = ({
@@ -28,13 +29,14 @@ const StepTo: React.FC<StepToProps> = ({
   loadingStations,
   onLineChange,
   onStationSelect,
+  tourRef, // ✅ nhận ref
 }) => {
   const filteredToStations = toStations.filter(
     (s) => s.name !== fromStation?.name
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={tourRef}>
       <div>
         <Text strong>🚉 Chọn tuyến đến:</Text>
         <Select

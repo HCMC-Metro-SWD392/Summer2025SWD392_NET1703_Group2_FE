@@ -11,7 +11,7 @@ const TicketCard = ({ ticket, status }: { ticket: Ticket, status: "unused" | "ac
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleUseTicket = () => {
-    if (status !== "unused") {
+    if (status == "used") {
       message.warning("Vé không còn hợp lệ để sử dụng.");
       return;
     }
