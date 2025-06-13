@@ -11,6 +11,7 @@ import {
 import type { MenuProps } from 'antd';
 import { Layout } from 'antd';
 import React, { useState } from 'react';
+import AdjustTicket from './partials/AdjustTicket';
 
 import Sidebar from '../../components/SideBar/Sidebar';
 import LoginForm from '../Home/partials/Login/LoginForm';
@@ -24,7 +25,7 @@ const Staff: React.FC = () => {
 
     const menuItems: MenuProps['items'] = [
         { key: '1', icon: <UserOutlined />, label: 'Login' },
-        { key: '2', icon: <VideoCameraOutlined />, label: 'Video' },
+        { key: '2', icon: <VideoCameraOutlined />, label: 'AdjustTicket' },
         { key: '3', icon: <UploadOutlined />, label: 'Upload' },
         { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
         { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
@@ -37,6 +38,8 @@ const Staff: React.FC = () => {
         switch (selectedKey) {
             case '1':
                 return <LoginForm />;
+            case '2':
+                return <AdjustTicket />;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;
         }
@@ -58,13 +61,7 @@ const Staff: React.FC = () => {
                 <Content className="mx-4 my-6 overflow-auto">
                     <div className="bg-white rounded-xl p-6 shadow min-h-[60vh]">
                         {renderContent()}
-                        <p>long content</p>
-                        {Array.from({ length: 100 }, (_, index) => (
-                            <React.Fragment key={index}>
-                                {index % 20 === 0 && index ? 'more' : '...'}
-                                <br />
-                            </React.Fragment>
-                        ))}
+                        
                     </div>
                 </Content>
             </Layout>
