@@ -147,12 +147,12 @@ const PromotionList: React.FC = () => {
         );
       },
     },
-    {
-      title: 'Mô Tả',
-      dataIndex: 'description',
-      key: 'description',
-      ellipsis: true,
-    },
+    // {
+    //   title: 'Mô Tả',
+    //   dataIndex: 'description',
+    //   key: 'description',
+    //   ellipsis: true,
+    // },
     {
       title: 'Thời Gian',
       key: 'period',
@@ -162,7 +162,7 @@ const PromotionList: React.FC = () => {
         : null,
       render: (_, record) => (
         <span>
-          {dayjs(record.startDate).format('MMM D, YYYY')} - {dayjs(record.endDate).format('MMM D, YYYY')}
+          {dayjs(record.startDate).format('DD/MM/YYYY')} - {dayjs(record.endDate).format('DD/MM/YYYY')}
         </span>
       ),
     },

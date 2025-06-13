@@ -199,14 +199,14 @@ const MetroLineDetails: React.FC = () => {
             <Tag color="blue">
               Tổng số: {metroLine.metroLineStations.length} trạm
             </Tag>
-            <Button type="primary" onClick={() => {
+            {/* <Button type="primary" onClick={() => {
               setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
               setSelectedStationId(null);
               setDistanceFromStart(0);
               setAddStationVisible(true);
             }}>
               Thêm Trạm Vào Tuyến
-            </Button>
+            </Button> */}
           </Space>
         }
       >

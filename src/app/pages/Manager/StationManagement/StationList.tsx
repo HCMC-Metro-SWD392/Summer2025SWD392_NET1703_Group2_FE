@@ -144,12 +144,14 @@ const StationList: React.FC = () => {
       render: (_, record) => (
         <Space size="middle">
           <Button
+            type='primary'
             icon={<EyeOutlined />}
             onClick={() => navigate(`/manager/station/${record.id}`)}
           >
             Xem Chi Tiết
           </Button>
           <Button
+            type='primary'
             icon={<EditOutlined />}
             onClick={() => navigate(`/manager/station/${record.id}/edit`)}
           >

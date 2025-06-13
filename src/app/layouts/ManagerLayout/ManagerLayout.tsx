@@ -28,11 +28,11 @@ const ManagerLayout: React.FC = () => {
   }, []);
 
   const menuItems = [
-    {
-      key: '/manager',
-      icon: <DashboardOutlined />,
-      label: 'Bảng Điều Khiển',
-    },
+    // {
+    //   key: '/manager',
+    //   icon: <DashboardOutlined />,
+    //   label: 'Bảng Điều Khiển',
+    // },
     {
       key: 'station-management',
       icon: <ApartmentOutlined />,
@@ -85,20 +85,20 @@ const ManagerLayout: React.FC = () => {
         },
       ],
     },
-    {
-      key: '/manager/staffs',
-      icon: <UserOutlined />,
-      label: 'Quản Lý Nhân Viên',
-    },
+    // {
+    //   key: '/manager/staffs',
+    //   icon: <UserOutlined />,
+    //   label: 'Quản Lý Nhân Viên',
+    // },
     {
       key: 'sales-finance',
       icon: <DollarCircleOutlined />,
       label: 'Bán Hàng & Tài Chính',
       children: [
-        {
-          key: '/manager/revenue',
-          label: 'Doanh Thu',
-        },
+        // {
+        //   key: '/manager/revenue',
+        //   label: 'Doanh Thu',
+        // },
         {
           key: '/manager/promotion',
           label: 'Khuyến Mãi',

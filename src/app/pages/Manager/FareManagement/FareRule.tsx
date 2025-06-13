@@ -168,6 +168,7 @@ const FareRuleManagement: React.FC = () => {
               triggerAsc: 'Sắp xếp tăng dần',
               cancelSort: 'Hủy sắp xếp',
             }}
+            size="small"
           />
         </Spin>
       </Card>
