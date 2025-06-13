@@ -109,9 +109,6 @@ const StationList: React.FC = () => {
       title: 'Tên Trạm',
       dataIndex: 'name',
       key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      defaultSortOrder: 'descend',
-      sortDirections: ['ascend', 'descend'],
       filteredValue: searchText ? [searchText] : null,
       onFilter: (value, record) => {
         const searchValue = (value as string).toLowerCase();
@@ -196,7 +193,7 @@ const StationList: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          dataSource={stations.sort((a, b) => Number(b.id) - Number(a.id))}
+          dataSource={stations}
           rowKey="id"
           loading={loading}
           pagination={{
