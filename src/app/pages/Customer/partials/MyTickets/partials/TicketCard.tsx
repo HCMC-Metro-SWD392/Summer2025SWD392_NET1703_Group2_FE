@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Typography, Tag, Card, message, Modal, QRCode, Tabs } from "antd";
 import type { Ticket } from "../../../../../../types/types";
 import { getStatusColor, getStatusLabel } from "./ticketUtils";
+import logoMetro from "../../../../../assets/fpt.png"
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -93,6 +94,8 @@ const TicketCard = ({ ticket, status }: { ticket: Ticket, status: "unused" | "ac
               <QRCode
                 value={ticket.id}
                 size={180}
+                icon={logoMetro}
+                iconSize={40}
                 bordered
               />
             </div>

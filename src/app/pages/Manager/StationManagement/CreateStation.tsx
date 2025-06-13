@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { Button, Card, Form, Input, message } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, message } from 'antd';
+import React, { useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { StationApi } from '../../../../api/station/StationApi';
-import type { CreateStationDTO, GetStationDTO } from '../../../../api/station/StationInterface';
+import type { CreateStationDTO } from '../../../../api/station/StationInterface';
 
 const CreateStation: React.FC = () => {
   const navigate = useNavigate();

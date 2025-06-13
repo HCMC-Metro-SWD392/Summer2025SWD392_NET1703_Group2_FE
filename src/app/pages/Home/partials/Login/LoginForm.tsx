@@ -29,7 +29,6 @@ const LoginForm: React.FC = () => {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
 
-      // Handle role-based redirection
       switch (data.userRole) {
         case "manager":
           navigate("/manager");

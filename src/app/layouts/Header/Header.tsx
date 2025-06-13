@@ -1,15 +1,11 @@
-import React from "react";
-import logoImg from "../../assets/logo.png";
-import { Button } from "antd";
 import {
-  GlobalOutlined,
-  SearchOutlined,
-  MenuOutlined,
-  LoginOutlined, UserAddOutlined,
+  LoginOutlined, UserAddOutlined
 } from "@ant-design/icons";
+import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import UserHeaderMenu from "./partials/UserHeaderMenu";
+import logoImg from "../../assets/logo.png";
 import TicketServiceMenu from "./partials/TicketServiceMenu";
+import UserHeaderMenu from "./partials/UserHeaderMenu";
 
 export default function Header() {
   const navigate = useNavigate();

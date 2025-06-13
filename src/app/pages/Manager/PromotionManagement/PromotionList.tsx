@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, message, Popconfirm, Input } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
+import { EditOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input, message, Space, Table, Tag } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import type { FilterValue, SorterResult, SortOrder } from 'antd/es/table/interface';
-import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { PromotionApi, type ResponseDTO, type PaginationParams } from '../../../../api/promotion/PromotionApi';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { PromotionApi, type PaginationParams } from '../../../../api/promotion/PromotionApi';
 import type { GetPromotionDTO } from '../../../../api/promotion/PromotionInterface';
 import { PromotionType } from '../../../../api/promotion/PromotionInterface';
 

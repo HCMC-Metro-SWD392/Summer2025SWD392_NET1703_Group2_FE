@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import { getWeather } from "../../../api/home/homeApi";
+import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
 
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;

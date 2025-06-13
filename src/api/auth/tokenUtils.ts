@@ -1,5 +1,6 @@
 const ACCESS_TOKEN_KEY = "accessToken";
 const REFRESH_TOKEN_KEY = "refreshToken";
+const USERINFO_KEY = "userInfo";
 
 export const getAccessToken = () => localStorage.getItem(ACCESS_TOKEN_KEY);
 export const getRefreshToken = () => localStorage.getItem(REFRESH_TOKEN_KEY);
@@ -12,6 +13,10 @@ export const setTokens = (accessToken: string, refreshToken: string) => {
 export const removeTokens = () => {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
+};
+
+export const removeUserInfo = () => {
+  localStorage.removeItem(USERINFO_KEY);
 };
 
 // Decode the token to get the information of the user

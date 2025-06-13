@@ -37,6 +37,11 @@ export interface Line {
   metroName: string;
 };
 
+export interface LineStartAndEndStation {
+  startStation: Station;
+  endStation: Station;
+};
+
 // export interface Ticket {
 //   id: string;
 //   fromStation: string;
