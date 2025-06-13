@@ -35,6 +35,7 @@ import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSu
 import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
 import Staff from "../pages/Staff/Staff";
+import TestQR from "../components/Test/TestQR";
 
 export default function MainRoutes() {
   return (
@@ -52,6 +53,7 @@ export default function MainRoutes() {
             <Route path="studentVerify" element={<StudentVerificationForm />}/>
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
+          <Route path="/testQR" element={<TestQR />} />
         </Route>
 
 

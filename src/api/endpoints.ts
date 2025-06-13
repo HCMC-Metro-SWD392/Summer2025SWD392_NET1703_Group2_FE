@@ -13,7 +13,10 @@ const endpoints = {
   createPaymentLink: "/api/Payment/create-link-payment-ticket-route",
   createTicket: (orderCode: string) => `/api/Payment/payment-transactions/update-status/${orderCode}`,
   getCustomerTicket: "/api/Ticket/get-all-ticket-routes",
-  getMetroSchedule: "/api/TrainSchedule/get-all-metro-schedule",
+  getMetroScheduleByStation: (stationId: string) => `/api/TrainSchedule/station/${stationId}`,
+  getTicketType: "/api/SubscriptionTicketType/all",
+  getSpecialTicket: (startStationId: string, endStationId: string, ticketTypeId: string) => `/api/SubscriptionTicket/by-station/${startStationId}/${endStationId}/${ticketTypeId}`,
+  createTicketSubscription: "/api/SubscriptionTicket/create-subscription-ticket",
 };
 
 export default endpoints;

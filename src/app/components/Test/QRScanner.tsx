@@ -1,14 +1,21 @@
-// QRScanner.tsx
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import React, { useEffect, useRef, useState } from 'react';
+import { Button } from 'antd';
+import { QrcodeOutlined, StopOutlined } from '@ant-design/icons';
 
-const QRScanner: React.FC<{ onScanSuccess: (decodedText: string) => void }> = ({ onScanSuccess }) => {
+interface QRScannerProps {
+  onScanSuccess: (decodedText: string, stopScan: () => void) => void;
+  scannerRef: React.MutableRefObject<{ startScan: () => void } | null>;
+}
+
+const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess, scannerRef }) => {
   const qrCodeRegionId = 'qr-reader';
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [scanning, setScanning] = useState(false);
 
   const startScan = async () => {
-    const cameraId = (await Html5Qrcode.getCameras())[0]?.id;
+    const cameras = await Html5Qrcode.getCameras();
+    const cameraId = cameras[0]?.id;
     if (!cameraId) return alert('Không tìm thấy camera');
 
     html5QrCodeRef.current = new Html5Qrcode(qrCodeRegionId);
@@ -18,11 +25,10 @@ const QRScanner: React.FC<{ onScanSuccess: (decodedText: string) => void }> = ({
       cameraId,
       { fps: 10, qrbox: { width: 250, height: 250 } },
       (decodedText) => {
-        onScanSuccess(decodedText);
-        stopScan();
+        onScanSuccess(decodedText, stopScan);
       },
       (error) => {
-        // console.log('Scan error:', error);
+        // optional error handler
       }
     );
   };
@@ -31,24 +37,50 @@ const QRScanner: React.FC<{ onScanSuccess: (decodedText: string) => void }> = ({
     if (html5QrCodeRef.current) {
       await html5QrCodeRef.current.stop();
       await html5QrCodeRef.current.clear();
+      html5QrCodeRef.current = null;
       setScanning(false);
     }
   };
 
+  // expose startScan via ref
+  useImperativeHandle(scannerRef, () => ({
+    startScan
+  }));
+
   useEffect(() => {
     return () => {
-      stopScan();
+      stopScan(); // stop scan on unmount
     };
   }, []);
 
   return (
-    <div className="scanner-container">
-      <div id={qrCodeRegionId} style={{ width: '100%', maxWidth: 400, margin: 'auto' }} />
-      <div style={{ marginTop: 10 }}>
+    <div className="scanner-container text-center px-4">
+      <div
+        id={qrCodeRegionId}
+        style={{ width: '100%', maxWidth: 400, margin: 'auto' }}
+        className="mx-auto my-4"
+      />
+      <div className="flex justify-center gap-4 mt-6">
         {!scanning ? (
-          <button onClick={startScan} className="btn">Bắt đầu quét</button>
+          <Button
+            type="primary"
+            icon={<QrcodeOutlined />}
+            size="large"
+            className="rounded-xl shadow-md px-6 py-2"
+            onClick={startScan}
+          >
+            Bắt đầu quét
+          </Button>
         ) : (
-          <button onClick={stopScan} className="btn btn-danger">Dừng quét</button>
+          <Button
+            danger
+            icon={<StopOutlined />}
+            size="large"
+            className="rounded-xl shadow-md px-6 py-2"
+            onClick={stopScan}
+          >
+            Dừng quét
+          </Button>
         )}
       </div>
     </div>

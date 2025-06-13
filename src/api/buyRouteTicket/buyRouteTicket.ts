@@ -19,10 +19,27 @@ export const getTicketRoute = async (startStationId: string, endStationId: strin
   return response.data;
 };
 
+export const getSpecialTicket = async (startStationId: string, endStationId: string, ticketTypeId: string) => {
+  const response = await axiosInstance.get(endpoints.getSpecialTicket(startStationId, endStationId, ticketTypeId));
+  return response.data;
+};
+
 export const createTicketRoute = async (startStationId: string, endStationId: string) => {
   const response = await axiosInstance.post(
     endpoints.createTicketRoute,
     {
+      startStationId,
+      endStationId,
+    }
+  );
+  return response.data;
+};
+
+export const createTicketSubcription = async (ticketTypeId: string, startStationId: string, endStationId: string) => {
+  const response = await axiosInstance.post(
+    endpoints.createTicketSubscription,
+    {
+      ticketTypeId,
       startStationId,
       endStationId,
     }
@@ -51,14 +68,12 @@ export const createPaymentLink = async ({
 };
 
 export const fetchTimetable = async (stationId: string) => {
-  const response = await axiosInstance.get(endpoints.getMetroSchedule, {
-    params: {
-      filterOn: "stationId",
-      filterQuery: stationId,
-      sortBy: "startTime",
-      isAcsending: true,
-    },
-  });
+  const response = await axiosInstance.get(endpoints.getMetroScheduleByStation(stationId));
   return response.data;
 
+};
+
+export const getAvailableTicketTypes = async () => {
+  const res = await axiosInstance.get(endpoints.getTicketType);
+  return res.data;
 };
