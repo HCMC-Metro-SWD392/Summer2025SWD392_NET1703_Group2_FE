@@ -22,6 +22,11 @@ const TestQR: React.FC = () => {
   const [loadingStations, setLoadingStations] = useState(false);
   const [processType, setProcessType] = useState<'checkin' | 'checkout'>('checkin');
 
+  // Refs để lưu giá trị mới nhất
+  const selectedLineRef = useRef<string | null>(null);
+  const selectedStationRef = useRef<Station | null>(null);
+  const processTypeRef = useRef<'checkin' | 'checkout'>('checkin');
+
   useEffect(() => {
     const fetchLines = async () => {
       setLoadingLines(true);
@@ -39,7 +44,11 @@ const TestQR: React.FC = () => {
 
   const handleLineChange = async (lineId: string) => {
     setSelectedLine(lineId);
+    selectedLineRef.current = lineId;
+
     setSelectedStation(null);
+    selectedStationRef.current = null;
+
     setLoadingStations(true);
     try {
       const data = await getStationsByMetroLine(lineId);
@@ -54,30 +63,35 @@ const TestQR: React.FC = () => {
   const handleStationChange = (stationId: string) => {
     const station = stations.find((s) => s.id === stationId) || null;
     setSelectedStation(station);
+    selectedStationRef.current = station;
+  };
+
+  const handleProcessTypeChange = (value: 'checkin' | 'checkout') => {
+    setProcessType(value);
+    processTypeRef.current = value;
   };
 
   const handleScanSuccess = async (decodedText: string, stopScan: () => void) => {
     stopScan();
     setResult(decodedText);
 
-    if (!selectedStation || !selectedLine) {
+    const currentLine = selectedLineRef.current;
+    const currentStation = selectedStationRef.current;
+    const currentProcessType = processTypeRef.current;
+
+    if (!currentLine || !currentStation) {
       message.warning("Vui lòng chọn tuyến và ga trước khi quét");
       return;
     }
 
     try {
-      if (processType === "checkin") {
-        const response = await axiosInstance.put(
-          `/api/Ticket/check-in-ticket-process/${decodedText}/${selectedStation.id}`
-        );
-        setProcessResult(response.data.message || "Thành công");
-      } else {
-        const response = await axiosInstance.put(
-          `/api/Ticket/check-out-ticket-process/${decodedText}/${selectedStation.id}`
-        );
-        setProcessResult(response.data.message || "Thành công");
-      }
-      
+      const url =
+        currentProcessType === "checkin"
+          ? `/api/Ticket/check-in-ticket-process/${decodedText}/${currentStation.id}`
+          : `/api/Ticket/check-out-ticket-process/${decodedText}/${currentStation.id}`;
+
+      const response = await axiosInstance.put(url);
+      setProcessResult(response.data.message || "Thành công");
     } catch (error: any) {
       let errorMsg = "Không thể xử lý vé.";
       if (error.response?.data?.message) {
@@ -146,7 +160,7 @@ const TestQR: React.FC = () => {
         <label className="block font-medium mb-1">Chọn loại xử lý:</label>
         <Radio.Group
           value={processType}
-          onChange={(e) => setProcessType(e.target.value)}
+          onChange={(e) => handleProcessTypeChange(e.target.value)}
           className="w-full"
         >
           <Radio.Button value="checkin">Check-in</Radio.Button>
