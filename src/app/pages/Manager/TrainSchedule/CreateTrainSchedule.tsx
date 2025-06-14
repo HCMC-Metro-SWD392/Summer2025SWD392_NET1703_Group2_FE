@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, TimePicker, message, Space, Card } from 'antd';
+import { Form, Select, Button, message, Space, Card, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-import type { Dayjs } from 'dayjs';
 import { TrainScheduleApi } from '../../../../api/trainSchedule/TrainScheduleApi';
-import type { CreateTrainScheduleDTO } from '../../../../api/trainSchedule/TrainScheduleInterface';
-import { TrainScheduleType } from '../../../../api/trainSchedule/TrainScheduleInterface';
 import { MetroLineApi } from '../../../../api/metroLine/MetroLineApi';
 import type { GetMetroLineDTO } from '../../../../api/metroLine/MetroLineInterface';
-import { StationApi } from '../../../../api/station/StationApi';
-import type { Station } from '../../../../api/station/StationInterface';
 
 const { Option } = Select;
 
@@ -18,7 +12,7 @@ const CreateTrainSchedule: React.FC = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]);
-    const [stations, setStations] = useState<Station[]>([]);
+    const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
     useEffect(() => {
         const fetchMetroLines = async () => {
@@ -27,53 +21,46 @@ const CreateTrainSchedule: React.FC = () => {
                 if (response.isSuccess && response.result) {
                     setMetroLines(response.result);
                 } else {
-                    message.error(response.message || 'Failed to fetch metro lines.');
+                    message.error(response.message || 'Không thể tải danh sách tuyến metro.');
                 }
             } catch (error) {
-                message.error('An error occurred while fetching metro lines.');
+                message.error('Đã xảy ra lỗi khi tải danh sách tuyến metro.');
                 console.error('Error fetching metro lines:', error);
             }
         };
 
-        const fetchStations = async () => {
-            try {
-                const response = await StationApi.getAllStations();
-                if (response.isSuccess && response.result) {
-                    setStations(response.result);
-                } else {
-                    message.error(response.message || 'Failed to fetch stations.');
-                }
-            } catch (error) {
-                message.error('An error occurred while fetching stations.');
-                console.error('Error fetching stations:', error);
-            }
-        };
-
         fetchMetroLines();
-        fetchStations();
     }, []);
 
-    const onFinish = async (values: {
-        metroLineId: string;
-        stationId: string;
-        startTime: Dayjs;
-        direction: TrainScheduleType;
-    }) => {
+    const handleSubmit = async (values: { metroLineId: string }) => {
+        setConfirmModalVisible(true);
+    };
+
+    const handleConfirm = async () => {
+        const values = form.getFieldsValue();
         setLoading(true);
         try {
             const response = await TrainScheduleApi.createTrainSchedule(values.metroLineId);
 
             if (response.isSuccess) {
-                message.success('Train Schedule created successfully!');
+                message.success('Lịch tàu đã được tạo thành công!');
                 navigate('/manager/train-schedule');
             } else {
-                message.error(response.message || 'Failed to create train schedule.');
+                // Handle specific error cases
+                if (response.statusCode === 400) {
+                    message.error('Thông tin tuyến metro không hợp lệ.');
+                } else if (response.statusCode === 404) {
+                    message.error('Không tìm thấy tuyến metro.');
+                } else {
+                    message.error(response.message || 'Không thể tạo lịch tàu.');
+                }
             }
         } catch (error) {
-            message.error('An error occurred while creating the train schedule.');
+            message.error('Đã xảy ra lỗi khi tạo lịch tàu. Vui lòng thử lại sau.');
             console.error('Error creating train schedule:', error);
         } finally {
             setLoading(false);
+            setConfirmModalVisible(false);
         }
     };
 
@@ -84,10 +71,7 @@ const CreateTrainSchedule: React.FC = () => {
                     <Form
                         form={form}
                         layout="vertical"
-                        onFinish={onFinish}
-                        initialValues={{
-                            direction: TrainScheduleType.Forward, // Default direction
-                        }}
+                        onFinish={handleSubmit}
                     >
                         <Form.Item
                             label="Tuyến Metro"
@@ -98,37 +82,6 @@ const CreateTrainSchedule: React.FC = () => {
                                 {metroLines.map(line => (
                                     <Option key={line.id} value={line.id}>{line.metroName}</Option>
                                 ))}
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Ga"
-                            name="stationId"
-                            rules={[{ required: true, message: 'Vui lòng chọn ga!' }]}
-                        >
-                            <Select placeholder="Chọn ga">
-                                {stations.map(station => (
-                                    <Option key={station.id} value={station.id}>{station.name}</Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Thời Gian Bắt Đầu"
-                            name="startTime"
-                            rules={[{ required: true, message: 'Vui lòng chọn thời gian bắt đầu!' }]}
-                        >
-                            <TimePicker format="HH:mm" className="w-full" />
-                        </Form.Item>
-
-                        <Form.Item
-                            label="Hướng"
-                            name="direction"
-                            rules={[{ required: true, message: 'Vui lòng chọn hướng!' }]}
-                        >
-                            <Select placeholder="Chọn hướng">
-                                <Option value={TrainScheduleType.Forward}>Hướng xuôi</Option>
-                                <Option value={TrainScheduleType.Backward}>Hướng ngược</Option>
                             </Select>
                         </Form.Item>
 
@@ -145,6 +98,18 @@ const CreateTrainSchedule: React.FC = () => {
                     </Form>
                 </Card>
             </div>
+
+            <Modal
+                title="Xác nhận tạo lịch tàu"
+                open={confirmModalVisible}
+                onOk={handleConfirm}
+                onCancel={() => setConfirmModalVisible(false)}
+                okText="Xác nhận"
+                cancelText="Hủy"
+                confirmLoading={loading}
+            >
+                <p>Bạn có chắc chắn muốn tạo lịch tàu mới cho tuyến metro này? Hành động này sẽ xóa lịch tàu hiện tại và tạo lịch mới.</p>
+            </Modal>
         </div>
     );
 };

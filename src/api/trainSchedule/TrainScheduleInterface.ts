@@ -11,9 +11,6 @@ export enum TrainScheduleStatus {
 
 export interface CreateTrainScheduleDTO {
     metroLineId: string;
-    stationId: string;
-    startTime: string; // TimeSpan will be represented as string in ISO format
-    direction: TrainScheduleType;
 }
 
 export interface GetTrainScheduleDTO {
@@ -34,4 +31,9 @@ export interface UpdateTrainScheduleDTO {
     startTime?: string; // TimeSpan will be represented as string in ISO format
     direction?: TrainScheduleType;
     status?: TrainScheduleStatus;
+}
+
+export interface GetTrainSchedulesByStationParams {
+    stationId: string;
+    direction?: TrainScheduleType;
 }

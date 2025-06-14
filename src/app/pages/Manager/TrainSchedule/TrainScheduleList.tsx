@@ -1,130 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Tag, message, Input } from 'antd';
+import { Table, Button, Space, Tag, message, Input, Select } from 'antd';
 import { EditOutlined, PlusOutlined, SearchOutlined, EyeOutlined } from '@ant-design/icons';
-import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import type { FilterValue, SorterResult, SortOrder } from 'antd/es/table/interface';
+import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { TrainScheduleApi, type ResponseDTO, type PaginationParams } from '../../../../api/trainSchedule/TrainScheduleApi';
+import { TrainScheduleApi, type ResponseDTO } from '../../../../api/trainSchedule/TrainScheduleApi';
 import type { GetTrainScheduleDTO } from '../../../../api/trainSchedule/TrainScheduleInterface';
 import { TrainScheduleType, TrainScheduleStatus } from '../../../../api/trainSchedule/TrainScheduleInterface';
+import { StationApi } from '../../../../api/station/StationApi';
+import type { Station } from '../../../../api/station/StationInterface';
 
 const { Search } = Input;
-
-interface TableParams {
-  pagination: TablePaginationConfig;
-  sortField?: string;
-  sortOrder?: SortOrder;
-  filters?: Record<string, FilterValue | null>;
-}
+const { Option } = Select;
 
 const TrainScheduleList: React.FC = () => {
   const [schedules, setSchedules] = useState<GetTrainScheduleDTO[]>([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(false);
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-      total: 0
-    }
-  });
-  const [filterQuery, setFilterQuery] = useState<string>('');
+  const [selectedStation, setSelectedStation] = useState<string>('');
+  const [selectedDirection, setSelectedDirection] = useState<TrainScheduleType | undefined>(undefined);
   const navigate = useNavigate();
 
-  const fetchSchedules = async (params: PaginationParams) => {
+  // Fetch stations on component mount
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const response = await StationApi.getAllStations();
+        if (response.isSuccess && response.result) {
+          setStations(response.result);
+        } else {
+          message.error('Không thể tải danh sách ga');
+        }
+      } catch (error) {
+        console.error('Error fetching stations:', error);
+        message.error('Không thể tải danh sách ga');
+      }
+    };
+
+    fetchStations();
+  }, []);
+
+  const fetchSchedules = async () => {
+    if (!selectedStation) {
+      message.warning('Vui lòng chọn ga');
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await TrainScheduleApi.getAllTrainSchedules({
-        pageNumber: params.pageNumber || 1,
-        pageSize: params.pageSize || 10,
-        filterOn: filterQuery ? 'metroLineName' : undefined,
-        filterQuery: filterQuery || undefined,
-        sortBy: params.sortBy,
-        isAscending: params.sortBy ? params.isAscending : undefined
+      console.log('Fetching schedules for station:', selectedStation, 'direction:', selectedDirection);
+      
+      const response = await TrainScheduleApi.getTrainSchedulesByStation({
+        stationId: selectedStation,
+        direction: selectedDirection
       });
 
+      console.log('API Response:', response);
+
       if (response.isSuccess && response.result) {
+        console.log('Setting schedules:', response.result);
         setSchedules(response.result);
-        setTableParams(prev => ({
-          ...prev,
-          pagination: {
-            ...prev.pagination,
-            total: response.total || 0,
-            current: params.pageNumber || 1,
-            pageSize: params.pageSize || 10
-          }
-        }));
       } else if (response.statusCode === 404) {
         setSchedules([]);
-        setTableParams(prev => ({
-          ...prev,
-          pagination: {
-            ...prev.pagination,
-            total: 0,
-            current: 1
-          }
-        }));
-        message.info('No train schedules found');
+        message.info('Không tìm thấy lịch trình tàu nào cho ga này');
       } else {
-        message.error(response.message || 'Failed to fetch train schedules');
+        console.error('API Error:', response);
+        message.error(response.message || 'Không thể tải danh sách lịch trình tàu');
       }
     } catch (error) {
-      message.error('Failed to fetch train schedules');
       console.error('Error fetching train schedules:', error);
+      message.error('Không thể tải danh sách lịch trình tàu');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSchedules({
-      pageNumber: tableParams.pagination.current,
-      pageSize: tableParams.pagination.pageSize,
-      sortBy: tableParams.sortField,
-      isAscending: tableParams.sortOrder === 'ascend'
-    });
-  }, [tableParams.pagination.current, tableParams.pagination.pageSize, tableParams.sortField, tableParams.sortOrder, filterQuery]);
+    console.log('useEffect triggered - selectedStation:', selectedStation, 'selectedDirection:', selectedDirection);
+    if (selectedStation) {
+      fetchSchedules();
+    }
+  }, [selectedStation, selectedDirection]);
 
   const columns: ColumnsType<GetTrainScheduleDTO> = [
-    {
-      title: 'Tuyến Metro',
-      dataIndex: 'metroLineName',
-      key: 'metroLineName',
-    },
-    {
-      title: 'Ga',
-      dataIndex: 'stationName',
-      key: 'stationName',
-    },
+
     {
       title: 'Thời Gian',
       dataIndex: 'startTime',
       key: 'startTime',
+      width: 120,
       render: (time: string) => {
-        // Assuming time is in "HH:mm:ss" format from the backend
         const [hours, minutes] = time.split(':');
         return dayjs().hour(parseInt(hours)).minute(parseInt(minutes)).format('HH:mm');
+      },
+      sorter: (a, b) => {
+        const timeA = a.startTime.split(':').map(Number);
+        const timeB = b.startTime.split(':').map(Number);
+        return (timeA[0] * 60 + timeA[1]) - (timeB[0] * 60 + timeB[1]);
       },
     },
     {
       title: 'Hướng',
       dataIndex: 'direction',
       key: 'direction',
+      width: 120,
       render: (direction: TrainScheduleType) => (
         <Tag color={direction === TrainScheduleType.Forward ? 'blue' : 'green'}>
           {direction === TrainScheduleType.Forward ? 'Hướng xuôi' : 'Hướng ngược'}
         </Tag>
       ),
-      filters: [
-        { text: 'Hướng xuôi', value: TrainScheduleType.Forward },
-        { text: 'Hướng ngược', value: TrainScheduleType.Backward },
-      ],
-      onFilter: (value, record) => record.direction === value,
     },
     {
       title: 'Trạng Thái',
       dataIndex: 'status',
       key: 'status',
+      width: 150,
       render: (status: TrainScheduleStatus) => {
         const statusColors = {
           [TrainScheduleStatus.Normal]: 'success',
@@ -142,16 +132,12 @@ const TrainScheduleList: React.FC = () => {
           </Tag>
         );
       },
-      filters: [
-        { text: 'Bình thường', value: TrainScheduleStatus.Normal },
-        { text: 'Bị hủy', value: TrainScheduleStatus.Cancelled },
-        { text: 'Không đón khách', value: TrainScheduleStatus.OutOfService },
-      ],
-      onFilter: (value, record) => record.status === value,
     },
     {
       title: 'Thao Tác',
       key: 'actions',
+      width: 200,
+      fixed: 'right',
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -159,7 +145,7 @@ const TrainScheduleList: React.FC = () => {
             icon={<EyeOutlined />}
             onClick={() => navigate(`/manager/train-schedule/${record.id}`)}
           >
-            Xem Chi Tiết
+            Chi Tiết
           </Button>
           <Button
             type="primary"
@@ -167,7 +153,7 @@ const TrainScheduleList: React.FC = () => {
             onClick={() => handleEdit(record.id)}
             disabled={record.status === TrainScheduleStatus.Cancelled || record.status === TrainScheduleStatus.OutOfService}
           >
-            Chỉnh Sửa
+            Sửa
           </Button>
         </Space>
       ),
@@ -182,15 +168,12 @@ const TrainScheduleList: React.FC = () => {
     navigate('/manager/create-train-schedule');
   };
 
-  const handleSearch = (value: string) => {
-    setFilterQuery(value);
-    setTableParams(prev => ({
-      ...prev,
-      pagination: {
-        ...prev.pagination,
-        current: 1
-      }
-    }));
+  const handleStationChange = (value: string) => {
+    setSelectedStation(value);
+  };
+
+  const handleDirectionChange = (value: TrainScheduleType | undefined) => {
+    setSelectedDirection(value);
   };
 
   return (
@@ -198,13 +181,31 @@ const TrainScheduleList: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Quản Lý Lịch Tàu</h1>
         <div className="flex flex-col sm:flex-row gap-4">
-          <Search
-            placeholder="Tìm kiếm theo tuyến metro"
-            allowClear
-            enterButton={<SearchOutlined />}
-            onSearch={handleSearch}
-            style={{ width: 250 }}
-          />
+          <div className="flex gap-2">
+            <Select
+              placeholder="Chọn ga"
+              style={{ width: 200 }}
+              onChange={handleStationChange}
+              value={selectedStation || undefined}
+              loading={!stations.length}
+            >
+              {stations.map(station => (
+                <Option key={station.id} value={station.id}>
+                  {station.name}
+                </Option>
+              ))}
+            </Select>
+            <Select
+              placeholder="Chọn hướng"
+              style={{ width: 150 }}
+              onChange={handleDirectionChange}
+              value={selectedDirection}
+              allowClear
+            >
+              <Option value={TrainScheduleType.Forward}>Hướng xuôi</Option>
+              <Option value={TrainScheduleType.Backward}>Hướng ngược</Option>
+            </Select>
+          </div>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -221,15 +222,14 @@ const TrainScheduleList: React.FC = () => {
           dataSource={schedules}
           rowKey="id"
           loading={loading}
-          pagination={{
-            ...tableParams.pagination,
-            showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} lịch trình`,
-            pageSizeOptions: ['10', '20', '50', '100']
-          }}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content', y: 'calc(100vh - 300px)' }}
           className="w-full"
           size="middle"
+          pagination={false}
+          bordered
+          locale={{
+            emptyText: loading ? 'Đang tải...' : 'Không có dữ liệu'
+          }}
         />
       </div>
     </div>
