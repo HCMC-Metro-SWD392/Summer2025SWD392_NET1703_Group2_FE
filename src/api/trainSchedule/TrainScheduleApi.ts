@@ -1,11 +1,12 @@
 import type { AxiosResponse } from 'axios';
-import type { CreateTrainScheduleDTO, GetTrainScheduleDTO, UpdateTrainScheduleDTO } from './TrainScheduleInterface';
+import type { CreateTrainScheduleDTO, GetTrainScheduleDTO, UpdateTrainScheduleDTO, GetTrainSchedulesByStationParams } from './TrainScheduleInterface';
 import axiosInstance from '../../settings/axiosInstance';
 
 // API Endpoints
 const TRAIN_SCHEDULE_ENDPOINTS = {
     CREATE: '/api/TrainSchedule/create-train-schedule',
     GET_ALL: '/api/TrainSchedule/get-all-metro-schedule',
+    GET_BY_STATION: '/api/TrainSchedule/station',
     UPDATE: '/api/TrainSchedule/update-train-schedule',
     GET_BY_ID: '/api/TrainSchedule/get-train-schedules',
     CANCEL: '/api/TrainSchedule/cancel-train-schedule'
@@ -59,18 +60,13 @@ export const TrainScheduleApi = {
         }
     },
 
-    getAllTrainSchedules: async (params: PaginationParams): Promise<ResponseDTO<GetTrainScheduleDTO[]>> => {
+    getTrainSchedulesByStation: async (params: GetTrainSchedulesByStationParams): Promise<ResponseDTO<GetTrainScheduleDTO[]>> => {
         try {
             const response: AxiosResponse<ResponseDTO<GetTrainScheduleDTO[]>> = await axiosInstance.get(
-                TRAIN_SCHEDULE_ENDPOINTS.GET_ALL,
+                `${TRAIN_SCHEDULE_ENDPOINTS.GET_BY_STATION}/${params.stationId}`,
                 {
                     params: {
-                        filterOn: params.filterOn,
-                        filterQuery: params.filterQuery,
-                        sortBy: params.sortBy,
-                        isAscending: params.isAscending,
-                        pageNumber: params.pageNumber || 1,
-                        pageSize: params.pageSize || 10
+                        direction: params.direction
                     }
                 }
             );
