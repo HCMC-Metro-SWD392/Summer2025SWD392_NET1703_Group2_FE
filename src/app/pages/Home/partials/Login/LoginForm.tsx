@@ -42,6 +42,7 @@ const LoginForm: React.FC = () => {
         default:
           navigate("/");
       }
+      // message.success("Đăng nhập thành công!");
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
