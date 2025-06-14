@@ -72,7 +72,7 @@ const EditPromotion: React.FC = () => {
 
       const promotionData: UpdatePromotionDTO = {
         id: values.id,
-        code: values.code,
+        code: form.getFieldValue('code'),
         description: values.description,
         promotionType: typeof values.promotionType === 'number' ? values.promotionType : (values.promotionType === PromotionType.Percentage ? 0 : 1),
         percentage: values.promotionType === PromotionType.Percentage ? values.percentage : null,
@@ -138,19 +138,14 @@ const EditPromotion: React.FC = () => {
             <Form.Item
               label="Mã Khuyến Mãi"
               name="code"
-              rules={[
-                { required: true, message: 'Vui lòng nhập mã khuyến mãi' },
-                { min: 1, message: 'Mã khuyến mãi không được để trống' },
-                { whitespace: true, message: 'Mã khuyến mãi không được để trống' }
-              ]}
             >
-              <Input placeholder="Nhập mã khuyến mãi" />
+              <Input disabled placeholder="Mã khuyến mãi" />
             </Form.Item>
 
             <Form.Item
               label="Loại Khuyến Mãi"
               name="promotionType"
-              rules={[{ required: true, message: 'Please select promotion type' }]}
+              rules={[{ required: true, message: 'Vui lòng chọn loại khuyến mãi' }]}
             >
               <Select onChange={handlePromotionTypeChange}>
                 <Select.Option value={PromotionType.Percentage}>Giảm Giá Theo Phần Trăm</Select.Option>
