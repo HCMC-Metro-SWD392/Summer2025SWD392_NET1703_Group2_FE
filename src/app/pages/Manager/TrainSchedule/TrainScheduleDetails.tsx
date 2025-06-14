@@ -110,8 +110,8 @@ const TrainScheduleDetails: React.FC = () => {
                         <div>
                             <Text strong>Hướng:</Text>
                             <p>
-                                <Tag color={schedule.direction === TrainScheduleType.Up ? 'blue' : 'green'}>
-                                    {schedule.direction === TrainScheduleType.Up ? 'Hướng xuôi' : 'Hướng ngược'}
+                                <Tag color={schedule.direction === TrainScheduleType.Forward ? 'blue' : 'green'}>
+                                    {schedule.direction === TrainScheduleType.Forward ? 'Hướng xuôi' : 'Hướng ngược'}
                                 </Tag>
                             </p>
                         </div>

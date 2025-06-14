@@ -201,8 +201,8 @@ const EditTrainSchedule: React.FC = () => {
                             rules={[{ required: true, message: 'Vui lòng chọn hướng!' }]}
                         >
                             <Select placeholder="Chọn hướng">
-                                <Option value={TrainScheduleType.Up}>Hướng xuôi</Option>
-                                <Option value={TrainScheduleType.Down}>Hướng ngược</Option>
+                                <Option value={TrainScheduleType.Forward}>Hướng xuôi</Option>
+                                <Option value={TrainScheduleType.Backward}>Hướng ngược</Option>
                             </Select>
                         </Form.Item>
 
