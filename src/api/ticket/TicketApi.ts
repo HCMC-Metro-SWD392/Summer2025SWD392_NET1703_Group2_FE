@@ -26,10 +26,10 @@ const getTicketTypeNumericValue = (type: SubscriptionTicketType): number => {
 
 // API Endpoints
 const SUBSCRIPTION_TICKET_ENDPOINTS = {
-    CREATE: '/api/SubcriptionTicket',
-    GET_ALL: '/api/SubcriptionTicket/all',
-    GET_BY_ID: '/api/SubcriptionTicket/',
-    UPDATE: '/api/SubcriptionTicket/update/'
+    CREATE: '/api/SubscriptionTicket',
+    GET_ALL: '/api/SubscriptionTicket/all',
+    GET_BY_ID: '/api/SubscriptionTicket/',
+    UPDATE: '/api/SubscriptionTicket/update/'
 } as const;
 
 // Subscription Ticket API Service

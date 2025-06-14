@@ -14,12 +14,20 @@ import {
   Col,
   Popconfirm,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import type { FilterValue, SorterResult, SortOrder } from 'antd/es/table/interface';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { FareApi } from '../../../../api/fareRule/FareApi';
+import { FareApi, type PaginationParams } from '../../../../api/fareRule/FareApi';
 import type { FareRule, CreateFareRuleDTO, UpdateFareRuleDTO, ResponseDTO } from '../../../../api/fareRule/FareInterface';
 
 const { Title } = Typography;
+
+interface TableParams {
+  pagination: TablePaginationConfig;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  filters?: Record<string, FilterValue | null>;
+}
 
 const FareRuleManagement: React.FC = () => {
   const [form] = Form.useForm();
@@ -27,18 +35,52 @@ const FareRuleManagement: React.FC = () => {
   const [fareRules, setFareRules] = useState<FareRule[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRule, setEditingRule] = useState<FareRule | null>(null);
+  const [tableParams, setTableParams] = useState<TableParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      total: 0
+    },
+    sortField: 'minDistance',
+    sortOrder: 'ascend'
+  });
 
   useEffect(() => {
-    fetchFareRules();
-  }, []);
+    fetchFareRules({
+      pageNumber: tableParams.pagination.current,
+      pageSize: tableParams.pagination.pageSize,
+      sortBy: tableParams.sortField,
+      isAscending: tableParams.sortOrder === 'ascend'
+    });
+  }, [tableParams.pagination.current, tableParams.pagination.pageSize, tableParams.sortField, tableParams.sortOrder]);
 
-  const fetchFareRules = async () => {
+  const fetchFareRules = async (params: PaginationParams) => {
     try {
       setLoading(true);
-      const response = await FareApi.getAllFareRules();
+      const response = await FareApi.getAllFareRules(params);
       
       if (response.isSuccess && response.result) {
         setFareRules(response.result);
+        setTableParams(prev => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: response.total || 0,
+            current: params.pageNumber || 1,
+            pageSize: params.pageSize || 10
+          }
+        }));
+      } else if (response.statusCode === 404) {
+        setFareRules([]);
+        setTableParams(prev => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: 0,
+            current: 1
+          }
+        }));
+        message.info('Không tìm thấy quy tắc giá vé nào');
       } else {
         message.error(response.message || 'Không thể tải danh sách quy tắc giá vé');
       }
@@ -69,7 +111,12 @@ const FareRuleManagement: React.FC = () => {
         setIsModalVisible(false);
         form.resetFields();
         setEditingRule(null);
-        fetchFareRules();
+        fetchFareRules({
+          pageNumber: tableParams.pagination.current,
+          pageSize: tableParams.pagination.pageSize,
+          sortBy: tableParams.sortField,
+          isAscending: tableParams.sortOrder === 'ascend'
+        });
       } else {
         message.error(response.message || `Không thể ${editingRule ? 'cập nhật' : 'tạo mới'} quy tắc giá vé`);
       }
@@ -110,9 +157,24 @@ const FareRuleManagement: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<FareRule> | SorterResult<FareRule>[]
+  ) => {
+    const sorterResult = Array.isArray(sorter) ? sorter[0] : sorter;
+    setTableParams({
+      pagination,
+      sortField: sorterResult && sorterResult.field ? (sorterResult.field as string) : 'minDistance',
+      sortOrder: sorterResult && sorterResult.order ? (sorterResult.order as SortOrder) : 'ascend',
+      filters
+    });
+  };
+
   const columns: ColumnsType<FareRule> = [
     {
       title: 'Khoảng Cách (km)',
+      dataIndex: 'minDistance',
       key: 'distance',
       render: (_, record) => `${record.minDistance} - ${record.maxDistance}`,
     },
@@ -134,17 +196,6 @@ const FareRuleManagement: React.FC = () => {
           >
             Chỉnh Sửa
           </Button>
-          <Popconfirm
-            title="Xóa quy tắc giá vé"
-            description="Bạn có chắc chắn muốn xóa quy tắc giá vé này?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />}>
-              Xóa
-            </Button>
-          </Popconfirm>
         </Space>
       ),
     },
@@ -169,13 +220,19 @@ const FareRuleManagement: React.FC = () => {
             columns={columns}
             dataSource={fareRules}
             rowKey="id"
-            pagination={false}
+            pagination={{
+              ...tableParams.pagination,
+              showSizeChanger: true,
+              showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} quy tắc giá vé`,
+              pageSizeOptions: ['10', '20', '50', '100']
+            }}
             locale={{
               emptyText: 'Không có dữ liệu',
               triggerDesc: 'Sắp xếp giảm dần',
               triggerAsc: 'Sắp xếp tăng dần',
               cancelSort: 'Hủy sắp xếp',
             }}
+            size="small"
           />
         </Spin>
       </Card>

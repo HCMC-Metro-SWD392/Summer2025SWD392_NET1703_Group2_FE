@@ -67,15 +67,15 @@ const SubscriptionTicketList: React.FC = () => {
       key: 'ticketName',
       width: '20%',
     },
-    {
-      title: 'Loại Vé',
-      dataIndex: 'ticketType',
-      key: 'ticketType',
-      width: '15%',
-      render: (type: SubscriptionTicketType) => (
-        <Tag color="blue">{getTicketTypeLabel(type)}</Tag>
-      ),
-    },
+    // {
+    //   title: 'Loại Vé',
+    //   dataIndex: 'ticketType',
+    //   key: 'ticketType',
+    //   width: '15%',
+    //   render: (type: SubscriptionTicketType) => (
+    //     <Tag color="blue">{getTicketTypeLabel(type)}</Tag>
+    //   ),
+    // },
     {
       title: 'Giá Vé',
       dataIndex: 'price',
@@ -97,7 +97,7 @@ const SubscriptionTicketList: React.FC = () => {
       render: (_: any, record: GetSubscriptionTicketDTO) => (
         <Space size="middle">
           <Tooltip title="Xem chi tiết">
-            <Button type="link" onClick={() => navigate(`/manager/subscription-ticket/${record.id}`)}>
+            <Button type="primary" onClick={() => navigate(`/manager/subscription-ticket/${record.id}`)}>
               Chi tiết
             </Button>
           </Tooltip>

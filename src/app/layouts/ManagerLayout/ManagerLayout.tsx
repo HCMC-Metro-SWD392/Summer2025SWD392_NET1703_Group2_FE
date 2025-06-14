@@ -4,7 +4,8 @@ import {
   DashboardOutlined,
   DollarCircleOutlined,
   LogoutOutlined,
-  UserOutlined
+  ClockCircleOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import React, { useEffect } from 'react';
@@ -62,6 +63,17 @@ const ManagerLayout: React.FC = () => {
       ],
     },
     {
+      key: 'train-schedule',
+      icon: <ClockCircleOutlined />,
+      label: 'Quản Lý Lịch Trình Tàu',
+      children: [
+        {
+          key: '/manager/train-schedule',
+          label: 'Danh Sách Lịch Trình Tàu',
+        },
+      ],
+    },
+    {
       key: 'fare-management',
       icon: <DollarCircleOutlined />,
       label: 'Quản Lý Giá Vé',
@@ -72,20 +84,20 @@ const ManagerLayout: React.FC = () => {
         },
       ],
     },
-    {
-      key: '/manager/staffs',
-      icon: <UserOutlined />,
-      label: 'Quản Lý Nhân Viên',
-    },
+    // {
+    //   key: '/manager/staffs',
+    //   icon: <UserOutlined />,
+    //   label: 'Quản Lý Nhân Viên',
+    // },
     {
       key: 'sales-finance',
       icon: <DollarCircleOutlined />,
       label: 'Bán Hàng & Tài Chính',
       children: [
-        {
-          key: '/manager/revenue',
-          label: 'Doanh Thu',
-        },
+        // {
+        //   key: '/manager/revenue',
+        //   label: 'Doanh Thu',
+        // },
         {
           key: '/manager/promotion',
           label: 'Khuyến Mãi',

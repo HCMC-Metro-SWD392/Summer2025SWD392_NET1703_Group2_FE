@@ -23,4 +23,5 @@ export interface ResponseDTO<T = any> {
     statusCode: number;
     message: string;
     result?: T;
+    total?: number;  // Add total count for pagination
 }
