@@ -77,3 +77,8 @@ export const getAvailableTicketTypes = async () => {
   const res = await axiosInstance.get(endpoints.getTicketType);
   return res.data;
 };
+
+export const getQRCodeFromSubscription = async (ticketId: string) => {
+  const res = await axiosInstance.get(endpoints.getQRCodeFromSubscription(ticketId));
+  return res.data;
+};

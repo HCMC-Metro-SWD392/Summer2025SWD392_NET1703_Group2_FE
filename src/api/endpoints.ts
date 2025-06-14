@@ -17,6 +17,7 @@ const endpoints = {
   getTicketType: "/api/SubscriptionTicketType/all",
   getSpecialTicket: (startStationId: string, endStationId: string, ticketTypeId: string) => `/api/SubscriptionTicket/by-station/${startStationId}/${endStationId}/${ticketTypeId}`,
   createTicketSubscription: "/api/SubscriptionTicket/create-subscription-ticket",
+  getQRCodeFromSubscription: (ticketId: string) => `/api/Ticket/get-qr-code/${ticketId}`
 };
 
 export default endpoints;
