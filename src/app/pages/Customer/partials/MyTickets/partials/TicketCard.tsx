@@ -120,7 +120,7 @@ const TicketCard = ({
               <div>
                 <div className="text-cyan-800 font-bold text-base">HCMC METRO</div>
                 <div className="text-xs text-gray-600 font-semibold">
-                  {isSubscription ? "Vé tháng" : "Vé lượt"}
+                  {ticket.subscriptionTicketId ? "Vé tháng" : "Vé lượt"}
                 </div>
               </div>
               <Tag color={getStatusColor(status)}>{getStatusLabel(status)}</Tag>
