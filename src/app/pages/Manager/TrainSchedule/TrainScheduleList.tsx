@@ -228,7 +228,7 @@ const TrainScheduleList: React.FC = () => {
           pagination={false}
           bordered
           locale={{
-            emptyText: loading ? 'Đang tải...' : 'Không có dữ liệu'
+            emptyText: loading ? 'Đang tải...' : 'Vui Lòng Chọn Ga Và Hướng'
           }}
         />
       </div>
