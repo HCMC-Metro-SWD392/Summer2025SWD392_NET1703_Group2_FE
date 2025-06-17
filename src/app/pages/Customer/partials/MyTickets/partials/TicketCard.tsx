@@ -59,7 +59,8 @@ const TicketCard = ({
     setLoadingQR(true);
     try {
       const data = await getQRCodeFromSubscription(ticket.id); // dùng chung API cho cả vé lượt & tháng
-      const qrValue = data.qrCodeValue || ticket.id;
+      console.log(data);
+      const qrValue = data.result || ticket.id;
       setQrCodeValue(qrValue);
 
       if (isSubscription) {

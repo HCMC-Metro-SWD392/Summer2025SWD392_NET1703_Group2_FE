@@ -35,7 +35,7 @@ import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSu
 import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
 import Staff from "../pages/Staff/Staff";
-import TestQR from "../components/Test/TestQR";
+import TestQR from "../components/Test/TicketProcessingQR";
 import TrainScheduleList from "../pages/Manager/TrainSchedule/TrainScheduleList";
 import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSchedule";
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
@@ -57,7 +57,6 @@ export default function MainRoutes() {
             <Route path="studentVerify" element={<StudentVerificationForm />}/>
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
-          <Route path="/testQR" element={<TestQR />} />
         </Route>
 
 
@@ -94,10 +93,8 @@ export default function MainRoutes() {
         <Route path="/manager/train-schedule/:id" element={<TrainScheduleDetails />} />
         <Route path="/manager/train-schedule/:id/edit" element={<EditTrainSchedule />} />
       </Route>
-      
 
-
-        <Route path="/staff" element={<Staff />} />
+      <Route path="/staff" element={<Staff />} />
 
         
         

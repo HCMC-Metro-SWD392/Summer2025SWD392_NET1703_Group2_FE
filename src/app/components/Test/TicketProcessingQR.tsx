@@ -8,7 +8,7 @@ import axiosInstance from '../../../settings/axiosInstance';
 const { Paragraph } = Typography;
 const { Option } = Select;
 
-const TestQR: React.FC = () => {
+const TicketProcessingQR: React.FC = () => {
   const [result, setResult] = useState('');
   const [processResult, setProcessResult] = useState<any>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,7 +22,6 @@ const TestQR: React.FC = () => {
   const [loadingStations, setLoadingStations] = useState(false);
   const [processType, setProcessType] = useState<'checkin' | 'checkout'>('checkin');
 
-  // Refs để lưu giá trị mới nhất
   const selectedLineRef = useRef<string | null>(null);
   const selectedStationRef = useRef<Station | null>(null);
   const processTypeRef = useRef<'checkin' | 'checkout'>('checkin');
@@ -45,7 +44,6 @@ const TestQR: React.FC = () => {
   const handleLineChange = async (lineId: string) => {
     setSelectedLine(lineId);
     selectedLineRef.current = lineId;
-
     setSelectedStation(null);
     selectedStationRef.current = null;
 
@@ -113,81 +111,85 @@ const TestQR: React.FC = () => {
   };
 
   return (
-    <div className="p-4 space-y-6 max-w-xl mx-auto">
-      <div>
-        <label className="block font-medium mb-1">Chọn tuyến metro:</label>
-        {loadingLines ? (
-          <Spin />
-        ) : (
-          <Select
-            placeholder="Chọn tuyến"
-            value={selectedLine || undefined}
-            onChange={handleLineChange}
-            className="w-full"
-          >
-            {lines.map((line) => (
-              <Option key={line.id} value={line.id}>
-                {line.metroName}
-              </Option>
-            ))}
-          </Select>
-        )}
-      </div>
-
-      {selectedLine && (
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-gray-50">
+      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-xl space-y-6">
         <div>
-          <label className="block font-medium mb-1">Chọn ga:</label>
-          {loadingStations ? (
+          <label className="block font-medium mb-1">Chọn tuyến metro:</label>
+          {loadingLines ? (
             <Spin />
           ) : (
             <Select
-              placeholder="Chọn ga"
-              value={selectedStation?.id}
-              onChange={handleStationChange}
+              placeholder="Chọn tuyến"
+              value={selectedLine || undefined}
+              onChange={handleLineChange}
               className="w-full"
             >
-              {stations.map((station) => (
-                <Option key={station.id} value={station.id}>
-                  {station.name}
+              {lines.map((line) => (
+                <Option key={line.id} value={line.id}>
+                  {line.metroName}
                 </Option>
               ))}
             </Select>
           )}
         </div>
-      )}
 
-      <div>
-        <label className="block font-medium mb-1">Chọn loại xử lý:</label>
-        <Radio.Group
-          value={processType}
-          onChange={(e) => handleProcessTypeChange(e.target.value)}
-          className="w-full"
-        >
-          <Radio.Button value="checkin">Check-in</Radio.Button>
-          <Radio.Button value="checkout">Check-out</Radio.Button>
-        </Radio.Group>
-      </div>
-
-      <QRScanner onScanSuccess={handleScanSuccess} scannerRef={scannerRef} />
-
-      <Modal
-        title="Kết quả xử lý vé"
-        open={isModalVisible}
-        onOk={handleOk}
-        onCancel={handleOk}
-        okText="OK"
-        cancelText="Đóng"
-      >
-        {processResult ? (
-          <div className="space-y-2">
-            <Paragraph>📄 Thông báo: {processResult}</Paragraph>
+        {selectedLine && (
+          <div>
+            <label className="block font-medium mb-1">Chọn ga:</label>
+            {loadingStations ? (
+              <Spin />
+            ) : (
+              <Select
+                placeholder="Chọn ga"
+                value={selectedStation?.id}
+                onChange={handleStationChange}
+                className="w-full"
+              >
+                {stations.map((station) => (
+                  <Option key={station.id} value={station.id}>
+                    {station.name}
+                  </Option>
+                ))}
+              </Select>
+            )}
           </div>
-        ) : (
-          <Paragraph type="danger">Không có dữ liệu hoặc xảy ra lỗi!</Paragraph>
         )}
-      </Modal>
+
+        <div>
+          <label className="block font-medium mb-1">Chọn loại xử lý:</label>
+          <Radio.Group
+            value={processType}
+            onChange={(e) => handleProcessTypeChange(e.target.value)}
+            className="w-full"
+          >
+            <Radio.Button value="checkin">Check-in</Radio.Button>
+            <Radio.Button value="checkout">Check-out</Radio.Button>
+          </Radio.Group>
+        </div>
+
+        <div className="border rounded-xl p-4 bg-gray-100">
+          <QRScanner onScanSuccess={handleScanSuccess} scannerRef={scannerRef} />
+        </div>
+
+        <Modal
+          title="Kết quả xử lý vé"
+          open={isModalVisible}
+          onOk={handleOk}
+          onCancel={handleOk}
+          okText="OK"
+          cancelText="Đóng"
+        >
+          {processResult ? (
+            <div className="space-y-2">
+              <Paragraph>📄 Thông báo: {processResult}</Paragraph>
+            </div>
+          ) : (
+            <Paragraph type="danger">Không có dữ liệu hoặc xảy ra lỗi!</Paragraph>
+          )}
+        </Modal>
+      </div>
     </div>
   );
 };
 
-export default TestQR;
+export default TicketProcessingQR;

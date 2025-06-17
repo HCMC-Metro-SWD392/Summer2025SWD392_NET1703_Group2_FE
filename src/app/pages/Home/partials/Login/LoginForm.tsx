@@ -28,20 +28,33 @@ const LoginForm: React.FC = () => {
     try {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
+      const token = localStorage.getItem("accessToken");
 
-      switch (data.userRole) {
-        case "manager":
-          navigate("/manager");
+      if (!token) {
+        message.error("Không tìm thấy token.");
+        return;
+      }
+
+      const decoded: any = jwtDecode(token);
+      const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+      switch (role) {
+        case "CUSTOMER":
+          navigate("/");
           break;
-        case "staff":
+        case "STAFF":
           navigate("/staff");
           break;
-        case "admin":
-          navigate("/admin");
+        case "MANAGER":
+          navigate("/manager");
           break;
+        case "ADMIN":
+          navigate("/admin");
+          break;  
         default:
           navigate("/");
       }
+      // message.success("Đăng nhập thành công!");
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
