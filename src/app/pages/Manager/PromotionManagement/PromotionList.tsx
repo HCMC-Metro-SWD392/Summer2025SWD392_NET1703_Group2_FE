@@ -151,22 +151,29 @@ const PromotionList: React.FC = () => {
         );
       },
     },
-    // {
-    //   title: 'Mô Tả',
-    //   dataIndex: 'description',
-    //   key: 'description',
-    //   ellipsis: true,
-    // },
     {
-      title: 'Thời Gian',
+      title: 'Ngày Bắt Đầu',
       key: 'period',
       sorter: true,
-      sortOrder: (tableParams.sortField === 'startdate' || tableParams.sortField === 'enddate')
+      sortOrder: (tableParams.sortField === 'startdate')
         ? (tableParams.sortOrder as SortOrder)
         : null,
       render: (_, record) => (
         <span>
-          {dayjs(record.startDate).format('DD/MM/YYYY')} - {dayjs(record.endDate).format('DD/MM/YYYY')}
+          {dayjs(record.startDate).format('DD/MM/YYYY')}
+        </span>
+      ),
+    },
+    {
+      title: 'Ngày Kết Thúc',
+      key: 'period',
+      sorter: true,
+      sortOrder: (tableParams.sortField === 'enddate')
+        ? (tableParams.sortOrder as SortOrder)
+        : null,
+      render: (_, record) => (
+        <span>
+          {dayjs(record.endDate).format('DD/MM/YYYY')}
         </span>
       ),
     },
