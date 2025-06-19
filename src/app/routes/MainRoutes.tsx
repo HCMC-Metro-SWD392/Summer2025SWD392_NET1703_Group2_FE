@@ -35,6 +35,7 @@ import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSu
 import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
 import Staff from "../pages/Staff/Staff";
+import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
 
 export default function MainRoutes() {
   return (
@@ -51,6 +52,7 @@ export default function MainRoutes() {
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
             <Route path="studentVerify" element={<StudentVerificationForm />}/>
           </Route>
+          <Route path="/metro-line" element={<AllMetroLine />} />
           <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
 
