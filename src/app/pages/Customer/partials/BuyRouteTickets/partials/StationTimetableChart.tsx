@@ -1,144 +1,104 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Divider, Spin } from "antd";
-import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
-import TrainList from "./TrainList";
-import type { TimetableItem } from "./TrainList";
+import { Spin, Empty, Typography } from "antd";
 import { fetchTimetable } from "../../../../../../api/buyRouteTicket/buyRouteTicket";
+import type { TimetableItem } from "./TrainList";
+import TrainList from "./TrainList";
+import type { LineStartAndEndStation, Station } from "../../../../../../types/types";
+
+const { Text } = Typography;
 
 interface Props {
-  stationId: string;
+  station: Station | null;
+  startAndEndStationOfLine: LineStartAndEndStation | null;
+  tourRef?: React.RefObject<HTMLDivElement | null>; // Ref để dùng với Tour
 }
 
-const StationTimetableChart: React.FC<Props> = ({ stationId }) => {
-  const [timetableData, setTimetableData] = useState<TimetableItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [countdownUp, setCountdownUp] = useState<string | null>(null);
-  const [countdownDown, setCountdownDown] = useState<string | null>(null);
-  const [closestUpIndex, setClosestUpIndex] = useState<number>(-1);
-  const [closestDownIndex, setClosestDownIndex] = useState<number>(-1);
+const StationTimetableChart: React.FC<Props> = ({
+  station,
+  startAndEndStationOfLine,
+  tourRef,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<TimetableItem[]>([]);
+  const [closestIndex, setClosestIndex] = useState<number>(-1);
 
-  const listRefsUp = useRef<(HTMLDivElement | null)[]>([]);
-  const listRefsDown = useRef<(HTMLDivElement | null)[]>([]);
-  const listWrapperRefUp = useRef<HTMLDivElement>(null!);
-  const listWrapperRefDown = useRef<HTMLDivElement>(null!);
+  const listRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const wrapperRef = useRef<HTMLDivElement>(null!);
 
   const parseTimeToDate = (time: string): Date => {
     const [h, m] = time.split(":").map(Number);
     const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
   };
 
-  const findClosestIndex = (data: TimetableItem[]): number => {
+  const findClosestIndex = (list: TimetableItem[]): number => {
     const now = new Date();
-    for (let i = 0; i < data.length; i++) {
-      if (parseTimeToDate(data[i].startTime) > now) return i;
-    }
-    return -1;
+    return list.findIndex((item) => parseTimeToDate(item.startTime) > now);
   };
 
-  const setupCountdown = (
-    index: number,
-    data: TimetableItem[],
-    setCountdown: React.Dispatch<React.SetStateAction<string | null>>
-  ) => {
-    if (index === -1) return;
-
-    const interval = setInterval(() => {
-      const now = new Date();
-      const targetTime = parseTimeToDate(data[index].startTime);
-      const diff = targetTime.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        setCountdown("Đã chạy");
-        clearInterval(interval);
-      } else {
-        const mins = Math.floor(diff / 1000 / 60);
-        const secs = Math.floor((diff / 1000) % 60);
-        setCountdown(`Còn ${mins} phút ${secs} giây`);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  };
-
-  const scrollToItem = (
-    index: number,
-    itemRefs: React.MutableRefObject<(HTMLDivElement | null)[]>,
-    wrapperRef: React.RefObject<HTMLDivElement>
-  ) => {
-    if (index !== -1 && itemRefs.current[index] && wrapperRef.current) {
-      wrapperRef.current.scrollTop = itemRefs.current[index]!.offsetTop - 40;
+  const scrollToItem = (index: number) => {
+    if (index !== -1 && listRefs.current[index] && wrapperRef.current) {
+      wrapperRef.current.scrollTop = listRefs.current[index]!.offsetTop - 40;
     }
   };
 
   useEffect(() => {
-    const loadTimetable = async () => {
+    if (!station?.id) return;
+
+    const loadData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const data = await fetchTimetable(stationId);
-        setTimetableData(data.result);
-      } catch (error) {
-        console.error("Failed to load timetable:", error);
+        const res = await fetchTimetable(station.id);
+        const sorted = res.result.sort(
+          (a: TimetableItem, b: TimetableItem) =>
+            parseTimeToDate(a.startTime).getTime() -
+            parseTimeToDate(b.startTime).getTime()
+        );
+        setData(sorted);
+      } catch (err) {
+        console.error("Failed to fetch timetable:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadTimetable();
-  }, [stationId]);
-
-  const upTrains = timetableData.filter((item) => item.direction === 0);
-  const downTrains = timetableData.filter((item) => item.direction === 1);
+    loadData();
+  }, [station?.id]);
 
   useEffect(() => {
-    if (timetableData.length === 0) return;
+    const index = findClosestIndex(data);
+    setClosestIndex(index);
+    scrollToItem(index);
+  }, [data]);
 
-    const upIndex = findClosestIndex(upTrains);
-    const downIndex = findClosestIndex(downTrains);
-
-    setClosestUpIndex(upIndex);
-    setClosestDownIndex(downIndex);
-
-    scrollToItem(upIndex, listRefsUp, listWrapperRefUp);
-    scrollToItem(downIndex, listRefsDown, listWrapperRefDown);
-
-    const clearUp = setupCountdown(upIndex, upTrains, setCountdownUp);
-    const clearDown = setupCountdown(downIndex, downTrains, setCountdownDown);
-
-    return () => {
-      clearUp && clearUp();
-      clearDown && clearDown();
-    };
-  }, [timetableData]);
+  if (station === null) {
+    return (
+      <div className="mt-3" ref={tourRef}>
+        <Text strong>🕒 Giờ tàu chạy:</Text>
+        <div className="mt-2 bg-white border border-dashed border-gray-500 rounded-xl p-4 text-center text-gray-500">
+          <div className="min-h-48 flex items-center justify-center">
+            <Empty description="Chọn ga để xem giờ chạy" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Spin spinning={loading} tip="Đang tải dữ liệu...">
-      <div className="mt-4 bg-white border border-dashed border-gray-500 rounded-xl p-4 shadow-sm">
-        <TrainList
-          title="Chiều đi"
-          color="blue"
-          icon={<ArrowUpOutlined />}
-          data={upTrains}
-          closestIndex={closestUpIndex}
-          countdown={countdownUp}
-          listRefs={listRefsUp}
-          wrapperRef={listWrapperRefUp}
-        />
-
-        <Divider className="my-4" />
-
-        <TrainList
-          title="Chiều về"
-          color="green"
-          icon={<ArrowDownOutlined />}
-          data={downTrains}
-          closestIndex={closestDownIndex}
-          countdown={countdownDown}
-          listRefs={listRefsDown}
-          wrapperRef={listWrapperRefDown}
-        />
-      </div>
-    </Spin>
+    <div className="mt-3" ref={tourRef}>
+      <Text strong>🕒 Giờ tàu chạy: Tại {station.name}</Text>
+      <Spin spinning={loading} tip="Đang tải dữ liệu...">
+        <div className="mt-2 bg-white border border-dashed border-gray-500 rounded-xl p-4 shadow-sm">
+          <TrainList
+            data={data}
+            closestIndex={closestIndex}
+            listRefs={listRefs}
+            wrapperRef={wrapperRef}
+            startAndEndStationOfLine={startAndEndStationOfLine}
+          />
+        </div>
+      </Spin>
+    </div>
   );
 };
 

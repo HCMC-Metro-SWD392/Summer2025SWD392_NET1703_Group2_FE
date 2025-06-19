@@ -19,6 +19,11 @@ export const getTicketRoute = async (startStationId: string, endStationId: strin
   return response.data;
 };
 
+export const getSpecialTicket = async (startStationId: string, endStationId: string, ticketTypeId: string) => {
+  const response = await axiosInstance.get(endpoints.getSpecialTicket(startStationId, endStationId, ticketTypeId));
+  return response.data;
+};
+
 export const createTicketRoute = async (startStationId: string, endStationId: string) => {
   const response = await axiosInstance.post(
     endpoints.createTicketRoute,
@@ -30,17 +35,32 @@ export const createTicketRoute = async (startStationId: string, endStationId: st
   return response.data;
 };
 
+export const createTicketSubcription = async (ticketTypeId: string, startStationId: string, endStationId: string) => {
+  const response = await axiosInstance.post(
+    endpoints.createTicketSubscription,
+    {
+      ticketTypeId,
+      startStationId,
+      endStationId,
+    }
+  );
+  return response.data;
+};
+
 export const createPaymentLink = async ({
   ticketRouteId,
+  subscriptionTicketId,
   codePromotion,
 }: {
-  ticketRouteId: string;
+  ticketRouteId?: string;
+  subscriptionTicketId?: string,
   codePromotion?: string;
 }) => {
   const response = await axiosInstance.post(
     endpoints.createPaymentLink,
     {
-      ticketRouteId,
+      ticketRouteId: ticketRouteId || null,
+      subscriptionTicketId: subscriptionTicketId || null,
       codePromotion: codePromotion || null,
     }
   );
@@ -48,14 +68,17 @@ export const createPaymentLink = async ({
 };
 
 export const fetchTimetable = async (stationId: string) => {
-  const response = await axiosInstance.get(endpoints.getMetroSchedule, {
-    params: {
-      filterOn: "stationId",
-      filterQuery: stationId,
-      sortBy: "startTime",
-      isAcsending: true,
-    },
-  });
+  const response = await axiosInstance.get(endpoints.getMetroScheduleByStation(stationId));
   return response.data;
 
+};
+
+export const getAvailableTicketTypes = async () => {
+  const res = await axiosInstance.get(endpoints.getTicketType);
+  return res.data;
+};
+
+export const getQRCodeFromSubscription = async (ticketId: string) => {
+  const res = await axiosInstance.get(endpoints.getQRCodeFromSubscription(ticketId));
+  return res.data;
 };

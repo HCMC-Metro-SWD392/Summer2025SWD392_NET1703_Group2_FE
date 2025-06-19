@@ -35,7 +35,11 @@ import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSu
 import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
 import Staff from "../pages/Staff/Staff";
-import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
+import TestQR from "../components/Test/TicketProcessingQR";
+import TrainScheduleList from "../pages/Manager/TrainSchedule/TrainScheduleList";
+import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSchedule";
+import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
+import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
 
 export default function MainRoutes() {
   return (
@@ -85,11 +89,13 @@ export default function MainRoutes() {
         <Route path="/manager/station/:id/edit" element={<EditStation />} />
         <Route path="/manager/metro-line" element={<MetroLineList />} />
         <Route path="/manager/metro-line/:id" element={<MetroLineDetails />} />
+        <Route path="/manager/train-schedule" element={<TrainScheduleList />} />
+        <Route path="/manager/create-train-schedule" element={<CreateTrainSchedule />} />
+        <Route path="/manager/train-schedule/:id" element={<TrainScheduleDetails />} />
+        <Route path="/manager/train-schedule/:id/edit" element={<EditTrainSchedule />} />
       </Route>
-      
 
-
-        <Route path="/staff" element={<Staff />} />
+      <Route path="/staff" element={<Staff />} />
 
         
         

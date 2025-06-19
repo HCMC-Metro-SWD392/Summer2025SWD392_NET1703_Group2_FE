@@ -15,20 +15,7 @@ const TicketServiceMenu: React.FC = () => {
           key: "ticket-buy",
           label: "Mua vé",
           icon: <CreditCardOutlined />,
-          children: [
-            {
-              key: "buy-single",
-              label: "Mua vé lượt",
-              icon: <ShoppingCartOutlined />,
-              onClick: () => navigate("/tickets/buy-route"),
-            },
-            {
-              key: "buy-subcription",
-              label: "Mua vé kỳ",
-              icon: <CalendarOutlined />,
-              onClick: () => navigate("/tickets/buy-subcription"),
-            },
-          ],
+          onClick: () => navigate("/tickets/buy-route"),
         },
         {
           key: "ticket-list",

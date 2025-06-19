@@ -1,38 +1,88 @@
-import React, { useEffect, useState } from "react";
-import { Card, Steps, Button, message } from "antd";
-import type { Station, Line } from "../../../../../types/types";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Card,
+  Button,
+  message,
+  Divider,
+  Image,
+  Tour,
+} from "antd";
+import {
+  QuestionCircleOutlined,
+  EnvironmentOutlined,
+} from "@ant-design/icons";
+import type {
+  Station,
+  Line,
+  LineStartAndEndStation,
+  TicketType,
+} from "../../../../../types/types";
 import {
   createPaymentLink,
   createTicketRoute,
+  createTicketSubcription,
+  getAvailableTicketTypes,
   getMetroLines,
+  getSpecialTicket,
   getStationsByMetroLine,
   getTicketRoute,
 } from "../../../../../api/buyRouteTicket/buyRouteTicket";
 import StepFrom from "./partials/StepFrom";
 import StepTo from "./partials/StepTo";
 import StepPayment from "./partials/StepPayment";
-
-const { Step } = Steps;
+import StationTimetableChart from "./partials/StationTimetableChart";
+import mapImage from "../../../../assets/HCMC_METRO_SWD391.drawio.png"
 
 const BuyRouteTicket: React.FC = () => {
-  const [current, setCurrent] = useState(0);
-
-  // State
   const [lines, setLines] = useState<Line[]>([]);
   const [fromStations, setFromStations] = useState<Station[]>([]);
   const [toStations, setToStations] = useState<Station[]>([]);
   const [fromLine, setFromLine] = useState<string | null>(null);
+  const [fromLineStartAndEndStation, setFromLineStartAndEndStation] =
+    useState<LineStartAndEndStation | null>(null);
   const [fromStation, setFromStation] = useState<Station | null>(null);
   const [toLine, setToLine] = useState<string | null>(null);
+  const [toLineStartAndEndStation, setToLineStartAndEndStation] =
+    useState<LineStartAndEndStation | null>(null);
   const [toStation, setToStation] = useState<Station | null>(null);
   const [loadingLines, setLoadingLines] = useState(false);
-  const [loadingStations, setLoadingStations] = useState(false);
-  const [loadingPrice, setLoadingPrice] = useState(false);
+  const [loadingFromStations, setLoadingFromStations] = useState(false);
+  const [loadingToStations, setLoadingToStations] = useState(false);
   const [ticketPrice, setTicketPrice] = useState<number | null>(null);
   const [ticketRouteId, setTicketRouteId] = useState<string | null>(null);
+  const [loadingPrice, setLoadingPrice] = useState(false);
   const [loadingPay, setLoadingPay] = useState(false);
+  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([]);
+  const [ticketType, setTicketType] = useState<
+    "normal" | "student" | "monthly"
+  >("normal");
+  const [confirmed, setConfirmed] = useState(false);
+  const [openTour, setOpenTour] = useState(false);
 
-  // Load all metro lines
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const fromRef = useRef<HTMLDivElement | null>(null);
+  const toRef = useRef<HTMLDivElement | null>(null);
+  const infoRef = useRef(null);
+  const ticketInfoRef = useRef(null);
+  const ticketTypeRef = useRef(null);
+  const timeFromInfoRef = useRef<HTMLDivElement | null>(null);
+  const timeToInfoRef = useRef<HTMLDivElement | null>(null);
+  const payRef = useRef(null);
+
+  const selectedTicket = useMemo(
+    () => ticketType === "normal" ? null : ticketTypes.find((t) => t.name === ticketType),
+    [ticketType, ticketTypes]
+  );
+  // const ticketDisplayName = ticketType === "normal" ? "Vé lượt" : selectedTicket?.displayName || "";
+  // const ticketName = ticketType === "normal" ? "Vé lượt" : selectedTicket?.name || "";
+  // const ticketticketEx = ticketType === "normal" ? "Vé lượt" : selectedTicket?.expiration || "";
+  const ticketSubcriptionId = ticketType === "normal" ? "" : selectedTicket?.id || "";
+  const ticketTypeObject: TicketType | null =
+    ticketType === "normal"
+      ? { id: "", name: "normal", displayName: "Vé lượt", expiration: 30 }
+      : selectedTicket ?? null;
+
   useEffect(() => {
     const fetchLines = async () => {
       setLoadingLines(true);
@@ -48,174 +98,328 @@ const BuyRouteTicket: React.FC = () => {
     fetchLines();
   }, []);
 
-  // Load stations by line
-  const loadStations = async (lineId: string, isFrom: boolean) => {
-    setLoadingStations(true);
-    try {
-      const stations = await getStationsByMetroLine(lineId);
-      if (isFrom) {
-        setFromLine(lineId);
-        setFromStation(null);
-        setFromStations(stations.result);
-      } else {
-        setToLine(lineId);
-        setToStation(null);
-        setToStations(stations.result);
-      }
-    } catch {
-      message.error("Không thể tải danh sách ga.");
-    } finally {
-      setLoadingStations(false);
-    }
-  };
-
-  // Next / Prev step
-  const next = () => {
-    if (current === 0) {
-      if (!fromLine) return message.warning("Vui lòng chọn tuyến đi");
-      if (!fromStation) return message.warning("Vui lòng chọn ga đi");
-    }
-    if (current === 1) {
-      if (!toLine) return message.warning("Vui lòng chọn tuyến đến");
-      if (!toStation) return message.warning("Vui lòng chọn ga đến");
-    }
-    setCurrent(current + 1);
-  };
-  const prev = () => setCurrent(current - 1);
-
-  // Fetch ticket price & route
   useEffect(() => {
-    const fetchTicketPrice = async () => {
-      if (current === 2 && fromStation && toStation) {
+    const fetchTicketTypes = async () => {
+      try {
+        const res = await getAvailableTicketTypes();
+        setTicketTypes(res.result);
+      } catch {
+        message.error("Không thể tải các loại vé.");
+      }
+    };
+    fetchTicketTypes();
+  }, []);
+
+  const loadStations = async (lineId: string, isFrom: boolean) => {
+    if (isFrom) {
+      setLoadingFromStations(true);
+      try {
+        const data = await getStationsByMetroLine(lineId);
+        setFromLine(lineId);
+        setFromLineStartAndEndStation({
+          startStation: data.result[0],
+          endStation: data.result[data.result.length - 1],
+        });
+        setFromStation(null);
+        setFromStations(data.result);
+      } catch {
+        message.error("Không thể tải danh sách ga.");
+      } finally {
+        setLoadingFromStations(false);
+      }
+    } else {
+      setLoadingToStations(true);
+      try {
+        const data = await getStationsByMetroLine(lineId);
+        setToLine(lineId);
+        setToLineStartAndEndStation({
+          startStation: data.result[0],
+          endStation: data.result[data.result.length - 1],
+        });
+        setToStation(null);
+        setToStations(data.result);
+      } catch {
+        message.error("Không thể tải danh sách ga.");
+      } finally {
+        setLoadingToStations(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const fetchPrice = async () => {
+      if (fromStation && toStation) {
         setLoadingPrice(true);
         try {
-          const response = await getTicketRoute(fromStation.id, toStation.id);
-          setTicketPrice(response?.result?.price || null);
-          setTicketRouteId(response?.result?.ticketRouteId || null);
+          if (ticketType === "normal") {
+            const data = await getTicketRoute(fromStation.id, toStation.id);
+            setTicketPrice(data?.result?.price || null);
+            setTicketRouteId(data?.result?.ticketRouteId || null);
+          } else {
+            const res = await getSpecialTicket(
+              fromStation.id,
+              toStation.id,
+              ticketSubcriptionId
+            );
+            setTicketPrice(res?.result?.price || null);
+            setTicketRouteId(res?.result?.id || null);
+          }
         } catch {
           try {
-            await createTicketRoute(fromStation.id, toStation.id);
-            const retry = await getTicketRoute(fromStation.id, toStation.id);
-            setTicketPrice(retry?.result?.price || null);
-            setTicketRouteId(retry?.result?.ticketRouteId || null);
+            if (ticketType === "normal") {
+              await createTicketRoute(fromStation.id, toStation.id);
+              const retry = await getTicketRoute(fromStation.id, toStation.id);
+              setTicketPrice(retry?.result?.price || null);
+              setTicketRouteId(retry?.result?.ticketRouteId || null);
+            } else {
+              await createTicketSubcription(
+                ticketSubcriptionId,
+                fromStation.id,
+                toStation.id
+              );
+              const retry = await getSpecialTicket(
+                fromStation.id,
+                toStation.id,
+                ticketSubcriptionId
+              );
+              setTicketPrice(retry?.result?.price || null);
+              setTicketRouteId(retry?.result?.id || null);
+            }
           } catch {
             message.error("Không thể lấy giá vé.");
           }
         } finally {
           setLoadingPrice(false);
         }
+      } else {
+        setTicketPrice(null);
+        setTicketRouteId(null);
       }
     };
-    fetchTicketPrice();
-  }, [current, fromStation, toStation]);
+    fetchPrice();
+  }, [fromStation, toStation, ticketType]);
 
   const handlePay = async () => {
-    if (!ticketRouteId) {
-      message.error("Không tìm thấy tuyến vé.");
-      return;
-    }
+    if (!ticketRouteId)
+      return message.error("Không tìm thấy tuyến vé.");
     setLoadingPay(true);
     try {
-      const res = await createPaymentLink({ ticketRouteId });
-      const checkoutUrl = res?.result?.paymentLink?.checkoutUrl;
-      if (!checkoutUrl) {
-        message.error("Không lấy được link thanh toán.");
-        return;
-      }
-      window.location.href = checkoutUrl;
-    } catch {
-      message.error("Đã xảy ra lỗi khi tạo link thanh toán.");
+      const res = await createPaymentLink(
+        ticketType === "normal"
+          ? { ticketRouteId }
+          : { subscriptionTicketId: ticketRouteId }
+      );
+      const url = res?.result?.paymentLink?.checkoutUrl;
+      if (url) window.location.href = url;
+      else message.error("Không lấy được link thanh toán.");
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "Đã xảy ra lỗi khi tạo link thanh toán.";
+      message.error(errorMessage);
     } finally {
-    setLoadingPay(false);
-  }
+      setLoadingPay(false);
+    }
   };
 
   return (
-    <div className="bg-[#f0f8ff] min-h-[100vh] py-10 px-4">
-      <div className="max-w-6xl mx-auto">
-        <Card className="rounded-2xl shadow-xl">
-          <Steps current={current} className="!mb-8">
-            <Step
-              title={
+    <div className="bg-[#f0f8ff] min-h-screen py-10 px-4">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-stretch gap-6">
+        <div className="flex-1 flex flex-col">
+          <Card className="!rounded-2xl !shadow-xl flex-grow flex flex-col">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-blue-800">
+                Mua Vé Tuyến Metro
+              </h2>
+              <div className="flex items-center gap-2">
+                <Button
+                  icon={<EnvironmentOutlined />}
+                  shape="circle"
+                  onClick={() => setPreviewOpen(true)}
+                  title="Xem bản đồ tuyến"
+                />
+                <Button
+                  icon={<QuestionCircleOutlined />}
+                  shape="circle"
+                  onClick={() => setOpenTour(true)}
+                  title="Hướng dẫn sử dụng"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 flex-grow">
+              <div className="flex-1 flex flex-col gap-6">
                 <div>
-                  Chọn điểm đi
-                  {fromStation && (
-                    <div className="text-xs text-blue-600">{fromStation.name}</div>
-                  )}
+                  <h3 className="text-base font-semibold mb-2">Điểm đi</h3>
+                  <StepFrom
+                    tourRef={fromRef}
+                    lines={lines}
+                    fromLine={fromLine}
+                    fromStations={fromStations}
+                    fromStation={fromStation}
+                    loadingLines={loadingLines}
+                    loadingStations={loadingFromStations}
+                    onLineChange={(val) => loadStations(val, true)}
+                    onStationSelect={setFromStation}
+                  />
+                  <StationTimetableChart
+                    station={fromStation}
+                    startAndEndStationOfLine={fromLineStartAndEndStation}
+                    tourRef={timeFromInfoRef}
+                  />
                 </div>
-              }
-            />
-            <Step
-              title={
+              </div>
+
+              <div className="flex-1 flex flex-col gap-6">
                 <div>
-                  Chọn điểm đến
-                  {toStation && (
-                    <div className="text-xs text-blue-600">{toStation.name}</div>
-                  )}
+                  <h3 className="text-base font-semibold mb-2">Điểm đến</h3>
+                  <StepTo
+                    tourRef={toRef}
+                    lines={lines}
+                    toLine={toLine}
+                    toStations={toStations}
+                    toStation={toStation}
+                    fromStation={fromStation}
+                    loadingLines={loadingLines}
+                    loadingStations={loadingToStations}
+                    onLineChange={(val) => loadStations(val, false)}
+                    onStationSelect={setToStation}
+                  />
+                  <StationTimetableChart
+                    station={toStation}
+                    startAndEndStationOfLine={toLineStartAndEndStation}
+                    tourRef={timeToInfoRef}
+                  />
                 </div>
-              }
-            />
-            <Step title="Thanh toán" />
-          </Steps>
+              </div>
+            </div>
+          </Card>
+        </div>
 
-          {/* Step content */}
-          {current === 0 && (
-            <StepFrom
-              lines={lines}
-              fromLine={fromLine}
-              fromStations={fromStations}
-              fromStation={fromStation}
-              loadingLines={loadingLines}
-              loadingStations={loadingStations}
-              onLineChange={(val) => loadStations(val, true)}
-              onStationSelect={setFromStation}
-            />
-          )}
+        <div className="md:w-1/3 flex flex-col">
+          <div className="bg-white rounded-2xl shadow-xl p-6 flex-grow flex flex-col">
+            <div ref={ticketInfoRef}>
+              <h3 className="text-base font-semibold mb-3 text-blue-800">
+                Thông tin vé
+              </h3>
+              <StepPayment
+                fromStation={fromStation}
+                toStation={toStation}
+                ticketPrice={ticketPrice}
+                loadingPrice={loadingPrice}
+                ticketType={ticketTypeObject}
+              />
+            </div>
 
-          {current === 1 && (
-            <StepTo
-              lines={lines}
-              toLine={toLine}
-              toStations={toStations}
-              toStation={toStation}
-              fromStation={fromStation}
-              loadingLines={loadingLines}
-              loadingStations={loadingStations}
-              onLineChange={(val) => loadStations(val, false)}
-              onStationSelect={setToStation}
-            />
-          )}
+            <div className="mt-4" ref={ticketTypeRef}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Loại vé
+              </label>
+              <div className="flex gap-2 flex-wrap">
+                {[{ name: "normal", displayName: "Vé lượt" }, ...ticketTypes].map((item) => (
+                  <Button
+                    key={item.name}
+                    type={ticketType === item.name ? "primary" : "default"}
+                    onClick={() => setTicketType(item.name as typeof ticketType)}
+                  >
+                    {item.displayName}
+                  </Button>
+                ))}
+              </div>
+            </div>
 
-          {current === 2 && fromStation && toStation && (
-            <StepPayment
-              fromStation={fromStation}
-              toStation={toStation}
-              ticketPrice={ticketPrice}
-              loadingPrice={loadingPrice}
-            />
-          )}
+            <Divider className="!my-4" />
 
-          {/* Buttons */}
-          <div className="flex justify-between mt-8">
-            {current > 0 && <Button onClick={prev}>Quay lại</Button>}
-            {current < 2 && (
-              <Button type="primary" onClick={next}>
-                Tiếp theo
-              </Button>
-            )}
-            {current === 2 && (
+            <div ref={infoRef}>
+              <p className="text-sm text-red-600 mb-2">
+                <span className="font-bold">*</span> Quý khách vui lòng kiểm
+                tra thông tin trước khi thanh toán. Metro không chấp nhận hoàn
+                vé trong mọi trường hợp.
+              </p>
+              <label className="inline-flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-4 w-4 text-blue-600"
+                  checked={confirmed}
+                  onChange={(e) => setConfirmed(e.target.checked)}
+                />
+                <span className="text-sm text-gray-700">
+                  Tôi đã kiểm tra thông tin và xác nhận thanh toán
+                </span>
+              </label>
+            </div>
+
+            <div className="mt-4" ref={payRef}>
               <Button
                 type="primary"
-                onClick={handlePay}
+                size="large"
+                disabled={!ticketRouteId || loadingPrice || !confirmed}
                 loading={loadingPay}
-                disabled={loadingPrice || !ticketRouteId}
+                onClick={handlePay}
+                className="!w-full"
               >
                 Thanh toán
               </Button>
-            )}
+            </div>
           </div>
-        </Card>
+        </div>
       </div>
+
+      <Tour
+        open={openTour}
+        onClose={() => setOpenTour(false)}
+        steps={[
+          {
+            title: "Chọn tuyến và ga đi",
+            description: "Đầu tiên, chọn tuyến metro sau đó chọn ga cho điểm đi.",
+            target: () => fromRef.current!,
+          },
+          {
+            title: "Xem thời gian tàu ghé ga đi",
+            description: "Sau khi bạn chọn ga đi thì bạn có thể xem thời gian tàu ghé ga tại đây",
+            target: () => timeFromInfoRef.current!,
+          },
+          {
+            title: "Chọn tuyến và ga đến",
+            description: "Tiếp theo, chọn tuyến metro và chọn ga bạn muốn đến.",
+            target: () => toRef.current!,
+          },
+          {
+            title: "Xem thời gian tàu ghé ga đến",
+            description: "Sau khi bạn chọn ga đến thì bạn có thể xem thời gian tàu ghé ga tại đây",
+            target: () => timeToInfoRef.current!,
+          },
+          {
+            title: "Xem thông tin vé",
+            description: "Tại đây bạn có thể xem tóm tắt thông tin vé đã chọn như tuyến, ga đi, ga đến và loại vé.",
+            target: () => ticketInfoRef.current!,
+          },
+          {
+            title: "Chọn loại vé",
+            description: "Chọn loại vé thường hoặc vé ưu đãi để tiếp tục thanh toán.",
+            target: () => ticketTypeRef.current!,
+          },
+          {
+            title: "Xác nhận thanh toán",
+            description: "Kiểm tra kỹ thông tin trước khi thanh toán.",
+            target: () => infoRef.current!,
+          },
+          {
+            title: "Thanh toán",
+            description: "Sau khi kiểm tra thông tin thì bạn đã có thể thanh toán.",
+            target: () => payRef.current!,
+          },
+        ]}
+      />
+
+      <Image
+        wrapperStyle={{ display: "none" }}
+        preview={{
+          visible: previewOpen,
+          onVisibleChange: (visible) => setPreviewOpen(visible),
+          afterOpenChange: (visible) => !visible,
+        }}
+        src={mapImage}
+      />
     </div>
   );
 };

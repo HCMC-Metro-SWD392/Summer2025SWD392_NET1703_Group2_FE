@@ -107,11 +107,11 @@ const SubscriptionTicketDetails: React.FC = () => {
           <Descriptions.Item label="Tên Vé" span={2}>{
             subscriptionTicket?.ticketName
           }</Descriptions.Item>
-          <Descriptions.Item label="Loại Vé" span={2}>
+          {/* <Descriptions.Item label="Loại Vé" span={2}>
             {
               getSubscriptionTicketTypeString(subscriptionTicket.ticketType)
             }
-          </Descriptions.Item>
+          </Descriptions.Item> */}
           <Descriptions.Item label="Giá Tiền" span={2}>
             {
               `${subscriptionTicket?.price?.toLocaleString('vi-VN')} đ`

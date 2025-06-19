@@ -9,6 +9,15 @@ const FARE_RULE_ENDPOINTS = {
     UPDATE: '/api/FareRule/update-fare-rule'
 } as const;
 
+export interface PaginationParams {
+    filterOn?: string;
+    filterQuery?: string;
+    sortBy?: string;
+    isAscending?: boolean;
+    pageNumber?: number;
+    pageSize?: number;
+}
+
 // Fare Rule API Service
 export const FareApi = {
     createFareRule: async (data: CreateFareRuleDTO): Promise<ResponseDTO<FareRule>> => {
@@ -26,10 +35,20 @@ export const FareApi = {
         }
     },
 
-    getAllFareRules: async (): Promise<ResponseDTO<FareRule[]>> => {
+    getAllFareRules: async (params: PaginationParams): Promise<ResponseDTO<FareRule[]>> => {
         try {
             const response: AxiosResponse<ResponseDTO<FareRule[]>> = await axiosInstance.get(
-                FARE_RULE_ENDPOINTS.GET_ALL
+                FARE_RULE_ENDPOINTS.GET_ALL,
+                {
+                    params: {
+                        filterOn: params.filterOn,
+                        filterQuery: params.filterQuery,
+                        sortBy: params.sortBy,
+                        isAscending: params.isAscending,
+                        pageNumber: params.pageNumber || 1,
+                        pageSize: params.pageSize || 10
+                    }
+                }
             );
             return response.data;
         } catch (error: any) {
