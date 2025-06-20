@@ -85,10 +85,13 @@ const TicketProcessingQR: React.FC = () => {
     try {
       const url =
         currentProcessType === "checkin"
-          ? `/api/Ticket/check-in-ticket-process/${decodedText}/${currentStation.id}`
-          : `/api/Ticket/check-out-ticket-process/${decodedText}/${currentStation.id}`;
+          ? `/api/Ticket/check-in-ticket-process`
+          : `/api/Ticket/check-out-ticket-process`;
 
-      const response = await axiosInstance.put(url);
+      const response = await axiosInstance.put(url, {
+        qrCode: decodedText,
+        stationId: selectedStationRef.current?.id,
+      });
       setProcessResult(response.data.message || "Thành công");
     } catch (error: any) {
       let errorMsg = "Không thể xử lý vé.";

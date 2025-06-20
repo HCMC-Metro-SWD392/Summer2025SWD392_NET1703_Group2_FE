@@ -4,6 +4,8 @@ import endpoints from "../../../../../api/endpoints";
 import axiosInstance from "../../../../../settings/axiosInstance";
 import type { Ticket } from "../../../../../types/types";
 import TicketList from "./partials/TicketList";
+import connection from "../../../../../settings/signalrConnection";
+import { HubConnectionState } from "@microsoft/signalr";
 
 const { Title } = Typography;
 
@@ -82,8 +84,8 @@ const MyTickets: React.FC = () => {
       // Sau này bật API:
       const response = await axiosInstance.get(endpoints.getCustomerTicket, {
         params: {
-        status: statusMap[status],
-      },
+          status: statusMap[status],
+        },
       });
       setTickets(response.data.result || []);
     } catch (err) {
@@ -97,6 +99,37 @@ const MyTickets: React.FC = () => {
   useEffect(() => {
     loadTickets(activeTab);
   }, [activeTab]);
+
+  let isSignalRStarted = false;
+
+  useEffect(() => {
+    const startSignalR = async () => {
+      if (!isSignalRStarted && connection.state === HubConnectionState.Disconnected) {
+        try {
+          await connection.start();
+          isSignalRStarted = true;
+          console.log("✅ SignalR started");
+
+          connection.on("NotifyOverStation", (data) => {
+            const { TicketId, StationId, Message } = data;
+
+            console.log("🎫 TicketId:", TicketId);
+            console.log("🚉 StationId:", StationId);
+            console.log("💬 Message:", Message);
+
+            // // Ví dụ hiển thị thông báo:
+            // message.warning(Message);
+
+            // // Hoặc xử lý business logic như setState, update UI, navigate...
+          });
+        } catch (err) {
+          console.error("❌ SignalR start error:", err);
+        }
+      }
+    };
+
+    startSignalR();
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-10 min-h-[calc(100vh-80px)]">
@@ -115,7 +148,7 @@ const MyTickets: React.FC = () => {
           <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab as "unused" | "active" | "used"} />}</div>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Vé đã sử dụng" key="used">
-          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab as "unused" | "active" | "used"}/>}</div>
+          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab as "unused" | "active" | "used"} />}</div>
         </Tabs.TabPane>
       </Tabs>
     </div>
