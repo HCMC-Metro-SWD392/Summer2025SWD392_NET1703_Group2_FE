@@ -40,6 +40,7 @@ import TrainScheduleList from "../pages/Manager/TrainSchedule/TrainScheduleList"
 import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSchedule";
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
+import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
 
 export default function MainRoutes() {
   return (
