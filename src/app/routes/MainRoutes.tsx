@@ -5,7 +5,7 @@ import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
 import BuySubscriptionTicket from "../pages/Customer/partials/BuySubscriptionTicket/BuySubscriptionTicket";
-import StudentVerificationForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/StudentVerificationForm";
+import StudentVerificationForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
 import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
 import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
 import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
@@ -35,11 +35,12 @@ import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSu
 import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
 import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
 import Staff from "../pages/Staff/Staff";
-import TestQR from "../components/Test/TicketProcessingQR";
 import TrainScheduleList from "../pages/Manager/TrainSchedule/TrainScheduleList";
 import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSchedule";
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
+import SpecialCaseRequestForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
+import SubmitSuccess from "../pages/Customer/partials/BuySubscriptionTicket/partials/SubmitSuccess";
 
 export default function MainRoutes() {
   return (
@@ -54,8 +55,13 @@ export default function MainRoutes() {
             <Route path="buy-subcription" element={<BuySubscriptionTicket />}/>
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
-            <Route path="studentVerify" element={<StudentVerificationForm />}/>
+            <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/>
           </Route>
+          <Route path="/services">
+            <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/>
+            <Route path="submit-success" element={<SubmitSuccess />}/>
+          </Route>
+
           <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
 

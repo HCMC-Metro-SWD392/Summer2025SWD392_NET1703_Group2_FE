@@ -19,6 +19,11 @@ export const getTicketRoute = async (startStationId: string, endStationId: strin
   return response.data;
 };
 
+export const getAllStations = async () => {
+  const response = await axiosInstance.get(endpoints.getAllStations);
+  return response.data;
+};
+
 export const getSpecialTicket = async (startStationId: string, endStationId: string, ticketTypeId: string) => {
   const response = await axiosInstance.get(endpoints.getSpecialTicket(startStationId, endStationId, ticketTypeId));
   return response.data;
