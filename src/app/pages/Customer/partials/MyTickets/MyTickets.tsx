@@ -1,4 +1,4 @@
-import { Spin, Tabs, Typography } from "antd";
+import { message, Spin, Tabs, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import endpoints from "../../../../../api/endpoints";
 import axiosInstance from "../../../../../settings/axiosInstance";
@@ -118,7 +118,7 @@ const MyTickets: React.FC = () => {
             console.log("💬 Message:", Message);
 
             // // Ví dụ hiển thị thông báo:
-            // message.warning(Message);
+            message.warning(Message);
 
             // // Hoặc xử lý business logic như setState, update UI, navigate...
           });
