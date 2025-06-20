@@ -41,6 +41,7 @@ import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSched
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
 import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
+import CaseApproval from "../pages/Staff/partials/CaseApproval";
 
 export default function MainRoutes() {
   return (
@@ -98,7 +99,7 @@ export default function MainRoutes() {
 
       <Route path="/staff" element={<Staff />} />
 
-        
+        <Route path="/staff/case-approval" element={<CaseApproval />} />
         
       </Routes>
 

@@ -14,7 +14,9 @@ import {
   Card,
   Row,
   Col,
-  Statistic
+  Statistic,
+  Tabs,
+  Input
 } from 'antd';
 import { 
   EyeOutlined, 
@@ -29,172 +31,86 @@ import {
 const { Title, Text } = Typography;
 const { confirm } = Modal;
 
-interface SpecialCase {
+interface FormRequest {
   id: string;
-  caseType: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  senderId: string;
   title: string;
-  description: string;
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
-  submittedAt: string;
-  updatedAt: string;
-  staffNotes?: string;
-  attachments?: string[];
+  content: string;
+  formRequestType: number;
+  reviewerId: string | null;
+  rejectionReason: string | null;
+  createdAt: string;
+  status: number;
 }
 
+const formRequestTypeMap: { [key: number]: string } = {
+  0: 'Yêu cầu hoàn tiền',
+  1: 'Báo mất vé',
+  2: 'Lỗi kỹ thuật',
+  3: 'Khiếu nại',
+  4: 'Khác',
+};
+
+const statusConfigMap: { [key: number]: { color: string; icon: React.ReactNode; text: string } } = {
+  0: { color: 'processing', icon: <ClockCircleOutlined />, text: 'Chờ duyệt' },
+  1: { color: 'success', icon: <CheckCircleOutlined />, text: 'Đã duyệt' },
+  2: { color: 'error', icon: <CloseCircleOutlined />, text: 'Bị từ chối' },
+};
+
 const CaseApproval: React.FC = () => {
-  const [specialCases, setSpecialCases] = useState<SpecialCase[]>([]);
+  const [formRequests, setFormRequests] = useState<FormRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCase, setSelectedCase] = useState<SpecialCase | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<FormRequest | null>(null);
   const [detailModalVisible, setDetailModalVisible] = useState<boolean>(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [activeTab, setActiveTab] = useState<string>('0'); // 0: Pending, 1: Approved, 2: Rejected
 
-  // Mock data for development
-  const mockData: SpecialCase[] = [
-    {
-      id: '1',
-      caseType: 'REFUND_REQUEST',
-      status: 'PENDING',
-      title: 'Yêu cầu hoàn tiền vé đã mua',
-      description: 'Khách hàng yêu cầu hoàn tiền vé đã mua do không thể sử dụng trong thời gian dự kiến.',
-      customerName: 'Nguyễn Văn A',
-      customerEmail: 'nguyenvana@email.com',
-      customerPhone: '0123456789',
-      submittedAt: '2024-01-15T10:30:00Z',
-      updatedAt: '2024-01-15T10:30:00Z',
-      staffNotes: '',
-      attachments: ['receipt.pdf', 'ticket.jpg']
-    },
-    {
-      id: '2',
-      caseType: 'LOST_TICKET',
-      status: 'PENDING',
-      title: 'Báo mất vé Metro',
-      description: 'Khách hàng báo mất vé Metro và yêu cầu cấp lại hoặc hoàn tiền.',
-      customerName: 'Trần Thị B',
-      customerEmail: 'tranthib@email.com',
-      customerPhone: '0987654321',
-      submittedAt: '2024-01-14T15:45:00Z',
-      updatedAt: '2024-01-14T15:45:00Z',
-      staffNotes: '',
-      attachments: ['police_report.pdf']
-    },
-    {
-      id: '3',
-      caseType: 'TECHNICAL_ISSUE',
-      status: 'APPROVED',
-      title: 'Lỗi kỹ thuật khi sử dụng vé',
-      description: 'Khách hàng gặp lỗi khi quét vé tại cổng soát vé.',
-      customerName: 'Lê Văn C',
-      customerEmail: 'levanc@email.com',
-      customerPhone: '0555666777',
-      submittedAt: '2024-01-13T09:20:00Z',
-      updatedAt: '2024-01-13T14:30:00Z',
-      staffNotes: 'Đã xác nhận lỗi từ hệ thống. Chấp nhận hoàn tiền.',
-      attachments: ['error_screenshot.png', 'video.mp4']
-    },
-    {
-      id: '4',
-      caseType: 'REFUND_REQUEST',
-      status: 'REJECTED',
-      title: 'Yêu cầu hoàn tiền không hợp lệ',
-      description: 'Khách hàng yêu cầu hoàn tiền sau khi đã sử dụng vé thành công.',
-      customerName: 'Phạm Thị D',
-      customerEmail: 'phamthid@email.com',
-      customerPhone: '0333444555',
-      submittedAt: '2024-01-12T11:15:00Z',
-      updatedAt: '2024-01-12T16:45:00Z',
-      staffNotes: 'Vé đã được sử dụng thành công. Không thể hoàn tiền theo quy định.',
-      attachments: ['usage_log.pdf']
+  const fetchFormRequests = async (page = 1, pageSize = 10) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axiosInstance.get(
+        `/api/FormRequest/get-all-form-requests?sortBy=createdAt&isAcsending=true&pageNumber=${page}&pageSize=${pageSize}`
+      );
+      setFormRequests(response.data.result);
+      setPagination(prev => ({ ...prev, total: response.data.result.length, current: page, pageSize }));
+    } catch (err: any) {
+      setError('Không thể tải danh sách các trường hợp đặc biệt.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   useEffect(() => {
-    const fetchSpecialCases = async () => {
-      try {
-        setLoading(true);
-        // TODO: Replace with actual API call
-        // const response = await axiosInstance.get('/api/SpecialCase/all');
-        // setSpecialCases(response.data.result);
-        
-        // Using mock data for now
-        setSpecialCases(mockData);
-      } catch (err: any) {
-        console.error('Error fetching special cases:', err);
-        setError('Không thể tải danh sách các trường hợp đặc biệt.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSpecialCases();
+    fetchFormRequests();
+    // eslint-disable-next-line
   }, []);
 
-  const getCaseTypeLabel = (caseType: string) => {
-    const typeMap: { [key: string]: string } = {
-      'REFUND_REQUEST': 'Yêu cầu hoàn tiền',
-      'LOST_TICKET': 'Báo mất vé',
-      'TECHNICAL_ISSUE': 'Lỗi kỹ thuật',
-      'COMPLAINT': 'Khiếu nại',
-      'OTHER': 'Khác'
-    };
-    return typeMap[caseType] || caseType;
-  };
-
-  const getStatusConfig = (status: string) => {
-    const config = {
-      'PENDING': {
-        color: 'processing',
-        icon: <ClockCircleOutlined />,
-        text: 'Chờ xử lý'
-      },
-      'APPROVED': {
-        color: 'success',
-        icon: <CheckCircleOutlined />,
-        text: 'Đã chấp nhận'
-      },
-      'REJECTED': {
-        color: 'error',
-        icon: <CloseCircleOutlined />,
-        text: 'Đã từ chối'
-      }
-    };
-    return config[status as keyof typeof config] || config.PENDING;
-  };
-
-  const handleViewDetails = (record: SpecialCase) => {
-    setSelectedCase(record);
+  const handleViewDetails = (record: FormRequest) => {
+    setSelectedRequest(record);
     setDetailModalVisible(true);
   };
 
-  const handleApprove = (record: SpecialCase) => {
+  const handleApprove = (record: FormRequest) => {
+    console.log('Approving recordId:', record.id);
     confirm({
-      title: 'Xác nhận chấp nhận',
+      title: 'Xác nhận duyệt đơn',
       icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc chắn muốn chấp nhận trường hợp "${record.title}"?`,
-      okText: 'Chấp nhận',
+      content: `Bạn có chắc chắn muốn duyệt đơn "${record.title}"?`,
+      okText: 'Duyệt',
       cancelText: 'Hủy',
       onOk: async () => {
         try {
           setActionLoading(record.id);
-          // TODO: Replace with actual API call
-          // await axiosInstance.put(`/api/SpecialCase/${record.id}/approve`);
-          
-          // Mock API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          setSpecialCases(prev => 
-            prev.map(case_ => 
-              case_.id === record.id 
-                ? { ...case_, status: 'APPROVED' as const, updatedAt: new Date().toISOString() }
-                : case_
-            )
-          );
-          message.success('Đã chấp nhận trường hợp thành công!');
+          await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, {
+            formStatus: 1
+          });
+          message.success('Đã duyệt đơn thành công!');
+          fetchFormRequests();
         } catch (err) {
-          message.error('Có lỗi xảy ra khi chấp nhận trường hợp.');
+          message.error('Có lỗi xảy ra khi duyệt đơn.');
         } finally {
           setActionLoading(null);
         }
@@ -202,33 +118,37 @@ const CaseApproval: React.FC = () => {
     });
   };
 
-  const handleReject = (record: SpecialCase) => {
-    confirm({
-      title: 'Xác nhận từ chối',
+  const handleReject = (record: FormRequest) => {
+    console.log('Rejecting recordId:', record.id);
+    let reason = '';
+    Modal.confirm({
+      title: 'Nhập lý do từ chối',
       icon: <ExclamationCircleOutlined />,
-      content: `Bạn có chắc chắn muốn từ chối trường hợp "${record.title}"?`,
+      content: (
+        <Input.TextArea
+          rows={3}
+          onChange={e => { reason = e.target.value; }}
+          placeholder="Nhập lý do từ chối"
+        />
+      ),
       okText: 'Từ chối',
       cancelText: 'Hủy',
       okType: 'danger',
       onOk: async () => {
+        if (!reason.trim()) {
+          message.error('Vui lòng nhập lý do từ chối!');
+          throw new Error('No reason');
+        }
         try {
           setActionLoading(record.id);
-          // TODO: Replace with actual API call
-          // await axiosInstance.put(`/api/SpecialCase/${record.id}/reject`);
-          
-          // Mock API call
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          setSpecialCases(prev => 
-            prev.map(case_ => 
-              case_.id === record.id 
-                ? { ...case_, status: 'REJECTED' as const, updatedAt: new Date().toISOString() }
-                : case_
-            )
-          );
-          message.success('Đã từ chối trường hợp thành công!');
+          await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, {
+            formStatus: 2,
+            rejectionReason: reason
+          });
+          message.success('Đã từ chối đơn thành công!');
+          fetchFormRequests();
         } catch (err) {
-          message.error('Có lỗi xảy ra khi từ chối trường hợp.');
+          message.error('Có lỗi xảy ra khi từ chối đơn.');
         } finally {
           setActionLoading(null);
         }
@@ -246,13 +166,13 @@ const CaseApproval: React.FC = () => {
       render: (_: any, __: any, index: number) => index + 1,
     },
     {
-      title: 'Loại case',
-      dataIndex: 'caseType',
-      key: 'caseType',
+      title: 'Loại yêu cầu',
+      dataIndex: 'formRequestType',
+      key: 'formRequestType',
       width: 180,
-      render: (caseType: string) => (
+      render: (type: number) => (
         <Tag color="blue" style={{ whiteSpace: 'normal', height: 'auto', lineHeight: '1.5' }}>
-          {getCaseTypeLabel(caseType)}
+          {formRequestTypeMap[type] || type}
         </Tag>
       ),
     },
@@ -270,8 +190,8 @@ const CaseApproval: React.FC = () => {
       key: 'status',
       width: 140,
       align: 'center' as const,
-      render: (status: string) => {
-        const config = getStatusConfig(status);
+      render: (status: number) => {
+        const config = statusConfigMap[status] || statusConfigMap[0];
         return (
           <Tag color={config.color} icon={config.icon}>
             {config.text}
@@ -281,8 +201,8 @@ const CaseApproval: React.FC = () => {
     },
     {
       title: 'Ngày tạo',
-      dataIndex: 'submittedAt',
-      key: 'submittedAt',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       width: 120,
       render: (date: string) => new Date(date).toLocaleDateString('vi-VN'),
     },
@@ -291,54 +211,77 @@ const CaseApproval: React.FC = () => {
       key: 'actions',
       width: 240,
       align: 'center' as const,
-      render: (record: SpecialCase) => (
-        <Space size="small">
+      render: (record: FormRequest) => (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
           <Button
             type="primary"
             icon={<EyeOutlined />}
-            size="small"
+            size="middle"
+            style={{ minWidth: 90, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             onClick={() => handleViewDetails(record)}
           >
             Chi tiết
           </Button>
-          {record.status === 'PENDING' && (
+          {record.status === 0 && (
             <>
               <Button
                 type="primary"
                 icon={<CheckOutlined />}
-                size="small"
+                size="middle"
                 loading={actionLoading === record.id}
                 onClick={() => handleApprove(record)}
-                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                style={{
+                  backgroundColor: '#52c41a',
+                  borderColor: '#52c41a',
+                  minWidth: 110,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
                 Chấp nhận
               </Button>
               <Button
                 danger
                 icon={<CloseOutlined />}
-                size="small"
+                size="middle"
                 loading={actionLoading === record.id}
                 onClick={() => handleReject(record)}
+                style={{
+                  minWidth: 90,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
               >
                 Từ chối
               </Button>
             </>
           )}
-        </Space>
+        </div>
       ),
     },
   ];
 
   const getStatistics = () => {
-    const total = specialCases.length;
-    const pending = specialCases.filter(c => c.status === 'PENDING').length;
-    const approved = specialCases.filter(c => c.status === 'APPROVED').length;
-    const rejected = specialCases.filter(c => c.status === 'REJECTED').length;
-
+    const total = formRequests.length;
+    const pending = formRequests.filter(c => c.status === 0).length;
+    const approved = formRequests.filter(c => c.status === 1).length;
+    const rejected = formRequests.filter(c => c.status === 2).length;
     return { total, pending, approved, rejected };
   };
 
   const stats = getStatistics();
+
+  // Sort by createdAt desc (newest first)
+  const getSortedData = (data: FormRequest[]) => {
+    return [...data].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  };
+
+  // Filtered data for each tab
+  const pendingRequests = getSortedData(formRequests.filter(r => r.status === 0));
+  const approvedRequests = getSortedData(formRequests.filter(r => r.status === 1));
+  const rejectedRequests = getSortedData(formRequests.filter(r => r.status === 2));
 
   if (loading) {
     return (
@@ -370,7 +313,7 @@ const CaseApproval: React.FC = () => {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Chờ xử lý"
+              title="Chờ duyệt"
               value={stats.pending}
               valueStyle={{ color: '#faad14' }}
               prefix={<ClockCircleOutlined />}
@@ -380,7 +323,7 @@ const CaseApproval: React.FC = () => {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Đã chấp nhận"
+              title="Đã duyệt"
               value={stats.approved}
               valueStyle={{ color: '#52c41a' }}
               prefix={<CheckCircleOutlined />}
@@ -390,7 +333,7 @@ const CaseApproval: React.FC = () => {
         <Col xs={12} sm={6}>
           <Card>
             <Statistic
-              title="Đã từ chối"
+              title="Bị từ chối"
               value={stats.rejected}
               valueStyle={{ color: '#ff4d4f' }}
               prefix={<CloseCircleOutlined />}
@@ -399,21 +342,73 @@ const CaseApproval: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Cases Table */}
+      {/* Tabs for status */}
       <Card>
-        <Table
-          columns={columns}
-          dataSource={specialCases}
-          rowKey="id"
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} trường hợp`,
-          }}
-          className="rounded-xl overflow-hidden"
-          size="middle"
-          scroll={{ x: 'max-content' }}
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={[
+            {
+              key: '0',
+              label: 'Chờ duyệt',
+              children: (
+                <Table
+                  columns={columns}
+                  dataSource={pendingRequests}
+                  rowKey="id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} trường hợp`,
+                  }}
+                  className="rounded-xl overflow-hidden"
+                  size="middle"
+                  scroll={{ x: 'max-content' }}
+                />
+              ),
+            },
+            {
+              key: '1',
+              label: 'Đã duyệt',
+              children: (
+                <Table
+                  columns={columns}
+                  dataSource={approvedRequests}
+                  rowKey="id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} trường hợp`,
+                  }}
+                  className="rounded-xl overflow-hidden"
+                  size="middle"
+                  scroll={{ x: 'max-content' }}
+                />
+              ),
+            },
+            {
+              key: '2',
+              label: 'Bị từ chối',
+              children: (
+                <Table
+                  columns={columns}
+                  dataSource={rejectedRequests}
+                  rowKey="id"
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: true,
+                    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} trường hợp`,
+                  }}
+                  className="rounded-xl overflow-hidden"
+                  size="middle"
+                  scroll={{ x: 'max-content' }}
+                />
+              ),
+            },
+          ]}
         />
       </Card>
 
@@ -425,27 +420,20 @@ const CaseApproval: React.FC = () => {
         footer={null}
         width={800}
       >
-        {selectedCase && (
+        {selectedRequest && (
           <Descriptions column={1} bordered>
             <Descriptions.Item label="Tiêu đề">
-              <Text strong>{selectedCase.title}</Text>
+              <Text strong>{selectedRequest.title}</Text>
             </Descriptions.Item>
-            <Descriptions.Item label="Loại case">
-              <Tag color="blue">{getCaseTypeLabel(selectedCase.caseType)}</Tag>
+            <Descriptions.Item label="Loại yêu cầu">
+              <Tag color="blue">{formRequestTypeMap[selectedRequest.formRequestType] || selectedRequest.formRequestType}</Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Mô tả">
-              <Text>{selectedCase.description}</Text>
-            </Descriptions.Item>
-            <Descriptions.Item label="Khách hàng">
-              <div>
-                <div><strong>Tên:</strong> {selectedCase.customerName}</div>
-                <div><strong>Email:</strong> {selectedCase.customerEmail}</div>
-                <div><strong>Số điện thoại:</strong> {selectedCase.customerPhone}</div>
-              </div>
+            <Descriptions.Item label="Nội dung">
+              <Text>{selectedRequest.content}</Text>
             </Descriptions.Item>
             <Descriptions.Item label="Trạng thái">
               {(() => {
-                const config = getStatusConfig(selectedCase.status);
+                const config = statusConfigMap[selectedRequest.status] || statusConfigMap[0];
                 return (
                   <Tag color={config.color} icon={config.icon}>
                     {config.text}
@@ -454,25 +442,16 @@ const CaseApproval: React.FC = () => {
               })()}
             </Descriptions.Item>
             <Descriptions.Item label="Ngày tạo">
-              {new Date(selectedCase.submittedAt).toLocaleString('vi-VN')}
+              {new Date(selectedRequest.createdAt).toLocaleString('vi-VN')}
             </Descriptions.Item>
-            <Descriptions.Item label="Cập nhật lần cuối">
-              {new Date(selectedCase.updatedAt).toLocaleString('vi-VN')}
-            </Descriptions.Item>
-            {selectedCase.staffNotes && (
-              <Descriptions.Item label="Ghi chú của nhân viên">
-                <Text>{selectedCase.staffNotes}</Text>
+            {selectedRequest.reviewerId && (
+              <Descriptions.Item label="Người duyệt">
+                <Text>{selectedRequest.reviewerId}</Text>
               </Descriptions.Item>
             )}
-            {selectedCase.attachments && selectedCase.attachments.length > 0 && (
-              <Descriptions.Item label="Tệp đính kèm">
-                <ul className="list-disc list-inside">
-                  {selectedCase.attachments.map((file, index) => (
-                    <li key={index} className="text-blue-600 cursor-pointer hover:underline">
-                      {file}
-                    </li>
-                  ))}
-                </ul>
+            {selectedRequest.rejectionReason && (
+              <Descriptions.Item label="Lý do từ chối">
+                <Text>{selectedRequest.rejectionReason}</Text>
               </Descriptions.Item>
             )}
           </Descriptions>
