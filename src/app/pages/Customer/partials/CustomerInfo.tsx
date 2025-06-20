@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Row, Col, Avatar, Divider, Spin, Alert } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, StarOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, StarOutlined, CalendarOutlined } from '@ant-design/icons';
 import styles from './CustomerInfo.module.css';
 import UpdateProfileButton from './UpdateProfileButton';
 import axiosInstance from '../../../../settings/axiosInstance';
@@ -105,7 +105,7 @@ const CustomerInfo: React.FC = () => {
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <Text strong>Date of Birth:</Text> {customerData.dateOfBirth?.slice(0, 10)}
+                            <CalendarOutlined /> <Text strong>Date of Birth:</Text> {customerData.dateOfBirth?.slice(0, 10)}
                         </div>
                     </Col>
                     <Col span={24}>

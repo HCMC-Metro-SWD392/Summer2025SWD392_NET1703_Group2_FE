@@ -1,8 +1,10 @@
 import axios from "axios";
-import axiosInstance, { BASE_URL } from "../../settings/axiosInstance";
+
 import type { LoginPayload, RegisterPayload } from "../../types/types";
 import endpoints from "../endpoints";
 import { removeTokens, setTokens, decodeToken } from "./tokenUtils";
+import axiosInstance from "../../settings/axiosInstance";
+import { BASE_URL } from "../../settings/signalrConnection";
 
 export const register = async (data: RegisterPayload) => {
   const response = await axiosInstance.post(endpoints.register, data);
