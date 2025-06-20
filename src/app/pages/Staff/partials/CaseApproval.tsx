@@ -68,15 +68,25 @@ const CaseApproval: React.FC = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [activeTab, setActiveTab] = useState<string>('0'); // 0: Pending, 1: Approved, 2: Rejected
 
-  const fetchFormRequests = async (page = 1, pageSize = 10) => {
+  const fetchFormRequests = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axiosInstance.get(
-        `/api/FormRequest/get-all-form-requests?sortBy=createdAt&isAcsending=true&pageNumber=${page}&pageSize=${pageSize}`
+
+      const statuses = [0, 1, 2]; // 0: Pending, 1: Approved, 2: Rejected
+      const requests = statuses.map(status =>
+        axiosInstance.get(`/api/FormRequest/get-all-form-requests?sortBy=createdAt&isAcsending=true&pageNumber=1&pageSize=100&formStatus=${status}`)
       );
-      setFormRequests(response.data.result);
-      setPagination(prev => ({ ...prev, total: response.data.result.length, current: page, pageSize }));
+
+      const responses = await Promise.all(requests);
+      
+      const allRequests = responses.flatMap(response => response.data.result || []);
+      console.log('[API Raw Response] Dữ liệu tổng hợp từ server:', allRequests);
+
+      setFormRequests(allRequests);
+      // Note: Pagination might need to be re-evaluated if we are fetching all statuses at once.
+      // For now, setting total based on the combined list.
+      setPagination(prev => ({ ...prev, total: allRequests.length }));
     } catch (err: any) {
       setError('Không thể tải danh sách các trường hợp đặc biệt.');
     } finally {
@@ -103,15 +113,22 @@ const CaseApproval: React.FC = () => {
       okText: 'Duyệt',
       cancelText: 'Hủy',
       onOk: async () => {
+        const originalRequests = [...formRequests];
+        const updatedRequests = formRequests.map(req => 
+          req.id === record.id ? { ...req, status: 1 } : req
+        );
+        setFormRequests(updatedRequests);
+
         try {
           setActionLoading(record.id);
           const requestBody = { formStatus: 1 };
           console.log('[API Call] Approving with body:', requestBody);
           await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, requestBody);
           message.success('Đã duyệt đơn thành công!');
-          fetchFormRequests();
+          fetchFormRequests(); // Refetch to sync with server state
         } catch (err) {
-          message.error('Có lỗi xảy ra khi duyệt đơn.');
+          message.error('Có lỗi xảy ra khi duyệt đơn. Đang hoàn tác...');
+          setFormRequests(originalRequests); // Rollback on failure
         } finally {
           setActionLoading(null);
         }
@@ -140,15 +157,23 @@ const CaseApproval: React.FC = () => {
           message.error('Vui lòng nhập lý do từ chối!');
           throw new Error('No reason');
         }
+
+        const originalRequests = [...formRequests];
+        const updatedRequests = formRequests.map(req => 
+          req.id === record.id ? { ...req, status: 2, rejectionReason: reason } : req
+        );
+        setFormRequests(updatedRequests);
+
         try {
           setActionLoading(record.id);
           const requestBody = { formStatus: 2, rejectionReason: reason };
           console.log('[API Call] Rejecting with body:', requestBody);
           await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, requestBody);
           message.success('Đã từ chối đơn thành công!');
-          fetchFormRequests();
+          fetchFormRequests(); // Refetch to sync with server state
         } catch (err) {
-          message.error('Có lỗi xảy ra khi từ chối đơn.');
+          message.error('Có lỗi xảy ra khi từ chối đơn. Đang hoàn tác...');
+          setFormRequests(originalRequests); // Rollback on failure
         } finally {
           setActionLoading(null);
         }
