@@ -39,13 +39,7 @@ import TrainScheduleList from "../pages/Manager/TrainSchedule/TrainScheduleList"
 import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSchedule";
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
-<<<<<<< HEAD
-import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
 import CaseApproval from "../pages/Staff/partials/CaseApproval";
-=======
-import SpecialCaseRequestForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
-import SubmitSuccess from "../pages/Customer/partials/BuySubscriptionTicket/partials/SubmitSuccess";
->>>>>>> 64bdcd7f6130d7c81aa7693749f4a2f67c883f77
 
 export default function MainRoutes() {
   return (
@@ -60,17 +54,12 @@ export default function MainRoutes() {
             <Route path="buy-subcription" element={<BuySubscriptionTicket />}/>
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
-            <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/>
+            {/* <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/> */}
           </Route>
-<<<<<<< HEAD
-          <Route path="/metro-line" element={<AllMetroLine />} />
-=======
           <Route path="/services">
-            <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/>
-            <Route path="submit-success" element={<SubmitSuccess />}/>
+            {/* <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/> */}
+            {/* <Route path="submit-success" element={<SubmitSuccess />}/> */}
           </Route>
-
->>>>>>> 64bdcd7f6130d7c81aa7693749f4a2f67c883f77
           <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
 
