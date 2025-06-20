@@ -76,7 +76,7 @@ const StationTimetableChart: React.FC<Props> = ({
       <div className="mt-3" ref={tourRef}>
         <Text strong>🕒 Giờ tàu chạy:</Text>
         <div className="mt-2 bg-white border border-dashed border-gray-500 rounded-xl p-4 text-center text-gray-500">
-          <div className="min-h-48 flex items-center justify-center">
+          <div className="min-h-30 flex items-center justify-center">
             <Empty description="Chọn ga để xem giờ chạy" />
           </div>
         </div>
