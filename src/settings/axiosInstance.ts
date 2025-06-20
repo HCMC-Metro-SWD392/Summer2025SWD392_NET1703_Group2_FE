@@ -25,11 +25,25 @@ const axiosInstance = axios.create({
 });
 
 // Add Access Token
-axiosInstance.interceptors.request.use((config) => {
-  const token = getAccessToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+axiosInstance.interceptors.request.use(
+  (config) => {
+    console.log('[Axios Interceptor] Running for request:', config.url);
+    const token = getAccessToken();
+
+    if (token) {
+      console.log('[Axios Interceptor] Token found:', token);
+      config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('[Axios Interceptor] Authorization header set.');
+    } else {
+      console.warn('[Axios Interceptor] Token not found in localStorage.');
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Auto-refresh Token on 401
 axiosInstance.interceptors.response.use(

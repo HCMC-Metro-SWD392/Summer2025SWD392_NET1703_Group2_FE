@@ -105,9 +105,9 @@ const CaseApproval: React.FC = () => {
       onOk: async () => {
         try {
           setActionLoading(record.id);
-          await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, {
-            formStatus: 1
-          });
+          const requestBody = { formStatus: 1 };
+          console.log('[API Call] Approving with body:', requestBody);
+          await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, requestBody);
           message.success('Đã duyệt đơn thành công!');
           fetchFormRequests();
         } catch (err) {
@@ -142,10 +142,9 @@ const CaseApproval: React.FC = () => {
         }
         try {
           setActionLoading(record.id);
-          await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, {
-            formStatus: 2,
-            rejectionReason: reason
-          });
+          const requestBody = { formStatus: 2, rejectionReason: reason };
+          console.log('[API Call] Rejecting with body:', requestBody);
+          await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, requestBody);
           message.success('Đã từ chối đơn thành công!');
           fetchFormRequests();
         } catch (err) {
