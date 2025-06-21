@@ -77,14 +77,14 @@ const MyTickets: React.FC = () => {
         stationId: currentNotifyData.stationId,
       });
 
-      console.log(res.data)
+      // console.log(res.data)
 
-      // const link = res?.data?.result?.paymentLink?.checkoutUrl;
-      // if (link) {
-      //   window.location.href = link;
-      // } else {
-      //   message.error("Không lấy được link thanh toán.");
-      // }
+      const link = res?.data?.result?.paymentLink?.checkoutUrl;
+      if (link) {
+        window.location.href = link;
+      } else {
+        message.error("Không lấy được link thanh toán.");
+      }
     } catch (error) {
       console.error("Lỗi thanh toán:", error);
       message.error("Lỗi khi tạo liên kết thanh toán.");
