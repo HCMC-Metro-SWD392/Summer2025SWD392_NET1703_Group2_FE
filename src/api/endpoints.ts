@@ -12,6 +12,7 @@ const endpoints = {
   createTicketRoute: "/api/TicketRoute/create-ticket-route",
   createPaymentLink: "/api/Payment/create-link-payment-ticket-route",
   createTicket: (orderCode: string) => `/api/Payment/payment-transactions/update-status/${orderCode}`,
+  createTicketOverStation: (orderCode: string) => `/api/Payment/payment-over-station-ticket-route/update-status/${orderCode}`,
   getCustomerTicket: "/api/Ticket/get-all-ticket-routes",
   getMetroScheduleByStation: (stationId: string) => `/api/TrainSchedule/station/${stationId}`,
   getTicketType: "/api/SubscriptionTicketType/all",
