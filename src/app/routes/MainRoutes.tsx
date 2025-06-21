@@ -40,6 +40,7 @@ import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSched
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
 import CaseApproval from "../pages/Staff/partials/CaseApproval";
+import CreateStaff from "../pages/Manager/StaffManagement/CreateStaff";
 
 export default function MainRoutes() {
   return (
@@ -96,6 +97,7 @@ export default function MainRoutes() {
         <Route path="/manager/create-train-schedule" element={<CreateTrainSchedule />} />
         <Route path="/manager/train-schedule/:id" element={<TrainScheduleDetails />} />
         <Route path="/manager/train-schedule/:id/edit" element={<EditTrainSchedule />} />
+        <Route path="/manager/create-staff" element={<CreateStaff />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />
