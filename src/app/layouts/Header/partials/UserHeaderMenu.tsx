@@ -32,7 +32,7 @@ const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
             {
               key: "submit-request",
               icon: <FileTextOutlined />,
-              label: "Nộp đơn THĐB",
+              label: "Nộp đơn",
               onClick: () => navigate("/services/specialCaseForm"),
             },
           ],

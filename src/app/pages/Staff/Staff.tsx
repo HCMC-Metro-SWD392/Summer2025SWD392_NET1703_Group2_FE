@@ -7,6 +7,7 @@ import {
     UploadOutlined,
     UserOutlined,
     VideoCameraOutlined,
+    FileTextOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout } from 'antd';
@@ -16,6 +17,7 @@ import AdjustTicket from './partials/AdjustTicket';
 import Sidebar from '../../components/SideBar/Sidebar';
 import LoginForm from '../Home/partials/Login/LoginForm';
 import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
+import CaseApproval from './partials/CaseApproval';
 
 const { Content } = Layout;
 
@@ -27,7 +29,7 @@ const Staff: React.FC = () => {
     const menuItems: MenuProps['items'] = [
         { key: '1', icon: <AppstoreOutlined />, label: 'Check QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'AdjustTicket' },
-        // { key: '3', icon: <UploadOutlined />, label: 'Upload' },
+        { key: '3', icon: <FileTextOutlined />, label: 'CaseApproval' },
         // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
         // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
         // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
@@ -41,6 +43,8 @@ const Staff: React.FC = () => {
                 return <TicketProcessingQR />;
             case '2':
                 return <AdjustTicket />;
+            case '3':
+                return <CaseApproval />;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;
         }

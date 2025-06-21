@@ -51,15 +51,32 @@ const VerifyTicketPayment = () => {
         const res = await axiosInstance.put(endpoints.createTicket(orderCode));
         if (res.status === 201) {
           setTicketCreated(true);
-          message.success("Vé đã được tạo thành công!");
+          // message.success("Vé đã được tạo thành công!");
         } else {
-          message.error("Không thể tạo vé. Vui lòng liên hệ hỗ trợ.");
+          // message.error("Không thể tạo vé. Vui lòng liên hệ hỗ trợ.");
+          await tryFallback();
         }
       } catch (error) {
         console.error("Ticket creation failed:", error);
-        message.error("Đã xảy ra lỗi khi tạo vé.");
+        // message.error("Đã xảy ra lỗi khi tạo vé.");
+        await tryFallback();
       } finally {
         setCreatingTicket(false);
+      }
+    };
+
+    const tryFallback = async () => {
+      try {
+        const fallbackRes = await axiosInstance.put(endpoints.createTicketOverStation(orderCode));
+        if (fallbackRes.status === 201) {
+          setTicketCreated(true);
+          // message.success("Vé đã được tạo thành công (qua API dự phòng)!");
+        } else {
+          message.error("Không thể tạo vé (dù đã thử lại). Vui lòng liên hệ hỗ trợ.");
+        }
+      } catch (fallbackError) {
+        // console.error("Gọi API dự phòng cũng thất bại:", fallbackError);
+        message.error("Đã xảy ra lỗi khi tạo vé. Vui lòng thử lại sau.");
       }
     };
 

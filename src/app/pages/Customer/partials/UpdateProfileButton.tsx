@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Input, message, DatePicker, Select } from 'antd';
 import axiosInstance from '../../../../settings/axiosInstance';
 import dayjs from 'dayjs';
+import { CalendarOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -13,40 +14,40 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [fetchedCustomerId, setFetchedCustomerId] = useState<string | null>(null);
+  // const [fetchedCustomerId, setFetchedCustomerId] = useState<string | null>(null);
 
   // Lấy user từ localStorage
   const user = JSON.parse(localStorage.getItem('userInfo') || '{}');
   const userId = user.id;
 
   useEffect(() => {
-    const fetchCustomerId = async () => {
-      try {
-        console.log('Fetching customer with userId:', userId);
-        const response = await axiosInstance.get(`/api/Customer/user/${userId}`);
-        console.log('API Response:', response.data);
-        setFetchedCustomerId(response.data.result.id);
-      } catch (err: any) {
-        console.error('Error details:', {
-          status: err.response?.status,
-          data: err.response?.data,
-          url: err.config?.url
-        });
-        message.error('Failed to fetch customer information: ' + (err.response?.data?.message || err.message));
-      }
-    };
+    // const fetchCustomerId = async () => {
+    //   try {
+    //     console.log('Fetching customer with userId:', userId);
+    //     const response = await axiosInstance.get(`/api/Customer/user/${userId}`);
+    //     console.log('API Response:', response.data);
+    //     setFetchedCustomerId(response.data.result.id);
+    //   } catch (err: any) {
+    //     console.error('Error details:', {
+    //       status: err.response?.status,
+    //       data: err.response?.data,
+    //       url: err.config?.url
+    //     });
+    //     message.error('Failed to fetch customer information: ' + (err.response?.data?.message || err.message));
+    //   }
+    // };
 
-    if (userId) {
-      fetchCustomerId();
-    }
+    // if (userId) {
+    //   fetchCustomerId();
+    // }
   }, [userId]);
 
   const handleOpen = () => setVisible(true);
   const handleClose = () => setVisible(false);
 
   const handleFinish = async (values: any) => {
-    if (!fetchedCustomerId) {
-      message.error('Customer ID not found');
+    if (!userId) {
+      message.error('User ID not found');
       return;
     }
 
@@ -57,7 +58,7 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
 
       // Format date to match backend format
       const formattedDate = values.dateOfBirth 
-        ? dayjs(values.dateOfBirth).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]')
+        ? dayjs(values.dateOfBirth).format('YYYY-MM-DD')
         : user.dateOfBirth;
 
       const payload = {
@@ -65,16 +66,16 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
         address: values.address || user.address,
         sex: values.sex || user.sex,
         dateOfBirth: formattedDate,
-        userName: user.userName,
         email: values.email || user.email,
         phoneNumber: values.phoneNumber || user.phoneNumber,
-        identityId: values.identityId || user.identityId
+        identityId: values.identityId || user.identityId,
+        customerType: user.customerType ?? 0
       };
 
-      console.log('Updating customer with ID:', fetchedCustomerId);
+      console.log('Updating customer with ID:', userId);
       console.log('Update payload:', payload);
 
-      const updateUrl = `/api/Customer/${fetchedCustomerId}`;
+      const updateUrl = `/api/User/${userId}`;
       console.log('Update URL:', updateUrl);
 
       const res = await axiosInstance.put(updateUrl, payload);
@@ -163,7 +164,11 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
             <Input />
           </Form.Item>
           <Form.Item label="Date of Birth" name="dateOfBirth">
-            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+            <DatePicker 
+              style={{ width: '100%' }} 
+              format="YYYY-MM-DD" 
+              suffixIcon={<CalendarOutlined />} 
+            />
           </Form.Item>
           <Form.Item label="Identity ID" name="identityId">
             <Input />
