@@ -40,6 +40,8 @@ import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSched
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
 import CaseApproval from "../pages/Staff/partials/CaseApproval";
+import SpecialCaseRequestForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
+import SubmitSuccess from "../pages/Customer/partials/BuySubscriptionTicket/partials/SubmitSuccess";
 
 export default function MainRoutes() {
   return (
@@ -54,11 +56,10 @@ export default function MainRoutes() {
             <Route path="buy-subcription" element={<BuySubscriptionTicket />}/>
             <Route path="my-tickets" element={<MyTickets />}/>
             <Route path="verifyTicketPayment" element={<VerifyTicketPayment />}/>
-            {/* <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/> */}
           </Route>
           <Route path="/services">
-            {/* <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/> */}
-            {/* <Route path="submit-success" element={<SubmitSuccess />}/> */}
+            <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/>
+            <Route path="submit-success" element={<SubmitSuccess />}/>
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
         </Route>
