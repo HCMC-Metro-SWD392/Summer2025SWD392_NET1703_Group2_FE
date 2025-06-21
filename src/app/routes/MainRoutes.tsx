@@ -41,6 +41,7 @@ import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDe
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
 import SpecialCaseRequestForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
 import SubmitSuccess from "../pages/Customer/partials/BuySubscriptionTicket/partials/SubmitSuccess";
+import CreateStaff from "../pages/Manager/StaffManagement/CreateStaff";
 
 export default function MainRoutes() {
   return (
@@ -98,6 +99,7 @@ export default function MainRoutes() {
         <Route path="/manager/create-train-schedule" element={<CreateTrainSchedule />} />
         <Route path="/manager/train-schedule/:id" element={<TrainScheduleDetails />} />
         <Route path="/manager/train-schedule/:id/edit" element={<EditTrainSchedule />} />
+        <Route path="/manager/create-staff" element={<CreateStaff />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />
