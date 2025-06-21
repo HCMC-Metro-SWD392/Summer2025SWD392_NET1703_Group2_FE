@@ -59,7 +59,7 @@ const VerifyTicketPayment = () => {
       } catch (error) {
         console.error("Ticket creation failed:", error);
         message.error("Đã xảy ra lỗi khi tạo vé.");
-        // await tryFallback();
+        await tryFallback();
       } finally {
         setCreatingTicket(false);
       }
