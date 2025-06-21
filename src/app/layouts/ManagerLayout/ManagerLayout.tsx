@@ -6,6 +6,7 @@ import {
   LogoutOutlined,
   ClockCircleOutlined,
   SettingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import React, { useEffect } from 'react';
@@ -84,11 +85,21 @@ const ManagerLayout: React.FC = () => {
         },
       ],
     },
-    // {
-    //   key: '/manager/staffs',
-    //   icon: <UserOutlined />,
-    //   label: 'Quản Lý Nhân Viên',
-    // },
+    {
+      key: '/manager/staffs',
+      icon: <UserOutlined />,
+      label: 'Quản Lý Nhân Viên',
+      children: [
+        // {
+        //   key: '/manager/staffs',
+        //   label: 'Danh Sách Nhân Viên',
+        // },
+        {
+          key: '/manager/create-staff',
+          label: 'Tạo Nhân Viên',
+        },
+      ],
+    },
     {
       key: 'sales-finance',
       icon: <DollarCircleOutlined />,
