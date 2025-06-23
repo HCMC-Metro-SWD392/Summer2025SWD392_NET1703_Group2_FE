@@ -1,5 +1,5 @@
 import { EditOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Input, message, Space, Table, Tag } from 'antd';
+import { Button, Input, message, Popconfirm, Space, Table, Tag } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import type { FilterValue, SorterResult, SortOrder } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
@@ -29,6 +29,7 @@ const PromotionList: React.FC = () => {
     }
   });
   const [filterQuery, setFilterQuery] = useState<string>('');
+  const [isNewlyCreated, setIsNewlyCreated] = useState(false);
   const navigate = useNavigate();
 
   const fetchPromotions = async (params: PaginationParams) => {
@@ -39,8 +40,8 @@ const PromotionList: React.FC = () => {
         pageSize: params.pageSize || 10,
         filterOn: filterQuery ? 'code' : undefined,
         filterQuery: filterQuery ? filterQuery.toUpperCase() : undefined,
-        sortBy: params.sortBy,
-        isAscending: params.sortBy ? params.isAscending : undefined
+        sortBy: params.sortBy || 'createdAt',
+        isAscending: params.sortBy ? params.isAscending : false
       });
 
       if (response.isSuccess && response.result) {
@@ -85,18 +86,42 @@ const PromotionList: React.FC = () => {
     });
   }, [tableParams.pagination.current, tableParams.pagination.pageSize, tableParams.sortField, tableParams.sortOrder, filterQuery]);
 
+  useEffect(() => {
+    // Check if we're coming back from creating a new promotion
+    const params = new URLSearchParams(window.location.search);
+    const newlyCreated = params.get('newlyCreated');
+    
+    if (newlyCreated === 'true' && !isNewlyCreated) {
+      setIsNewlyCreated(true);
+      // Reset to first page and default sorting
+      setTableParams(prev => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          current: 1
+        },
+        sortField: 'createdAt',
+        sortOrder: 'descend'
+      }));
+    }
+  }, []);
+
   const handleDelete = async (id: string) => {
     try {
-      // TODO: Implement delete API call when available
-      message.success('Promotion deleted successfully');
+      const response = await PromotionApi.deletePromotion(id);
+      if (response.isSuccess) {
+        message.success('Xóa khuyến mãi thành công');
       fetchPromotions({
         pageNumber: tableParams.pagination.current,
         pageSize: tableParams.pagination.pageSize,
         sortBy: tableParams.sortField,
         isAscending: tableParams.sortOrder === 'ascend'
       });
+      } else {
+        message.error(response.message || 'Xóa khuyến mãi thất bại');
+      }
     } catch (error) {
-      message.error('Failed to delete promotion');
+      message.error('Xóa khuyến mãi thất bại');
       console.error('Error deleting promotion:', error);
     }
   };
@@ -196,6 +221,16 @@ const PromotionList: React.FC = () => {
           >
             Chỉnh Sửa
           </Button>
+          <Popconfirm
+        title="Bạn có chắc muốn xóa khuyến mãi này?"
+        onConfirm={() => handleDelete(record.id)}
+        okText="Xóa"
+        cancelText="Hủy"
+      >
+        <Button danger>
+          Xóa
+        </Button>
+      </Popconfirm>
         </Space>
       ),
     },
@@ -206,6 +241,7 @@ const PromotionList: React.FC = () => {
   };
 
   const handleAdd = () => {
+    setIsNewlyCreated(false);
     navigate('/manager/create-promotion');
   };
 

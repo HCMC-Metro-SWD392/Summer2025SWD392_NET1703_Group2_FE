@@ -86,17 +86,21 @@ const ManagerLayout: React.FC = () => {
       ],
     },
     {
-      key: '/manager/staffs',
+      key: 'staffs',
       icon: <UserOutlined />,
       label: 'Quản Lý Nhân Viên',
       children: [
-        // {
-        //   key: '/manager/staffs',
-        //   label: 'Danh Sách Nhân Viên',
-        // },
+        {
+          key: '/manager/staffs',
+          label: 'Danh Sách Nhân Viên',
+        },
         {
           key: '/manager/create-staff',
           label: 'Tạo Nhân Viên',
+        },
+        {
+          key: '/manager/staff-schedule',
+          label: 'Lịch Làm Việc',
         },
       ],
     },
@@ -105,10 +109,10 @@ const ManagerLayout: React.FC = () => {
       icon: <DollarCircleOutlined />,
       label: 'Bán Hàng & Tài Chính',
       children: [
-        // {
-        //   key: '/manager/revenue',
-        //   label: 'Doanh Thu',
-        // },
+        {
+          key: '/manager/revenue',
+          label: 'Doanh Thu',
+        },
         {
           key: '/manager/promotion',
           label: 'Khuyến Mãi',
