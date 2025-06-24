@@ -5,7 +5,7 @@ import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
 import BuySubscriptionTicket from "../pages/Customer/partials/BuySubscriptionTicket/BuySubscriptionTicket";
-import CustomerInfo from "../pages/Customer/partials/CustomerInfo";
+import CustomerInfo from "../pages/Customer/partials/CustomerInfo/CustomerInfo";
 import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
 import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
 import Home from "../pages/Home";

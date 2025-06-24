@@ -28,6 +28,7 @@ import {
 } from '@ant-design/icons';
 import axiosInstance from '../../../../settings/axiosInstance';
 import TabPane from 'antd/es/tabs/TabPane';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -69,6 +70,8 @@ const CaseApproval: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('0');
   const [allFormRequests, setAllFormRequests] = useState<FormRequest[]>([]);
+  const [expiration, setExpiration] = useState<string | null>(null);
+  const [expirationError, setExpirationError] = useState<string | null>(null);
 
   const fetchFormRequests = async (status: number) => {
     try {
@@ -134,6 +137,54 @@ const CaseApproval: React.FC = () => {
   };
 
   const handleApprove = (record: FormRequest) => {
+    if (record.title === 'Đơn xác nhận học sinh/sinh viên') {
+      let localExpiration = expiration;
+      setExpirationError(null);
+      Modal.confirm({
+        title: 'Nhập ngày hết hạn xác nhận học sinh/sinh viên',
+        icon: <ExclamationCircleOutlined />,
+        content: (
+          <Input
+            type="datetime-local"
+            onChange={e => {
+              localExpiration = e.target.value;
+              setExpiration(localExpiration);
+            }}
+            placeholder="Chọn ngày hết hạn"
+          />
+        ),
+        okText: 'Duyệt',
+        cancelText: 'Hủy',
+        onOk: async () => {
+          if (!localExpiration) {
+            setExpirationError('Vui lòng nhập ngày hết hạn!');
+            message.error('Vui lòng nhập ngày hết hạn!');
+            throw new Error('Empty expiration');
+          }
+          const original = [...formRequests];
+          setFormRequests(formRequests.map(r => r.id === record.id ? { ...r, status: 1 } : r));
+          try {
+            setActionLoading(record.id);
+            await axiosInstance.put(`/api/FormRequest/change-form-request-status/${record.id}`, {
+              formStatus: 1,
+              customerType: 1,
+              expiration: dayjs(localExpiration).toISOString(),
+              rejectionReason: '',
+            });
+            message.success('Đã duyệt đơn thành công!');
+            fetchFormRequests(Number(activeTab));
+            fetchAllFormRequests();
+          } catch {
+            message.error('Lỗi khi duyệt đơn. Đang hoàn tác...');
+            setFormRequests(original);
+          } finally {
+            setActionLoading(null);
+            setExpiration(null);
+          }
+        }
+      });
+      return;
+    }
     confirm({
       title: 'Xác nhận duyệt đơn',
       icon: <ExclamationCircleOutlined />,

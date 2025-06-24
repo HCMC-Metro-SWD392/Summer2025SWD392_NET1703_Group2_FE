@@ -3,8 +3,8 @@ import { Card, Typography, Row, Col, Avatar, Divider, Spin, Alert } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, StarOutlined, CalendarOutlined } from '@ant-design/icons';
 import styles from './CustomerInfo.module.css';
 import UpdateProfileButton from './UpdateProfileButton';
-import axiosInstance from '../../../../settings/axiosInstance';
-import type { UserInfo } from '../../../../types/types';
+import axiosInstance from '../../../../../settings/axiosInstance';
+import type { UserInfo } from '../../../../../types/types';
 
 const { Title, Text } = Typography;
 
@@ -115,7 +115,7 @@ const CustomerInfo: React.FC = () => {
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <StarOutlined /> <Text strong>Customer Type:</Text> {customerData.customerType === 0 ? 'Normal' : 'VIP'}
+                            <StarOutlined /> <Text strong>Customer Type:</Text> {customerData.customerType === 0 ? 'Normal' : 'Học Sinh/Sinh Viên'}
                         </div>
                     </Col>
                 </Row>
