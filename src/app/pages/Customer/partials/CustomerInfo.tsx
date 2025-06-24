@@ -17,7 +17,7 @@ const CustomerInfo: React.FC = () => {
 
     useEffect(() => {
         if (!customerId) {
-            setError('No customer ID found. Please log in.');
+            setError('Không tìm thấy ID khách hàng. Vui lòng đăng nhập.');
             setLoading(false);
             return;
         }
@@ -33,12 +33,12 @@ const CustomerInfo: React.FC = () => {
                 if (res.data && res.data.result) {
                     setCustomerData(res.data.result);
                 } else {
-                    setError('Invalid response format from server');
+                    setError('Định dạng phản hồi không hợp lệ từ máy chủ');
                 }
             })
             .catch(err => {
                 console.error('Error fetching customer data:', err);
-                setError('Failed to fetch customer data. Please try again later.');
+                setError('Không thể tải dữ liệu khách hàng. Vui lòng thử lại sau.');
             })
             .finally(() => setLoading(false));
     }, [customerId]);
@@ -62,7 +62,7 @@ const CustomerInfo: React.FC = () => {
     if (!customerData) {
         return (
             <div className="flex min-h-screen justify-center items-center">
-                <Alert message="No customer data found." type="info" showIcon />
+                <Alert message="Không tìm thấy dữ liệu khách hàng." type="info" showIcon />
             </div>
         );
     }
@@ -90,32 +90,32 @@ const CustomerInfo: React.FC = () => {
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <PhoneOutlined /> <Text strong>Phone:</Text> {customerData.phoneNumber}
+                            <PhoneOutlined /> <Text strong>Số điện thoại:</Text> {customerData.phoneNumber}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <EnvironmentOutlined /> <Text strong>Address:</Text> {customerData.address}
+                            <EnvironmentOutlined /> <Text strong>Địa chỉ:</Text> {customerData.address}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <IdcardOutlined /> <Text strong>Identity ID:</Text> {customerData.identityId}
+                            <IdcardOutlined /> <Text strong>CCCD/CMND:</Text> {customerData.identityId}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <CalendarOutlined /> <Text strong>Date of Birth:</Text> {customerData.dateOfBirth?.slice(0, 10)}
+                            <CalendarOutlined /> <Text strong>Ngày sinh:</Text> {customerData.dateOfBirth?.slice(0, 10)}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            {customerData.sex === 'Male' ? <ManOutlined /> : <WomanOutlined />} <Text strong>Sex:</Text> {customerData.sex}
+                            {customerData.sex === 'Male' ? <ManOutlined /> : <WomanOutlined />} <Text strong>Giới tính:</Text> {customerData.sex === 'Male' ? 'Nam' : 'Nữ'}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <StarOutlined /> <Text strong>Customer Type:</Text> {customerData.customerType === 0 ? 'Normal' : 'VIP'}
+                            <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Thường' : 'VIP'}
                         </div>
                     </Col>
                 </Row>
@@ -133,7 +133,7 @@ const CustomerInfo: React.FC = () => {
                             })
                             .catch(err => {
                                 console.error('Error refreshing data:', err);
-                                setError('Failed to refresh data');
+                                setError('Không thể làm mới dữ liệu');
                             })
                             .finally(() => setLoading(false));
                     }} />

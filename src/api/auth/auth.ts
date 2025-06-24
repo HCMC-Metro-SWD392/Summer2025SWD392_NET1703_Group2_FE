@@ -43,3 +43,12 @@ export const logout = async () => {
     window.location.href = "/login";
   }
 };
+
+export const changePassword = async (data: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  const response = await axiosInstance.put('/api/Auth/change-password', data);
+  return response.data;
+};

@@ -40,6 +40,8 @@ import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSched
 import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
 import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
 import CaseApproval from "../pages/Staff/partials/CaseApproval";
+import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
+import ChangePasswordForm from "../pages/Home/partials/ChangePassword/ChangePasswordForm";
 
 export default function MainRoutes() {
   return (
@@ -61,6 +63,8 @@ export default function MainRoutes() {
             {/* <Route path="submit-success" element={<SubmitSuccess />}/> */}
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
+          <Route path="/metroLine" element={<AllMetroLine />} />
+          <Route path="/changePassword" element={<ChangePasswordForm />} />
         </Route>
 
 

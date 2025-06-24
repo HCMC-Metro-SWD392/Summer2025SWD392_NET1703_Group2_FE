@@ -47,7 +47,7 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
 
   const handleFinish = async (values: any) => {
     if (!userId) {
-      message.error('User ID not found');
+      message.error('Không tìm thấy ID người dùng');
       return;
     }
 
@@ -82,7 +82,7 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
       
       if (res.data && res.data.result) {
         console.log('Update successful. Response:', res.data.result);
-        message.success('Profile updated successfully!');
+        message.success('Cập nhật thông tin thành công!');
         setVisible(false);
         
         // Update localStorage with new data but preserve userId
@@ -117,7 +117,7 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
         url: err.config?.url,
         payload: err.config?.data
       });
-      message.error('Update failed: ' + (err.response?.data?.message || err.message));
+      message.error('Cập nhật thất bại: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -126,15 +126,15 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
   return (
     <>
       <Button type="primary" onClick={handleOpen} style={{ marginTop: 16 }}>
-        Update Profile
+        Cập nhật thông tin
       </Button>
       <Modal
-        title="Update Profile"
+        title="Cập nhật thông tin cá nhân"
         open={visible}
         onCancel={handleClose}
         onOk={() => form.submit()}
-        okText="Save"
-        cancelText="Cancel"
+        okText="Lưu"
+        cancelText="Hủy"
         confirmLoading={loading}
       >
         <Form
@@ -151,33 +151,33 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
             sex: user.sex,
           }}
         >
-          <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your name' }]}> 
+          <Form.Item label="Họ và tên" name="fullName" rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}> 
             <Input />
           </Form.Item>
-          <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}> 
+          <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}> 
             <Input />
           </Form.Item>
-          <Form.Item label="Phone Number" name="phoneNumber"> 
+          <Form.Item label="Số điện thoại" name="phoneNumber"> 
             <Input />
           </Form.Item>
-          <Form.Item label="Address" name="address"> 
+          <Form.Item label="Địa chỉ" name="address"> 
             <Input />
           </Form.Item>
-          <Form.Item label="Date of Birth" name="dateOfBirth">
+          <Form.Item label="Ngày sinh" name="dateOfBirth">
             <DatePicker 
               style={{ width: '100%' }} 
               format="YYYY-MM-DD" 
               suffixIcon={<CalendarOutlined />} 
             />
           </Form.Item>
-          <Form.Item label="Identity ID" name="identityId">
+          <Form.Item label="CCCD/CMND" name="identityId">
             <Input />
           </Form.Item>
-          <Form.Item label="Sex" name="sex">
+          <Form.Item label="Giới tính" name="sex">
             <Select>
-              <Option value="Male">Male</Option>
-              <Option value="Female">Female</Option>
-              <Option value="Other">Other</Option>
+              <Option value="Male">Nam</Option>
+              <Option value="Female">Nữ</Option>
+              <Option value="Other">Khác</Option>
             </Select>
           </Form.Item>
         </Form>
