@@ -27,6 +27,16 @@ const EditPromotion: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
+  const promotionType = Form.useWatch('promotionType', form);
+
+  useEffect(() => {
+    if (promotionType === PromotionType.Percentage) {
+      form.setFieldsValue({ fixedAmount: null });
+    } else if (promotionType === PromotionType.FixedAmount) {
+      form.setFieldsValue({ percentage: null });
+    }
+  }, [promotionType, form]);
+
   useEffect(() => {
     const fetchPromotionDetails = async () => {
       if (!id) {
@@ -70,13 +80,19 @@ const EditPromotion: React.FC = () => {
     try {
       setLoading(true);
 
+      if (values.promotionType === PromotionType.Percentage) {
+        values.fixedAmount = null;
+      } else {
+        values.percentage = null;
+      }
+
       const promotionData: UpdatePromotionDTO = {
         id: values.id,
         code: form.getFieldValue('code'),
         description: values.description,
         promotionType: typeof values.promotionType === 'number' ? values.promotionType : (values.promotionType === PromotionType.Percentage ? 0 : 1),
-        percentage: values.promotionType === PromotionType.Percentage ? values.percentage : null,
-        fixedAmount: values.promotionType === PromotionType.FixedAmount ? values.fixedAmount : null,
+        percentage: values.percentage,
+        fixedAmount: values.fixedAmount,
         startDate: values.dateRange[0].toDate(),
         endDate: values.dateRange[1].toDate()
       };
@@ -94,20 +110,6 @@ const EditPromotion: React.FC = () => {
       console.error('Error updating promotion:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePromotionTypeChange = (value: PromotionType) => {
-    if (value === PromotionType.Percentage) {
-      form.setFieldsValue({
-        percentage: undefined,
-        fixedAmount: null
-      });
-    } else {
-      form.setFieldsValue({
-        percentage: null,
-        fixedAmount: undefined
-      });
     }
   };
 
@@ -147,7 +149,7 @@ const EditPromotion: React.FC = () => {
               name="promotionType"
               rules={[{ required: true, message: 'Vui lòng chọn loại khuyến mãi' }]}
             >
-              <Select onChange={handlePromotionTypeChange}>
+              <Select>
                 <Select.Option value={PromotionType.Percentage}>Giảm Giá Theo Phần Trăm</Select.Option>
                 <Select.Option value={PromotionType.FixedAmount}>Giảm Giá Cố Định</Select.Option>
               </Select>
@@ -163,53 +165,43 @@ const EditPromotion: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Form.Item
-              noStyle
-              shouldUpdate={(prevValues, currentValues) => 
-                prevValues.promotionType !== currentValues.promotionType
-              }
+              label="Discount Percentage"
+              name="percentage"
+              rules={[
+                { required: promotionType === PromotionType.Percentage, message: 'Please enter discount percentage' },
+                { type: 'number', min: 0, max: 100, message: 'Percentage must be between 0 and 100' }
+              ]}
             >
-              {({ getFieldValue }) => {
-                const promotionType = getFieldValue('promotionType');
-                return promotionType === PromotionType.Percentage ? (
-                  <Form.Item
-                    label="Discount Percentage"
-                    name="percentage"
-                    rules={[
-                      { required: true, message: 'Please enter discount percentage' },
-                      { type: 'number', min: 0, max: 100, message: 'Percentage must be between 0 and 100' }
-                    ]}
-                  >
-                    <InputNumber
-                      style={{ width: '100%' }}
-                      placeholder="Enter percentage"
-                      addonAfter="%"
-                      precision={2}
-                    />
-                  </Form.Item>
-                ) : (
-                  <Form.Item
-                    label="Fixed Amount"
-                    name="fixedAmount"
-                    rules={[
-                      { required: true, message: 'Please enter fixed amount' },
-                      { type: 'number', min: 1, message: 'Amount must be greater than 0' },
-                      { type: 'number', validator: (_, value) => {
-                        if (value && !Number.isInteger(value)) {
-                          return Promise.reject('Amount must be a whole number');
-                        }
-                        return Promise.resolve();
-                      }}
-                    ]}
-                  >
-                    <InputNumber
-                      style={{ width: '100%' }}
-                      placeholder="Enter fixed amount"
-                      addonBefore="$"
-                      precision={0}
-                    />
-                  </Form.Item>
-                );
-              }}
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="Enter percentage"
+                addonAfter="%"
+                precision={2}
+                disabled={promotionType !== PromotionType.Percentage}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Fixed Amount"
+              name="fixedAmount"
+              rules={[
+                { required: promotionType === PromotionType.FixedAmount, message: 'Please enter fixed amount' },
+                { type: 'number', min: 1, message: 'Amount must be greater than 0' },
+                { type: 'number', validator: (_, value) => {
+                  if (value && !Number.isInteger(value)) {
+                    return Promise.reject('Amount must be a whole number');
+                  }
+                  return Promise.resolve();
+                }}
+              ]}
+            >
+              <InputNumber
+                style={{ width: '100%' }}
+                placeholder="Enter fixed amount"
+                addonBefore="$"
+                precision={0}
+                disabled={promotionType !== PromotionType.FixedAmount}
+              />
             </Form.Item>
           </div>
 

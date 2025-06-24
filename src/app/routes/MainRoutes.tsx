@@ -45,6 +45,7 @@ import CreateStaff from "../pages/Manager/StaffManagement/CreateStaff";
 import UnauthorizedPage from "../pages/Home/partials/Unauthorized/UnauthorizedPage";
 import MySubmittedRequests from "../pages/Customer/partials/BuySubscriptionTicket/partials/MySubmittedRequests";
 import StaffSchedule from "../pages/Manager/StaffManagement/StaffSchedule";
+import AddMetroLineStation from "../pages/Manager/MetroLineManagement/AddMetroLineStation";
 
 export default function MainRoutes() {
   return (
@@ -104,6 +105,7 @@ export default function MainRoutes() {
         <Route path="/manager/train-schedule/:id/edit" element={<EditTrainSchedule />} />
         <Route path="/manager/create-staff" element={<CreateStaff />} />
         <Route path="/manager/staff-schedule" element={<StaffSchedule />} />
+        <Route path="/manager/add-metro-line-station" element={<AddMetroLineStation />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />
