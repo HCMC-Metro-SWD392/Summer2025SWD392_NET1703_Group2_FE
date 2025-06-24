@@ -61,6 +61,10 @@ const ManagerLayout: React.FC = () => {
           key: '/manager/create-metro-line',
           label: 'Tạo Tuyến Metro',
         },
+        {
+          key: '/manager/add-metro-line-station',
+          label: 'Thêm Trạm Vào Tuyến Metro',
+        },
       ],
     },
     {

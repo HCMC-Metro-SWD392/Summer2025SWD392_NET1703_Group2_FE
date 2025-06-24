@@ -11,7 +11,7 @@ export interface CreateMetroLineStationDTO {
     metroLineId: string;        
     stationId: string;          
     distanceFromStart: number;  
-    stationOrder: number;       
+    stationOder: number;       
 }
 
 export interface GetMetroLineStationDTO {
