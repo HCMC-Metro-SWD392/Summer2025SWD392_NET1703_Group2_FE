@@ -71,7 +71,7 @@ export const checkUserRole = (allowedRoles: string | string[]): boolean => {
       if (role === allowedRoles) return true;
     }
 
-    message.error("Bạn không có quyền truy cập trang này.");
+    // message.error("Bạn không có quyền truy cập trang này.");
     return false;
 
   } catch (error) {

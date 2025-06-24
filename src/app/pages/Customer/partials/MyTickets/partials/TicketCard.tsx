@@ -1,5 +1,16 @@
 import { useRef, useState, useEffect } from "react";
-import { Typography, Tag, Card, message, Modal, QRCode, Tabs, Space, Spin, type QRCodeProps } from "antd";
+import {
+  Typography,
+  Tag,
+  Card,
+  message,
+  Modal,
+  QRCode,
+  Tabs,
+  Space,
+  Spin,
+  type QRCodeProps,
+} from "antd";
 import type { Ticket } from "../../../../../../types/types";
 import { getStatusColor, getStatusLabel } from "./ticketUtils";
 import logoMetro from "../../../../../assets/fpt.png";
@@ -17,12 +28,13 @@ const TicketCard = ({
   status: "unused" | "active" | "used";
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isFullScreenQRVisible, setIsFullScreenQRVisible] = useState(false);
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
   const [loadingQR, setLoadingQR] = useState(false);
   const [countdown, setCountdown] = useState(61);
   const [activeTab, setActiveTab] = useState("1");
-  const isModalVisibleRef = useRef(isModalVisible);
 
+  const isModalVisibleRef = useRef(isModalVisible);
   const countdownRef = useRef<number | null>(null);
   const qrExpireTimeRef = useRef<number>(0);
 
@@ -51,7 +63,6 @@ const TicketCard = ({
   };
 
   const fetchQRCode = async () => {
-
     if (!isSubscription && qrCodeValue) return;
 
     const stillValid = isSubscription && qrCodeValue && Date.now() < qrExpireTimeRef.current;
@@ -59,8 +70,7 @@ const TicketCard = ({
 
     setLoadingQR(true);
     try {
-      const data = await getQRCodeFromSubscription(ticket.id); // dùng chung API cho cả vé lượt & tháng
-      console.log(data);
+      const data = await getQRCodeFromSubscription(ticket.id);
       const qrValue = data.result || ticket.id;
       setQrCodeValue(qrValue);
 
@@ -83,7 +93,7 @@ const TicketCard = ({
     }
     setIsModalVisible(true);
     setActiveTab("1");
-    fetchQRCode(); // luôn gọi cho mọi loại vé
+    fetchQRCode();
   };
 
   const handleTabChange = (key: string) => {
@@ -98,32 +108,15 @@ const TicketCard = ({
     setActiveTab("1");
   };
 
-  const customStatusRender: QRCodeProps['statusRender'] = (info) => {
+  const customStatusRender: QRCodeProps["statusRender"] = (info) => {
     switch (info.status) {
-      // case 'expired':
-      //   return (
-      //     <div>
-      //       <CloseCircleFilled style={{ color: 'red' }} /> {info.locale?.expired}
-      //       <p>
-      //         <Button type="link" onClick={info.onRefresh}>
-      //           <ReloadOutlined /> {info.locale?.refresh}
-      //         </Button>
-      //       </p>
-      //     </div>
-      //   );
-      case 'loading':
+      case "loading":
         return (
           <Space direction="vertical">
             <Spin />
             <p>Loading...</p>
           </Space>
         );
-      // case 'scanned':
-      //   return (
-      //     <div>
-      //       <CheckCircleFilled style={{ color: 'green' }} /> {info.locale?.scanned}
-      //     </div>
-      //   );
       default:
         return null;
     }
@@ -213,6 +206,8 @@ const TicketCard = ({
                       icon={logoMetro}
                       iconSize={40}
                       bordered
+                      onClick={() => setIsFullScreenQRVisible(true)}
+                      style={{ cursor: "pointer" }}
                     />
                     {isSubscription && (
                       <div className="mt-2 text-xs text-gray-500">
@@ -263,6 +258,29 @@ const TicketCard = ({
             </div>
           </TabPane>
         </Tabs>
+      </Modal>
+
+      {/* Modal fullscreen QR */}
+      <Modal
+        open={isFullScreenQRVisible}
+        onCancel={() => setIsFullScreenQRVisible(false)}
+        footer={null}
+        centered
+        closable
+        style={{ top: 0, padding: 0 }}
+        bodyStyle={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <QRCode
+          value={qrCodeValue || ticket.id}
+          size={320}
+          icon={logoMetro}
+          iconSize={60}
+          bordered
+        />
       </Modal>
     </>
   );

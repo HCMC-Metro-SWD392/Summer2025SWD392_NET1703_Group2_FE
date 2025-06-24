@@ -80,6 +80,15 @@ const VerifyTicketPayment = () => {
       }
     };
 
+    const handleCancelledPayment = async () => {
+      try {
+        const res = await axiosInstance.put(`/api/Payment/payment-transactions/update-status/${orderCode}`);
+      } catch (error) {
+        console.error("Lỗi khi huỷ đơn:", error);
+        // message.error("Lỗi khi huỷ đơn.");
+      }
+    };
+
     if (
       status === "success" &&
       orderCode &&
@@ -89,8 +98,12 @@ const VerifyTicketPayment = () => {
       hasCalledCreateTicket.current = true;
       setCreatingTicket(true);
       createTicket();
+    } else if (status === "cancelled" && orderCode) {
+      handleCancelledPayment();
     }
   }, [status, orderCode, ticketCreated]);
+
+
 
   return (
     <div className="p-4 flex justify-center items-center min-h-[calc(100vh-80px)] bg-[#E9F5FB]">
@@ -138,6 +151,15 @@ const VerifyTicketPayment = () => {
               Không thể xác minh thanh toán. Vui lòng thử lại hoặc liên hệ hỗ trợ.
             </p>
           }
+          extra={
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => navigate("/")}
+            >
+              Về trang chủ
+            </Button>
+          }
         />
       )}
 
@@ -158,6 +180,15 @@ const VerifyTicketPayment = () => {
             <p className="text-xl text-gray-700">
               Thanh toán của bạn đã bị hủy. Nếu cần hỗ trợ, vui lòng liên hệ bộ phận chăm sóc khách hàng.
             </p>
+          }
+          extra={
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => navigate("/")}
+            >
+              Về trang chủ
+            </Button>
           }
         />
       )}

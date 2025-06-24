@@ -83,8 +83,8 @@ const TrainList: React.FC<TrainListProps> = ({
               item.direction === 0 ? <ArrowUpOutlined /> : <ArrowDownOutlined />;
             const directionStation =
               item.direction === 0
-                ? startAndEndStationOfLine?.endStation.name
-                : startAndEndStationOfLine?.startStation.name;
+                ? startAndEndStationOfLine?.endStationName
+                : startAndEndStationOfLine?.startStationName;
 
             return (
               <List.Item>
