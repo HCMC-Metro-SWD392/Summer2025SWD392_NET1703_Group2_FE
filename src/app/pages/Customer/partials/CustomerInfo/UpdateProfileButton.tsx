@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Input, message, DatePicker, Select } from 'antd';
-import axiosInstance from '../../../../settings/axiosInstance';
+import axiosInstance from '../../../../../settings/axiosInstance';
 import dayjs from 'dayjs';
 import { CalendarOutlined } from '@ant-design/icons';
 
@@ -126,15 +126,15 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
   return (
     <>
       <Button type="primary" onClick={handleOpen} style={{ marginTop: 16 }}>
-        Update Profile
+        Cập nhật thông tin
       </Button>
       <Modal
-        title="Update Profile"
+        title="Cập nhật thông tin cá nhân"
         open={visible}
         onCancel={handleClose}
         onOk={() => form.submit()}
-        okText="Save"
-        cancelText="Cancel"
+        okText="Lưu"
+        cancelText="Hủy"
         confirmLoading={loading}
       >
         <Form
@@ -151,33 +151,34 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
             sex: user.sex,
           }}
         >
-          <Form.Item label="Full Name" name="fullName" rules={[{ required: true, message: 'Please enter your name' }]}> 
-            <Input />
+          <Form.Item label="Họ và tên" name="fullName" rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}> 
+            <Input placeholder="Nhập họ và tên" />
           </Form.Item>
-          <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email' }]}> 
-            <Input />
+          <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}> 
+            <Input placeholder="Nhập email" />
           </Form.Item>
-          <Form.Item label="Phone Number" name="phoneNumber"> 
-            <Input />
+          <Form.Item label="Số điện thoại" name="phoneNumber"> 
+            <Input placeholder="Nhập số điện thoại" />
           </Form.Item>
-          <Form.Item label="Address" name="address"> 
-            <Input />
+          <Form.Item label="Địa chỉ" name="address"> 
+            <Input placeholder="Nhập địa chỉ" />
           </Form.Item>
-          <Form.Item label="Date of Birth" name="dateOfBirth">
+          <Form.Item label="Ngày sinh" name="dateOfBirth">
             <DatePicker 
               style={{ width: '100%' }} 
               format="YYYY-MM-DD" 
               suffixIcon={<CalendarOutlined />} 
+              placeholder="Chọn ngày sinh"
             />
           </Form.Item>
-          <Form.Item label="Identity ID" name="identityId">
-            <Input />
+          <Form.Item label="Số CMND/CCCD" name="identityId">
+            <Input placeholder="Nhập số CMND/CCCD" />
           </Form.Item>
-          <Form.Item label="Sex" name="sex">
-            <Select>
-              <Option value="Male">Male</Option>
-              <Option value="Female">Female</Option>
-              <Option value="Other">Other</Option>
+          <Form.Item label="Giới tính" name="sex">
+            <Select placeholder="Chọn giới tính">
+              <Option value="Male">Nam</Option>
+              <Option value="Female">Nữ</Option>
+              <Option value="Other">Khác</Option>
             </Select>
           </Form.Item>
         </Form>
