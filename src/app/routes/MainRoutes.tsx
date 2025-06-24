@@ -42,6 +42,8 @@ import CaseApproval from "../pages/Staff/partials/CaseApproval";
 import SpecialCaseRequestForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
 import SubmitSuccess from "../pages/Customer/partials/BuySubscriptionTicket/partials/SubmitSuccess";
 import CreateStaff from "../pages/Manager/StaffManagement/CreateStaff";
+import UnauthorizedPage from "../pages/Home/partials/Unauthorized/UnauthorizedPage";
+import MySubmittedRequests from "../pages/Customer/partials/BuySubscriptionTicket/partials/MySubmittedRequests";
 import StaffSchedule from "../pages/Manager/StaffManagement/StaffSchedule";
 import AddMetroLineStation from "../pages/Manager/MetroLineManagement/AddMetroLineStation";
 
@@ -61,9 +63,11 @@ export default function MainRoutes() {
           </Route>
           <Route path="/services">
             <Route path="specialCaseForm" element={<SpecialCaseRequestForm />}/>
+            <Route path="mySubmittedRequest" element={<MySubmittedRequests />}/>
             <Route path="submit-success" element={<SubmitSuccess />}/>
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
         </Route>
 
 

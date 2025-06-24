@@ -2,8 +2,10 @@ import axios from "axios";
 
 import type { LoginPayload, RegisterPayload } from "../../types/types";
 import endpoints from "../endpoints";
-import { removeTokens, setTokens, decodeToken } from "./tokenUtils";
+import { removeTokens, setTokens, decodeToken, removeUserInfo } from "./tokenUtils";
 import axiosInstance, { BASE_URL } from "../../settings/axiosInstance";
+import { message } from "antd";
+import { jwtDecode } from "jwt-decode";
 
 export const register = async (data: RegisterPayload) => {
   const response = await axiosInstance.post(endpoints.register, data);
@@ -40,5 +42,41 @@ export const logout = async () => {
     removeTokens();
     localStorage.removeItem("userInfo");
     window.location.href = "/login";
+  }
+};
+
+export const checkUserRole = (allowedRoles: string | string[]): boolean => {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) {
+    // message.error("Không tìm thấy token.");
+    removeTokens();
+    removeUserInfo();
+    window.location.href = "/login";
+    return false;
+  }
+
+  try {
+    const decoded: any = jwtDecode(token);
+    const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+    if (!role) {
+      // message.error("Không tìm thấy role trong token.");
+      return false;
+    }
+
+    if (Array.isArray(allowedRoles)) {
+      if (allowedRoles.includes(role)) return true;
+    } else {
+      if (role === allowedRoles) return true;
+    }
+
+    message.error("Bạn không có quyền truy cập trang này.");
+    return false;
+
+  } catch (error) {
+    // console.error("Lỗi giải mã token:", error);
+    // message.error("Token không hợp lệ.");
+    return false;
   }
 };

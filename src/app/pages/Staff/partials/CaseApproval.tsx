@@ -85,7 +85,8 @@ const CaseApproval: React.FC = () => {
       });
       setFormRequests(res.data.result || []);
     } catch (err) {
-      setError('Không thể tải danh sách các trường hợp đặc biệt.');
+      setError(null);
+      setFormRequests([]);
     } finally {
       setLoadingTable(false);
     }
@@ -98,12 +99,15 @@ const CaseApproval: React.FC = () => {
         axiosInstance.get(`/api/FormRequest/get-all-form-requests?sortBy=createdAt&isAcsending=true&pageNumber=1&pageSize=100&formStatus=${status}`)
       );
 
-      const responses = await Promise.all(requests);
-      
-      const allRequests = responses.flatMap(response => response.data.result || []);
-      setAllFormRequests(allRequests || []);
+      const results = await Promise.allSettled(requests);
+
+      const allRequests = results
+        .filter(result => result.status === "fulfilled")
+        .flatMap((result: any) => result.value.data.result || []);
+
+      setAllFormRequests(allRequests);
     } catch (err) {
-      console.error('Lỗi khi lấy toàn bộ form request để thống kê', err);
+      console.error("Lỗi không mong muốn khi xử lý form requests:", err);
     }
   };
 

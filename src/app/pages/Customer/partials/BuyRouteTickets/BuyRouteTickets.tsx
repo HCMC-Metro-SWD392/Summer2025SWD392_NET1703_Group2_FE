@@ -33,6 +33,7 @@ import StationTimetableChart from "./partials/StationTimetableChart";
 import mapImage from "../../../../assets/HCMC_METRO_SWD391.drawio.png";
 import { removeVietnameseTones } from "../../../../utils/string";
 import { TicketIcon } from "lucide-react";
+import type { SelectProps } from "antd";
 
 const BuyRouteTicket: React.FC = () => {
   const [allStations, setAllStations] = useState<Station[]>([]);
@@ -55,6 +56,7 @@ const BuyRouteTicket: React.FC = () => {
   const infoRef = useRef(null);
   const ticketInfoRef = useRef(null);
   const ticketTypeRef = useRef(null);
+  const ticketPromotion = useRef(null);
   const timeFromInfoRef = useRef<HTMLDivElement | null>(null);
   const timeToInfoRef = useRef<HTMLDivElement | null>(null);
   const payRef = useRef(null);
@@ -104,17 +106,44 @@ const BuyRouteTicket: React.FC = () => {
   //   })), [allStations]
   // );
 
-  const fromStationOptions = useMemo(() =>
-    allStations
-      .filter((station) => !toStation || station.id !== toStation.id)
-      .map((station) => ({ value: station.name, label: station.name })),
+  const groupStationsByMetro = (
+    stations: Station[],
+    excludeId: string | null
+  ): SelectProps['options'] => {
+    const grouped: Record<string, { label: string; options: { value: string; label: string }[] }> = {};
+    const addedStationIds = new Set<string>(); // global Set để tránh lặp
+
+    stations.forEach((station) => {
+      if (excludeId && station.id === excludeId) return;
+
+      station.metroLines?.forEach((line) => {
+        if (!grouped[line.metroName]) {
+          grouped[line.metroName] = {
+            label: line.metroName,
+            options: [],
+          };
+        }
+
+        // ✅ Cho phép thêm station vào nhiều tuyến
+        grouped[line.metroName].options.push({
+          value: `${station.id}__${line.metroName}`, // value phân biệt tuyến
+          label: `${station.name} (${line.metroName})`, // label rõ ràng
+        });
+      });
+    });
+
+    return Object.values(grouped);
+  };
+
+
+
+  const fromStationOptions = useMemo(
+    () => groupStationsByMetro(allStations, toStation?.id || null),
     [allStations, toStation]
   );
 
-  const toStationOptions = useMemo(() =>
-    allStations
-      .filter((station) => !fromStation || station.id !== fromStation.id)
-      .map((station) => ({ value: station.name, label: station.name })),
+  const toStationOptions = useMemo(
+    () => groupStationsByMetro(allStations, fromStation?.id || null),
     [allStations, fromStation]
   );
 
@@ -229,14 +258,20 @@ const BuyRouteTicket: React.FC = () => {
                 <h3 className="text-base font-semibold mb-2">Ga đi</h3>
                 <div ref={fromRef}>
                   <AutoComplete
+                    allowClear
                     className="w-full"
                     options={fromStationOptions}
                     placeholder="Chọn ga đi"
-                    onChange={(value) => setFromStation(findStationByName(value))}
+                    value={fromStation ? `${fromStation.name}` : undefined}
+                    onChange={(value) => {
+                      const stationId = value.split("__")[0];
+                      const found = allStations.find((s) => s.id === stationId);
+                      setFromStation(found || null);
+                    }}
                     filterOption={(input, option) => {
                       const normalizedInput = removeVietnameseTones(input.toLowerCase());
-                      const normalizedOption = removeVietnameseTones(option?.value.toLowerCase() || "");
-                      return normalizedOption.includes(normalizedInput);
+                      const normalizedLabel = removeVietnameseTones((option?.label as string)?.toLowerCase() || "");
+                      return normalizedLabel.includes(normalizedInput);
                     }}
                   />
                 </div>
@@ -251,14 +286,20 @@ const BuyRouteTicket: React.FC = () => {
                 <h3 className="text-base font-semibold mb-2">Ga đến</h3>
                 <div ref={toRef}>
                   <AutoComplete
+                    allowClear
                     className="w-full"
                     options={toStationOptions}
                     placeholder="Chọn ga đến"
-                    onChange={(value) => setToStation(findStationByName(value))}
+                    value={toStation ? `${toStation.name}` : undefined}
+                    onChange={(value) => {
+                      const stationId = value.split("__")[0];
+                      const found = allStations.find((s) => s.id === stationId);
+                      setToStation(found || null);
+                    }}
                     filterOption={(input, option) => {
                       const normalizedInput = removeVietnameseTones(input.toLowerCase());
-                      const normalizedOption = removeVietnameseTones(option?.value.toLowerCase() || "");
-                      return normalizedOption.includes(normalizedInput);
+                      const normalizedLabel = removeVietnameseTones((option?.label as string)?.toLowerCase() || "");
+                      return normalizedLabel.includes(normalizedInput);
                     }}
                   />
                 </div>
@@ -272,9 +313,8 @@ const BuyRouteTicket: React.FC = () => {
 
             <Divider className="!my-4" />
 
-
             <label className="block text-sm font-medium text-gray-700 mb-2">Loại vé</label>
-            <div className="grid grid-cols-2 gap-3 relative" ref={ticketTypeRef}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 relative" ref={ticketTypeRef}>
               {[{ name: "normal", displayName: "Vé lượt" }, ...ticketTypes].map((item) => {
                 const isSelected = ticketType === item.name;
                 return (
@@ -282,8 +322,8 @@ const BuyRouteTicket: React.FC = () => {
                     key={item.name}
                     onClick={() => setTicketType(item.name as typeof ticketType)}
                     className={`relative cursor-pointer rounded-2xl border p-4 flex items-center gap-3 transition-all hover:shadow-lg ${isSelected
-                        ? "border-blue-600 bg-blue-50 shadow-lg"
-                        : "border-gray-300 bg-white"
+                      ? "border-blue-600 bg-blue-50 shadow-lg"
+                      : "border-gray-300 bg-white"
                       }`}
                   >
                     <div className="text-blue-600 text-2xl">
@@ -323,7 +363,7 @@ const BuyRouteTicket: React.FC = () => {
             </div>
 
 
-            <div className="mt-4" ref={ticketTypeRef}>
+            <div className="mt-4" ref={ticketPromotion}>
               <div className="mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
                 <Input
@@ -395,14 +435,19 @@ const BuyRouteTicket: React.FC = () => {
             target: () => timeToInfoRef.current!,
           },
           {
+            title: "Chọn loại vé",
+            description: "Chọn loại vé lượt hoặc vé ưu đãi để tiếp tục.",
+            target: () => ticketTypeRef.current!,
+          },
+          {
             title: "Xem thông tin vé",
             description: "Tại đây bạn có thể xem tóm tắt thông tin vé đã chọn như ga đi, ga đến và loại vé.",
             target: () => ticketInfoRef.current!,
           },
           {
-            title: "Chọn loại vé",
-            description: "Chọn loại vé lượt hoặc vé ưu đãi để tiếp tục.",
-            target: () => ticketTypeRef.current!,
+            title: "Nhập mã khuyến mãi",
+            description: "Nếu bạn có mã khuyến mãi hãy nhập để được giảm giá.",
+            target: () => ticketPromotion.current!,
           },
           {
             title: "Xác nhận thanh toán",

@@ -35,6 +35,12 @@ const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
               label: "Nộp đơn",
               onClick: () => navigate("/services/specialCaseForm"),
             },
+            {
+              key: "my-request",
+              icon: <FileTextOutlined />,
+              label: "Xem đơn",
+              onClick: () => navigate("/services/mySubmittedRequest"),
+            },
           ],
         },
         {

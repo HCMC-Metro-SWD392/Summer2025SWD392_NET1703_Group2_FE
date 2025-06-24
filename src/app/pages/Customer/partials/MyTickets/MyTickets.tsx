@@ -6,6 +6,8 @@ import type { Ticket } from "../../../../../types/types";
 import TicketList from "./partials/TicketList";
 import connection from "../../../../../settings/signalrConnection";
 import { HubConnectionState } from "@microsoft/signalr";
+import logoMetroHCMC from "../../../../assets/logo.png";
+
 
 const { Title } = Typography;
 
@@ -21,6 +23,8 @@ const MyTickets: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentNotifyData, setCurrentNotifyData] = useState<{ ticketId: string; stationId: string; message: string } | null>(null);
+  const [checkinModalVisible, setCheckinModalVisible] = useState(false);
+  const [checkinMessage, setCheckinMessage] = useState<string | null>(null);
 
   const loadTickets = async (status: "unused" | "active" | "used") => {
     setLoading(true);
@@ -54,6 +58,12 @@ const MyTickets: React.FC = () => {
             console.log("📡 Nhận NotifyOverStation:", data);
             setCurrentNotifyData(data);
             setModalVisible(true);
+          });
+
+          connection.on("NotifyCheckinCheckout", (data) => {
+            console.log("📡 Nhận NotifyCheckinCheckout:", data);
+            setCheckinMessage(data.message);
+            setCheckinModalVisible(true);
           });
         } catch (err) {
           console.error("❌ SignalR start error:", err);
@@ -117,13 +127,61 @@ const MyTickets: React.FC = () => {
       <Modal
         open={modalVisible}
         centered
-        title="Thông báo vượt trạm"
+        title={null}
+        footer={null}
         onCancel={() => setModalVisible(false)}
-        onOk={handlePaymentConfirm}
-        okText="Thanh toán thêm"
-        cancelText="Bỏ qua"
+        width={520}
+        zIndex={1000}
+        closable={false}
       >
-        <p>{currentNotifyData?.message}</p>
+        <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
+          <div className="flex justify-center mb-4">
+            <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-center text-red-600 mb-4">Thông báo vượt trạm</h3>
+          <p className="text-gray-700 text-sm text-center mb-6">{currentNotifyData?.message}</p>
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={handlePaymentConfirm}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Thanh toán thêm
+            </button>
+            <button
+              onClick={() => setModalVisible(false)}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition"
+            >
+              Bỏ qua
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        open={checkinModalVisible}
+        centered
+        title={null}
+        footer={null}
+        onCancel={() => setCheckinModalVisible(false)}
+        width={480}
+        zIndex={1050}
+        closable={false}
+      >
+        <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
+          <div className="flex justify-center mb-4">
+            <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-center text-blue-700 mb-4">Thông báo</h3>
+          <p className="text-gray-700 text-sm text-center mb-6">{checkinMessage}</p>
+          <div className="flex justify-center">
+            <button
+              onClick={() => setCheckinModalVisible(false)}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              OK
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

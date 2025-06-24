@@ -30,6 +30,7 @@ export interface Station {
   name: string;
   address: string;
   description: string;
+  metroLines?: { id: string; metroName: string }[];
 };
 
 export interface Line {
