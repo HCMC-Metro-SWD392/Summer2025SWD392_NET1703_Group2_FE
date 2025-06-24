@@ -1,13 +1,13 @@
+import { AppstoreOutlined, FileAddOutlined, FileTextOutlined, LogoutOutlined, ProfileOutlined, UserOutlined } from "@ant-design/icons";
+import { Avatar, Button, Dropdown, Menu, Space, Typography } from "antd";
 import React from "react";
-import { Dropdown, Avatar, Menu, Button, Space, Typography } from "antd";
-import { UserOutlined, LogoutOutlined, ProfileOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../../../api/auth/auth";
 import type { UserInfo } from "../../../../types/types";
 
 const { Text } = Typography;
 
-const UserHeaderMenu: React.FC<{userInfo : UserInfo}> = ({ userInfo }) => {
+const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,7 +28,14 @@ const UserHeaderMenu: React.FC<{userInfo : UserInfo}> = ({ userInfo }) => {
           key: "service",
           icon: <AppstoreOutlined />,
           label: "Dịch vụ",
-          onClick: () => navigate("/service"),
+          children: [
+            {
+              key: "submit-request",
+              icon: <FileTextOutlined />,
+              label: "Nộp đơn",
+              onClick: () => navigate("/services/specialCaseForm"),
+            },
+          ],
         },
         {
           key: "logout",

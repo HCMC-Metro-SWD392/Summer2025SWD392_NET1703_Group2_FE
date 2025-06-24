@@ -14,22 +14,22 @@ const ManagerDashboard: React.FC = () => {
     {
       key: '1',
       user: 'John Doe',
-      action: 'Created new order',
-      time: '2 hours ago',
+      action: 'Tạo đơn hàng mới',
+      time: '2 giờ trước',
       status: 'success',
     },
     {
       key: '2',
       user: 'Jane Smith',
-      action: 'Updated inventory',
-      time: '3 hours ago',
+      action: 'Cập nhật kho',
+      time: '3 giờ trước',
       status: 'processing',
     },
     {
       key: '3',
       user: 'Mike Johnson',
-      action: 'Cancelled order',
-      time: '5 hours ago',
+      action: 'Hủy đơn hàng',
+      time: '5 giờ trước',
       status: 'error',
     },
   ];
@@ -39,54 +39,54 @@ const ManagerDashboard: React.FC = () => {
     {
       key: '1',
       ticketId: 'TCKT-1001',
-      customer: 'Nguyen Van A',
-      event: 'Metro Line 1',
-      time: '10 minutes ago',
+      customer: 'Nguyễn Văn A',
+      event: 'Tuyến Metro 1',
+      time: '10 phút trước',
       status: 'completed',
     },
     {
       key: '2',
       ticketId: 'TCKT-1002',
       customer: 'Tran Thi B',
-      event: 'Metro Line 2',
-      time: '30 minutes ago',
+      event: 'Tuyến Metro 2',
+      time: '30 phút trước',
       status: 'pending',
     },
     {
       key: '3',
       ticketId: 'TCKT-1003',
       customer: 'Le Van C',
-      event: 'Metro Line 1',
-      time: '1 hour ago',
+      event: 'Tuyến Metro 1',
+      time: '1 giờ trước',
       status: 'failed',
     },
   ];
 
   const columns = [
     {
-      title: 'User',
+      title: 'Người dùng',
       dataIndex: 'user',
       key: 'user',
     },
     {
-      title: 'Action',
+      title: 'Hành động',
       dataIndex: 'action',
       key: 'action',
     },
     {
-      title: 'Time',
+      title: 'Thời gian',
       dataIndex: 'time',
       key: 'time',
     },
     {
-      title: 'Status',
+      title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
         const statusConfig = {
-          success: { color: 'success', text: 'Success' },
-          processing: { color: 'processing', text: 'Processing' },
-          error: { color: 'error', text: 'Failed' },
+          success: { color: 'success', text: 'Thành công' },
+          processing: { color: 'processing', text: 'Đang xử lý' },
+          error: { color: 'error', text: 'Thất bại' },
         };
         const config = statusConfig[status as keyof typeof statusConfig];
         return <Tag color={config.color}>{config.text}</Tag>;
@@ -96,34 +96,34 @@ const ManagerDashboard: React.FC = () => {
 
   const ticketColumns = [
     {
-      title: 'Ticket ID',
+      title: 'Mã vé',
       dataIndex: 'ticketId',
       key: 'ticketId',
     },
     {
-      title: 'Customer',
+      title: 'Khách hàng',
       dataIndex: 'customer',
       key: 'customer',
     },
     {
-      title: 'Event',
+      title: 'Sự kiện',
       dataIndex: 'event',
       key: 'event',
     },
     {
-      title: 'Purchase Time',
+      title: 'Thời gian mua',
       dataIndex: 'time',
       key: 'time',
     },
     {
-      title: 'Status',
+      title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
         const statusConfig = {
-          completed: { color: 'success', text: 'Completed' },
-          pending: { color: 'processing', text: 'Pending' },
-          failed: { color: 'error', text: 'Failed' },
+          completed: { color: 'success', text: 'Hoàn thành' },
+          pending: { color: 'processing', text: 'Đang chờ' },
+          failed: { color: 'error', text: 'Thất bại' },
         };
         const config = statusConfig[status as keyof typeof statusConfig];
         return <Tag color={config.color}>{config.text}</Tag>;
@@ -134,7 +134,7 @@ const ManagerDashboard: React.FC = () => {
   return (
     <div className="w-full h-full p-2 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+        <h1 className="text-2xl font-bold">Bảng điều khiển</h1>
       </div>
 
       {/* Statistics Cards */}
@@ -143,7 +143,7 @@ const ManagerDashboard: React.FC = () => {
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
               <Statistic
-                title="Total Customers"
+                title="Tổng số khách hàng"
                 value={1128}
                 prefix={<UserOutlined />}
                 valueStyle={{ color: '#3f8600' }}
@@ -152,14 +152,14 @@ const ManagerDashboard: React.FC = () => {
                 <span className="text-green-500">
                   <RiseOutlined /> 12%
                 </span>
-                <span className="text-gray-500 ml-2">vs last month</span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
               <Statistic
-                title="Total Tickets Bought"
+                title="Tổng số vé đã bán"
                 value={93}
                 prefix={<ShoppingCartOutlined />}
                 valueStyle={{ color: '#1890ff' }}
@@ -168,14 +168,14 @@ const ManagerDashboard: React.FC = () => {
                 <span className="text-green-500">
                   <RiseOutlined /> 8%
                 </span>
-                <span className="text-gray-500 ml-2">vs last month</span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
               <Statistic
-                title="Revenue"
+                title="Doanh thu"
                 value={11280}
                 prefix={<DollarOutlined />}
                 valueStyle={{ color: '#cf1322' }}
@@ -184,14 +184,14 @@ const ManagerDashboard: React.FC = () => {
                 <span className="text-red-500">
                   <FallOutlined /> 3%
                 </span>
-                <span className="text-gray-500 ml-2">vs last month</span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
               <Statistic
-                title="Conversion Rate"
+                title="Tỷ lệ chuyển đổi"
                 value={68}
                 suffix="%"
                 valueStyle={{ color: '#722ed1' }}
@@ -200,7 +200,7 @@ const ManagerDashboard: React.FC = () => {
                 <span className="text-green-500">
                   <RiseOutlined /> 5%
                 </span>
-                <span className="text-gray-500 ml-2">vs last month</span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
               </div>
             </Card>
           </Col>
@@ -212,26 +212,26 @@ const ManagerDashboard: React.FC = () => {
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
             <Card 
-              title="Monthly Goals" 
+              title="Mục tiêu hàng tháng" 
               className="h-full"
               headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
             >
               <div className="space-y-6">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="font-medium">Sales Target</span>
+                    <span className="font-medium">Mục tiêu doanh số</span>
                   </div>
                   <Progress percent={75} status="active" />
                 </div>
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="font-medium">Customer Satisfaction</span>
+                    <span className="font-medium">Sự hài lòng của khách hàng</span>
                   </div>
                   <Progress percent={90} status="active" />
                 </div>
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="font-medium">New Users</span>
+                    <span className="font-medium">Người dùng mới</span>
                   </div>
                   <Progress percent={60} status="active" />
                 </div>
@@ -240,7 +240,7 @@ const ManagerDashboard: React.FC = () => {
           </Col>
           <Col xs={24} lg={12}>
             <Card 
-              title="Recent Ticket Sales" 
+              title="Giao dịch vé gần đây" 
               className="h-full"
               headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
             >
@@ -251,7 +251,7 @@ const ManagerDashboard: React.FC = () => {
                   pagination={{
                     pageSize: 5,
                     showSizeChanger: true,
-                    showTotal: (total) => `Total ${total} sales`,
+                    showTotal: (total) => `Tổng số ${total} giao dịch`,
                     responsive: true,
                   }}
                   scroll={{ x: 'max-content' }}
@@ -267,7 +267,7 @@ const ManagerDashboard: React.FC = () => {
       {/* Recent Activities Section */}
       <div className="mb-6">
         <Card 
-          title="Recent Activities" 
+          title="Hoạt động gần đây" 
           className="w-full"
           headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
         >
@@ -278,7 +278,7 @@ const ManagerDashboard: React.FC = () => {
               pagination={{
                 pageSize: 5,
                 showSizeChanger: true,
-                showTotal: (total) => `Total ${total} activities`,
+                showTotal: (total) => `Tổng số ${total} hoạt động`,
                 responsive: true,
               }}
               scroll={{ x: 'max-content' }}

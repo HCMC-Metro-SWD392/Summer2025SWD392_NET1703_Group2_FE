@@ -14,6 +14,10 @@ import {
   Row,
   Col,
   Statistic,
+  Modal,
+  Select,
+  InputNumber,
+  Form,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { 
@@ -24,7 +28,10 @@ import {
   NumberOutlined,
 } from '@ant-design/icons';
 import { MetroLineApi } from '../../../../api/metroLine/MetroLineApi';
+import { MetroLineStationApi } from '../../../../api/metroLine/MetroLineStationApi';
 import type { GetMetroLineDTO, GetMetroLineStationDTO } from '../../../../api/metroLine/MetroLineInterface';
+import type { GetStationDTO } from '../../../../api/station/StationInterface';
+import { StationApi } from '../../../../api/station/StationApi';
 
 const { Title } = Typography;
 
@@ -33,12 +40,26 @@ const MetroLineDetails: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [metroLine, setMetroLine] = useState<GetMetroLineDTO | null>(null);
+  const [addStationVisible, setAddStationVisible] = useState(false);
+  const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+  const [distanceFromStart, setDistanceFromStart] = useState<number>(0);
+  const [stationOrder, setStationOrder] = useState<number>(1);
+  const [stations, setStations] = useState<GetStationDTO[]>([]);
 
   useEffect(() => {
     if (id) {
       fetchMetroLineDetails();
+      fetchStations();
     }
   }, [id]);
+
+
+  const fetchStations = async () => {
+      const response = await StationApi.getAllStations();
+      if (response.isSuccess && response.result) {
+        setStations(response.result);
+      }
+    };
 
   const fetchMetroLineDetails = async () => {
     if (!id) return;
@@ -69,6 +90,8 @@ const MetroLineDetails: React.FC = () => {
       key: 'stationOrder',
       width: 80,
       align: 'center',
+      sorter: (a, b) => a.stationOrder - b.stationOrder,
+      defaultSortOrder: 'ascend',
     },
     {
       title: 'Tên Trạm',
@@ -123,17 +146,10 @@ const MetroLineDetails: React.FC = () => {
             Chi Tiết Tuyến Metro {metroLine.metroLineNumber}
           </Title>
         </Space>
-        <Button
-          type="primary"
-          icon={<EditOutlined />}
-          onClick={() => navigate(`/manager/metro-line/${id}/edit`)}
-        >
-          Chỉnh Sửa
-        </Button>
       </Space>
 
       <Row gutter={24}>
-        <Col span={8}>
+        <Col span={12}>
           <Card>
             <Statistic
               title="Số Tuyến"
@@ -142,23 +158,12 @@ const MetroLineDetails: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col span={12}>
           <Card>
             <Statistic
               title="Tổng Số Trạm"
               value={metroLine.metroLineStations.length}
               prefix={<EnvironmentOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Tổng Khoảng Cách"
-              value={metroLine.metroLineStations[metroLine.metroLineStations.length - 1]?.distanceFromStart || 0}
-              suffix="km"
-              precision={1}
-              prefix={<SwapOutlined />}
             />
           </Card>
         </Col>
@@ -190,9 +195,19 @@ const MetroLineDetails: React.FC = () => {
       <Card 
         title="Danh Sách Trạm" 
         extra={
-          <Tag color="blue">
-            Tổng số: {metroLine.metroLineStations.length} trạm
-          </Tag>
+          <Space>
+            <Tag color="blue">
+              Tổng số: {metroLine.metroLineStations.length} trạm
+            </Tag>
+            {/* <Button type="primary" onClick={() => {
+              setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
+              setSelectedStationId(null);
+              setDistanceFromStart(0);
+              setAddStationVisible(true);
+            }}>
+              Thêm Trạm Vào Tuyến
+            </Button> */}
+          </Space>
         }
       >
         <Table
@@ -206,6 +221,88 @@ const MetroLineDetails: React.FC = () => {
           }}
         />
       </Card>
+
+      <Modal
+        title="Thêm Trạm Vào Tuyến"
+        visible={addStationVisible}
+        onCancel={() => {
+          setAddStationVisible(false);
+          setSelectedStationId(null);
+          setDistanceFromStart(0);
+          setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
+        }}
+        onOk={async () => {
+          if (!selectedStationId || !metroLine) {
+            message.error('Vui lòng chọn trạm');
+            return; 
+          }
+          // Call API to add station
+          try {
+            setLoading(true);
+            const res = await MetroLineStationApi.createMetroLineStation({
+              metroLineId: metroLine.id,
+              stationId: selectedStationId,
+              distanceFromStart,
+              stationOder: stationOrder,
+            });
+            if (res.isSuccess) {
+              message.success('Thêm trạm thành công');
+              setAddStationVisible(false);
+              setSelectedStationId(null);
+              setDistanceFromStart(0);
+              setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
+              fetchMetroLineDetails(); // Refresh details
+            } else {
+              message.error(res.message || 'Không thể thêm trạm');
+            }
+          } finally {
+            setLoading(false);
+          }
+        }}
+        okText="Thêm"
+        cancelText="Hủy"
+      >
+        <Form layout="vertical">
+          <Form.Item label="Chọn Trạm">
+            <Select
+              showSearch
+              placeholder="Chọn trạm"
+              value={selectedStationId}
+              onChange={setSelectedStationId}
+              style={{ width: '100%' }}
+              filterOption={(input, option) =>
+                ((option?.children as unknown) as string).toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {stations
+                .filter(station => !metroLine?.metroLineStations.some(ms => ms.station.id === station.id))
+                .map(station => (
+                  <Select.Option key={station.id} value={station.id}>
+                    {station.name}
+                  </Select.Option>
+                ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Khoảng Cách (km)">
+            <InputNumber
+              min={0}
+              step={0.1}
+              value={distanceFromStart}
+              onChange={value => setDistanceFromStart(value ?? 0)}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
+          <Form.Item label="Thứ Tự">
+            <InputNumber
+              min={1}
+              max={(metroLine?.metroLineStations.length || 0) + 1}
+              value={stationOrder}
+              onChange={value => setStationOrder(value ?? 1)}
+              style={{ width: '100%' }}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Space>
   );
 };

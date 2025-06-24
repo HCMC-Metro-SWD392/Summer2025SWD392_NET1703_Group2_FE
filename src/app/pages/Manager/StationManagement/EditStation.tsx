@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Card, Form, Input, message, Spin } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, message, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 import { StationApi } from '../../../../api/station/StationApi';
-import type { UpdateStationDTO, GetStationDTO } from '../../../../api/station/StationInterface';
+import type { UpdateStationDTO } from '../../../../api/station/StationInterface';
 
 const EditStation: React.FC = () => {
   const navigate = useNavigate();
@@ -99,105 +99,107 @@ const EditStation: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-4">
-        <Button 
-          icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate('/manager/station')}
-        >
-          Quay lại
-        </Button>
-      </div>
-
-      <Card title="Chỉnh Sửa Trạm Metro" className="max-w-2xl mx-auto">
-        <Form
-          layout="vertical"
-          onFinish={handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
-          <Form.Item
-            label="Tên Trạm"
-            validateStatus={errors.name ? 'error' : ''}
-            help={errors.name?.message}
+    <div className="min-h-full flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-2xl">
+        <div className="mb-4">
+          <Button 
+            icon={<ArrowLeftOutlined />} 
+            onClick={() => navigate('/manager/station')}
           >
-            <Controller
-              name="name"
-              control={control}
-              rules={{
-                minLength: {
-                  value: 2,
-                  message: 'Tên trạm phải có ít nhất 2 ký tự'
-                },
-                maxLength: {
-                  value: 100,
-                  message: 'Tên trạm không được vượt quá 100 ký tự'
-                },
-                pattern: {
-                  value: /^[a-zA-Z0-9\s\u00C0-\u024F\u1E00-\u1EFF\u0400-\u04FF]+$/,
-                  message: 'Tên trạm chỉ được chứa chữ cái, số và khoảng trắng'
-                }
-              }}
-              render={({ field }) => renderField(field)}
-            />
-          </Form.Item>
+            Quay lại
+          </Button>
+        </div>
 
-          <Form.Item
-            label="Địa Chỉ"
-            validateStatus={errors.address ? 'error' : ''}
-            help={errors.address?.message}
+        <Card title="Chỉnh Sửa Trạm Metro" className="w-full">
+          <Form
+            layout="vertical"
+            onFinish={handleSubmit(onSubmit)}
+            className="space-y-4"
           >
-            <Controller
-              name="address"
-              control={control}
-              rules={{
-                minLength: {
-                  value: 5,
-                  message: 'Địa chỉ phải có ít nhất 5 ký tự'
-                },
-                maxLength: {
-                  value: 200,
-                  message: 'Địa chỉ không được vượt quá 200 ký tự'
-                }
-              }}
-              render={({ field }) => renderField(field)}
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Mô Tả"
-            validateStatus={errors.description ? 'error' : ''}
-            help={errors.description?.message}
-          >
-            <Controller
-              name="description"
-              control={control}
-              rules={{
-                minLength: {
-                  value: 10,
-                  message: 'Mô tả phải có ít nhất 10 ký tự'
-                },
-                maxLength: {
-                  value: 500,
-                  message: 'Mô tả không được vượt quá 500 ký tự'
-                }
-              }}
-              render={({ field }) => renderTextArea(field)}
-            />
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              disabled={!isDirty}
-              className="w-full"
+            <Form.Item
+              label="Tên Trạm"
+              validateStatus={errors.name ? 'error' : ''}
+              help={errors.name?.message}
             >
-              Cập Nhật
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+              <Controller
+                name="name"
+                control={control}
+                rules={{
+                  minLength: {
+                    value: 2,
+                    message: 'Tên trạm phải có ít nhất 2 ký tự'
+                  },
+                  maxLength: {
+                    value: 100,
+                    message: 'Tên trạm không được vượt quá 100 ký tự'
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z0-9\s\u00C0-\u024F\u1E00-\u1EFF\u0400-\u04FF]+$/,
+                    message: 'Tên trạm chỉ được chứa chữ cái, số và khoảng trắng'
+                  }
+                }}
+                render={({ field }) => renderField(field)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Địa Chỉ"
+              validateStatus={errors.address ? 'error' : ''}
+              help={errors.address?.message}
+            >
+              <Controller
+                name="address"
+                control={control}
+                rules={{
+                  minLength: {
+                    value: 5,
+                    message: 'Địa chỉ phải có ít nhất 5 ký tự'
+                  },
+                  maxLength: {
+                    value: 200,
+                    message: 'Địa chỉ không được vượt quá 200 ký tự'
+                  }
+                }}
+                render={({ field }) => renderField(field)}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Mô Tả"
+              validateStatus={errors.description ? 'error' : ''}
+              help={errors.description?.message}
+            >
+              <Controller
+                name="description"
+                control={control}
+                rules={{
+                  minLength: {
+                    value: 10,
+                    message: 'Mô tả phải có ít nhất 10 ký tự'
+                  },
+                  maxLength: {
+                    value: 500,
+                    message: 'Mô tả không được vượt quá 500 ký tự'
+                  }
+                }}
+                render={({ field }) => renderTextArea(field)}
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                disabled={!isDirty}
+                className="w-full"
+              >
+                Cập Nhật
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 };

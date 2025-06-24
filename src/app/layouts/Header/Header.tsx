@@ -1,15 +1,11 @@
-import React from "react";
-import logoImg from "../../assets/logo.png";
-import { Button } from "antd";
 import {
-  GlobalOutlined,
-  SearchOutlined,
-  MenuOutlined,
-  LoginOutlined, UserAddOutlined,
+  LoginOutlined, UserAddOutlined
 } from "@ant-design/icons";
+import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import UserHeaderMenu from "./partials/UserHeaderMenu";
+import logoImg from "../../assets/logo.png";
 import TicketServiceMenu from "./partials/TicketServiceMenu";
+import UserHeaderMenu from "./partials/UserHeaderMenu";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -47,23 +43,25 @@ export default function Header() {
                 onClick={() => navigate(path)}
                 className="flex items-center gap-2 px-4 border-blue-900 text-blue-900 hover:!bg-blue-900 hover:!text-white transition-colors rounded-lg shadow-sm !h-auto"
               >
-                <span className="text-sm">{label}</span>
+                <span className="hidden sm:text-sm sm:inline">{label}</span>
               </Button>
             ))}
           </>
         ) : (
-          
-          <UserHeaderMenu userInfo={userInfo} />
+          <>
+            <TicketServiceMenu/>
+            <UserHeaderMenu userInfo={userInfo} />
+          </>
         )}
 
-          <TicketServiceMenu/>
+          {/* <TicketServiceMenu/>
 
           {/* <UserHeaderMenu userInfo={{
             id: "12345",
             fullName: "Nguyen Van A",
             email: "nguyenvana@example.com"
           }} /> */}
-          
+
         </div>
       </header>
 

@@ -1,10 +1,5 @@
-import React from "react";
-import logoMetro from "../../assets/logo.png";
-import hitachiLogo from "../../assets/hitachi.jpg";
-import tokyoMetroLogo from "../../assets/tokyoMetro.jpg";
-import fptLogo from "../../assets/fpt.png";
-import masterCardLogo from "../../assets/masterCard.jpg";
 import { FacebookFilled } from "@ant-design/icons";
+import logoMetro from "../../assets/logo.png";
 
 export default function Footer() {
   return (

@@ -1,28 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Table,
-  Card,
-  Button,
-  Space,
-  Input,
-  Typography,
-  Tag,
-  message,
-  Tooltip,
-  Row,
-  Col,
-} from 'antd';
-import {
-  PlusOutlined,
-  SearchOutlined,
   EditOutlined,
   EyeOutlined,
+  PlusOutlined,
   ReloadOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
+import {
+  Button,
+  Card,
+  Col,
+  Input,
+  message,
+  Row,
+  Space,
+  Table,
+  Tooltip,
+  Typography
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { StationApi } from '../../../../api/station/StationApi';
-import type { Station, ResponseDTO } from '../../../../api/station/StationInterface';
+import type { Station } from '../../../../api/station/StationInterface';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -110,7 +109,6 @@ const StationList: React.FC = () => {
       title: 'Tên Trạm',
       dataIndex: 'name',
       key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
       filteredValue: searchText ? [searchText] : null,
       onFilter: (value, record) => {
         const searchValue = (value as string).toLowerCase();
@@ -135,64 +133,26 @@ const StationList: React.FC = () => {
       ellipsis: true,
       render: (description: string | undefined) => description || 'N/A',
     },
-    {
-      title: 'Trạng Thái',
-      key: 'status',
-      render: (_, record) => {
-        const statusConfig = getStationStatus(record);
-        return <Tag color={statusConfig.color}>{statusConfig.label}</Tag>;
-      },
-      filters: Object.values(STATION_STATUS_CONFIG).map(config => ({
-        text: config.label,
-        value: config.status
-      })),
-      onFilter: (value, record) => getStationStatus(record).status === value,
-    },
-    {
-      title: 'Tuyến Vé',
-      key: 'routes',
-      render: (_, record) => (
-        <Space direction="vertical" size="small">
-          <Tooltip title="Tuyến vé bắt đầu từ trạm này">
-            <Tag color="blue">Đi: {record.ticketRoutesAsFirstStation?.length || 0}</Tag>
-          </Tooltip>
-          <Tooltip title="Tuyến vé kết thúc tại trạm này">
-            <Tag color="green">Đến: {record.ticketRoutesAsLastStation?.length || 0}</Tag>
-          </Tooltip>
-        </Space>
-      ),
-    },
-    {
-      title: 'Tuyến Metro',
-      key: 'metroLines',
-      render: (_, record) => (
-        <Space direction="vertical" size="small">
-          <Tooltip title="Tuyến metro bắt đầu từ trạm này">
-            <Tag color="purple">Đi: {record.startStations?.length || 0}</Tag>
-          </Tooltip>
-          <Tooltip title="Tuyến metro kết thúc tại trạm này">
-            <Tag color="orange">Đến: {record.endStations?.length || 0}</Tag>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    
     {
       title: 'Thao Tác',
       key: 'actions',
       render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="Xem Chi Tiết">
-            <Button
-              icon={<EyeOutlined />}
-              onClick={() => navigate(`/manager/station/${record.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="Chỉnh Sửa">
-            <Button
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/manager/station/${record.id}/edit`)}
-            />
-          </Tooltip>
+          <Button
+            type='primary'
+            icon={<EyeOutlined />}
+            onClick={() => navigate(`/manager/station/${record.id}`)}
+          >
+            Xem Chi Tiết
+          </Button>
+          <Button
+            type='primary'
+            icon={<EditOutlined />}
+            onClick={() => navigate(`/manager/station/${record.id}/edit`)}
+          >
+            Chỉnh Sửa
+          </Button>
         </Space>
       ),
     },
@@ -222,7 +182,7 @@ const StationList: React.FC = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => navigate('/manager/station/create')}
+              onClick={() => navigate('/manager/create-station')}
             >
               Thêm Trạm
             </Button>

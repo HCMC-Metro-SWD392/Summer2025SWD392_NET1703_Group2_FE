@@ -1,5 +1,12 @@
-import React from "react";
-import { Form, Input, Button, Typography, message, notification } from "antd";
+import React, { useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Typography,
+  message,
+  notification,
+} from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -13,34 +20,51 @@ const { Title } = Typography;
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
   const onFinish = async (values: LoginPayload) => {
+    setLoading(true);
     try {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
-      
-      // Handle role-based redirection
-      switch (data.userRole) {
-        case 'manager':
-          navigate('/manager');
-          break;
-        case 'staff':
-          navigate('/staff');
-          break;
-        case 'admin':
-          navigate('/admin');
-          break;
-        default:
-          navigate('/');
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) {
+        message.error("Không tìm thấy token.");
+        return;
       }
+
+      const decoded: any = jwtDecode(token);
+      const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+      switch (role) {
+        case "CUSTOMER":
+          navigate("/");
+          break;
+        case "STAFF":
+          navigate("/staff");
+          break;
+        case "MANAGER":
+          navigate("/manager");
+          break;
+        case "ADMIN":
+          navigate("/admin");
+          break;  
+        default:
+          navigate("/");
+      }
+      // message.success("Đăng nhập thành công!");
     } catch (err: any) {
       const errorMessage =
         err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
-        notification.error({
-          message: "Lỗi",
-          description: errorMessage,
-          placement: "topRight",
-        });
+      notification.error({
+        message: "Lỗi",
+        description: errorMessage,
+        placement: "topRight",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,7 +91,12 @@ const LoginForm: React.FC = () => {
           </p>
         </div>
 
-        <Form form={Form.useForm()[0]} layout="vertical" onFinish={onFinish} size="large">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          size="large"
+        >
           <Form.Item
             name="email"
             label="Email"
@@ -102,6 +131,7 @@ const LoginForm: React.FC = () => {
               block
               className="rounded-full"
               size="large"
+              loading={loading}
             >
               Đăng nhập
             </Button>

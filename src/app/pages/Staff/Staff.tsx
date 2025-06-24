@@ -1,6 +1,3 @@
-import React, { useState } from 'react';
-import { Layout, Menu } from 'antd';
-import type { MenuProps } from 'antd';
 import {
     AppstoreOutlined,
     BarChartOutlined,
@@ -11,9 +8,14 @@ import {
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { Layout } from 'antd';
+import React, { useState } from 'react';
+import AdjustTicket from './partials/AdjustTicket';
 
 import Sidebar from '../../components/SideBar/Sidebar';
 import LoginForm from '../Home/partials/Login/LoginForm';
+import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
 
 const { Content } = Layout;
 
@@ -23,20 +25,22 @@ const Staff: React.FC = () => {
     const [selectedKey, setSelectedKey] = useState('1');
 
     const menuItems: MenuProps['items'] = [
-        { key: '1', icon: <UserOutlined />, label: 'Login' },
-        { key: '2', icon: <VideoCameraOutlined />, label: 'Video' },
-        { key: '3', icon: <UploadOutlined />, label: 'Upload' },
-        { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
-        { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
-        { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
-        { key: '7', icon: <TeamOutlined />, label: 'Team' },
-        { key: '8', icon: <ShopOutlined />, label: 'Shop' },
+        { key: '1', icon: <AppstoreOutlined />, label: 'Check QR' },
+        { key: '2', icon: <VideoCameraOutlined />, label: 'AdjustTicket' },
+        // { key: '3', icon: <UploadOutlined />, label: 'Upload' },
+        // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
+        // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
+        // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
+        // { key: '7', icon: <TeamOutlined />, label: 'Team' },
+        // { key: '8', icon: <ShopOutlined />, label: 'Shop' },
     ];
 
     const renderContent = () => {
         switch (selectedKey) {
             case '1':
-                return <LoginForm />;
+                return <TicketProcessingQR />;
+            case '2':
+                return <AdjustTicket />;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;
         }
@@ -58,13 +62,7 @@ const Staff: React.FC = () => {
                 <Content className="mx-4 my-6 overflow-auto">
                     <div className="bg-white rounded-xl p-6 shadow min-h-[60vh]">
                         {renderContent()}
-                        <p>long content</p>
-                        {Array.from({ length: 100 }, (_, index) => (
-                            <React.Fragment key={index}>
-                                {index % 20 === 0 && index ? 'more' : '...'}
-                                <br />
-                            </React.Fragment>
-                        ))}
+                        
                     </div>
                 </Content>
             </Layout>

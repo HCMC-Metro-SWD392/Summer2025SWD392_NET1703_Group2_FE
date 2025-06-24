@@ -14,12 +14,20 @@ import {
   Col,
   Popconfirm,
 } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import type { FilterValue, SorterResult, SortOrder } from 'antd/es/table/interface';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { FareApi } from '../../../../api/fareRule/FareApi';
+import { FareApi, type PaginationParams } from '../../../../api/fareRule/FareApi';
 import type { FareRule, CreateFareRuleDTO, UpdateFareRuleDTO, ResponseDTO } from '../../../../api/fareRule/FareInterface';
 
 const { Title } = Typography;
+
+interface TableParams {
+  pagination: TablePaginationConfig;
+  sortField?: string;
+  sortOrder?: SortOrder;
+  filters?: Record<string, FilterValue | null>;
+}
 
 const FareRuleManagement: React.FC = () => {
   const [form] = Form.useForm();
@@ -27,18 +35,52 @@ const FareRuleManagement: React.FC = () => {
   const [fareRules, setFareRules] = useState<FareRule[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRule, setEditingRule] = useState<FareRule | null>(null);
+  const [tableParams, setTableParams] = useState<TableParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      total: 0
+    },
+    sortField: 'minDistance',
+    sortOrder: 'ascend'
+  });
 
   useEffect(() => {
-    fetchFareRules();
-  }, []);
+    fetchFareRules({
+      pageNumber: tableParams.pagination.current,
+      pageSize: tableParams.pagination.pageSize,
+      sortBy: tableParams.sortField,
+      isAscending: tableParams.sortOrder === 'ascend'
+    });
+  }, [tableParams.pagination.current, tableParams.pagination.pageSize, tableParams.sortField, tableParams.sortOrder]);
 
-  const fetchFareRules = async () => {
+  const fetchFareRules = async (params: PaginationParams) => {
     try {
       setLoading(true);
-      const response = await FareApi.getAllFareRules();
+      const response = await FareApi.getAllFareRules(params);
       
       if (response.isSuccess && response.result) {
         setFareRules(response.result);
+        setTableParams(prev => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: response.total || 0,
+            current: params.pageNumber || 1,
+            pageSize: params.pageSize || 10
+          }
+        }));
+      } else if (response.statusCode === 404) {
+        setFareRules([]);
+        setTableParams(prev => ({
+          ...prev,
+          pagination: {
+            ...prev.pagination,
+            total: 0,
+            current: 1
+          }
+        }));
+        message.info('Không tìm thấy quy tắc giá vé nào');
       } else {
         message.error(response.message || 'Không thể tải danh sách quy tắc giá vé');
       }
@@ -69,7 +111,12 @@ const FareRuleManagement: React.FC = () => {
         setIsModalVisible(false);
         form.resetFields();
         setEditingRule(null);
-        fetchFareRules();
+        fetchFareRules({
+          pageNumber: tableParams.pagination.current,
+          pageSize: tableParams.pagination.pageSize,
+          sortBy: tableParams.sortField,
+          isAscending: tableParams.sortOrder === 'ascend'
+        });
       } else {
         message.error(response.message || `Không thể ${editingRule ? 'cập nhật' : 'tạo mới'} quy tắc giá vé`);
       }
@@ -110,25 +157,40 @@ const FareRuleManagement: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  const handleTableChange = (
+    pagination: TablePaginationConfig,
+    filters: Record<string, FilterValue | null>,
+    sorter: SorterResult<FareRule> | SorterResult<FareRule>[]
+  ) => {
+    const sorterResult = Array.isArray(sorter) ? sorter[0] : sorter;
+    setTableParams({
+      pagination,
+      sortField: sorterResult && sorterResult.field ? (sorterResult.field as string) : 'minDistance',
+      sortOrder: sorterResult && sorterResult.order ? (sorterResult.order as SortOrder) : 'ascend',
+      filters
+    });
+  };
+
   const columns: ColumnsType<FareRule> = [
     {
       title: 'Khoảng Cách (km)',
+      dataIndex: 'minDistance',
       key: 'distance',
       render: (_, record) => `${record.minDistance} - ${record.maxDistance}`,
-      sorter: (a, b) => a.minDistance - b.minDistance,
+      align: 'center',
     },
     {
       title: 'Giá Vé (VND)',
       dataIndex: 'fare',
       key: 'fare',
       render: (fare: number) => fare.toLocaleString('vi-VN'),
-      sorter: (a, b) => a.fare - b.fare,
+      align: 'center',
     },
     {
       title: 'Thao Tác',
       key: 'actions',
       render: (_, record) => (
-        <Space>
+        <Space size="small">
           <Button
             type="primary"
             icon={<EditOutlined />}
@@ -136,153 +198,159 @@ const FareRuleManagement: React.FC = () => {
           >
             Chỉnh Sửa
           </Button>
-          <Popconfirm
-            title="Xóa quy tắc giá vé"
-            description="Bạn có chắc chắn muốn xóa quy tắc giá vé này?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button danger icon={<DeleteOutlined />}>
-              Xóa
-            </Button>
-          </Popconfirm>
         </Space>
       ),
+      align: 'center',
     },
   ];
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%', padding: '24px' }}>
-      <Space style={{ justifyContent: 'space-between', width: '100%' }}>
-        <Title level={2}>Quản Lý Quy Tắc Giá Vé</Title>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showModal}
+    <div style={{ maxWidth: 800, margin: '0 auto', padding: '8px' }}>
+      <Space direction="vertical" size="small" style={{ width: '100%' }}>
+        <Space style={{ justifyContent: 'space-between', width: '100%' }}>
+          <Title level={2}>Quản Lý Quy Tắc Giá Vé</Title>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showModal}
+          >
+            Thêm Quy Tắc Mới
+          </Button>
+        </Space>
+
+        <Card style={{ padding: '8px' }}>
+          <Spin spinning={loading}>
+            <Table
+              columns={columns}
+              dataSource={fareRules}
+              rowKey="id"
+              pagination={{
+                ...tableParams.pagination,
+                showSizeChanger: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} quy tắc giá vé`,
+                pageSizeOptions: ['10', '20', '50', '100']
+              }}
+              locale={{
+                emptyText: 'Không có dữ liệu',
+                triggerDesc: 'Sắp xếp giảm dần',
+                triggerAsc: 'Sắp xếp tăng dần',
+                cancelSort: 'Hủy sắp xếp',
+              }}
+              size="small"
+              style={{ margin: 0, padding: 0 }}
+            />
+          </Spin>
+        </Card>
+
+        <Modal
+          title={editingRule ? 'Chỉnh Sửa Quy Tắc Giá Vé' : 'Thêm Quy Tắc Giá Vé Mới'}
+          open={isModalVisible}
+          onCancel={() => {
+            setIsModalVisible(false);
+            setEditingRule(null);
+            form.resetFields();
+          }}
+          footer={null}
         >
-          Thêm Quy Tắc Mới
-        </Button>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+            disabled={loading}
+          >
+            <Row gutter={8}>
+              <Col span={12}>
+                <Form.Item
+                  name="minDistance"
+                  label="Khoảng Cách Tối Thiểu (km)"
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập khoảng cách tối thiểu' },
+                    { type: 'number', min: 0, message: 'Khoảng cách phải lớn hơn hoặc bằng 0' }
+                  ]}
+                  dependencies={['maxDistance']}
+                  style={{ marginBottom: 8 }}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="Nhập khoảng cách tối thiểu"
+                    min={0}
+                    step={1}
+                    precision={0}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={12}>
+                <Form.Item
+                  name="maxDistance"
+                  label="Khoảng Cách Tối Đa (km)"
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập khoảng cách tối đa' },
+                    { type: 'number', min: 0, message: 'Khoảng cách phải lớn hơn hoặc bằng 0' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || !getFieldValue('minDistance') || value > getFieldValue('minDistance')) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('Khoảng cách tối đa phải lớn hơn khoảng cách tối thiểu'));
+                      },
+                    }),
+                  ]}
+                  dependencies={['minDistance']}
+                  style={{ marginBottom: 8 }}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="Nhập khoảng cách tối đa"
+                    min={0}
+                    step={1}
+                    precision={0}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col span={24}>
+                <Form.Item
+                  name="fare"
+                  label="Giá Vé (VND)"
+                  rules={[
+                    { required: true, message: 'Vui lòng nhập giá vé' },
+                    { type: 'number', min: 0, message: 'Giá vé phải lớn hơn hoặc bằng 0' }
+                  ]}
+                  style={{ marginBottom: 8 }}
+                >
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="Nhập giá vé"
+                    min={0}
+                    addonBefore="₫"
+                    step={1}
+                    precision={0}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item>
+              <Space>
+                <Button type="primary" htmlType="submit" loading={loading}>
+                  {editingRule ? 'Cập Nhật' : 'Thêm Mới'}
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setIsModalVisible(false);
+                    setEditingRule(null);
+                    form.resetFields();
+                  }}
+                >
+                  Hủy
+                </Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </Modal>
       </Space>
-
-      <Card>
-        <Spin spinning={loading}>
-          <Table
-            columns={columns}
-            dataSource={fareRules}
-            rowKey="id"
-            pagination={false}
-            locale={{
-              emptyText: 'Không có dữ liệu',
-              triggerDesc: 'Sắp xếp giảm dần',
-              triggerAsc: 'Sắp xếp tăng dần',
-              cancelSort: 'Hủy sắp xếp',
-            }}
-          />
-        </Spin>
-      </Card>
-
-      <Modal
-        title={editingRule ? 'Chỉnh Sửa Quy Tắc Giá Vé' : 'Thêm Quy Tắc Giá Vé Mới'}
-        open={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          setEditingRule(null);
-          form.resetFields();
-        }}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          disabled={loading}
-        >
-          <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                name="minDistance"
-                label="Khoảng Cách Tối Thiểu (km)"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập khoảng cách tối thiểu' },
-                  { type: 'number', min: 0, message: 'Khoảng cách phải lớn hơn hoặc bằng 0' }
-                ]}
-                dependencies={['maxDistance']}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="Nhập khoảng cách tối thiểu"
-                  min={0}
-                  step={0.1}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={12}>
-              <Form.Item
-                name="maxDistance"
-                label="Khoảng Cách Tối Đa (km)"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập khoảng cách tối đa' },
-                  { type: 'number', min: 0, message: 'Khoảng cách phải lớn hơn hoặc bằng 0' },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || !getFieldValue('minDistance') || value > getFieldValue('minDistance')) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(new Error('Khoảng cách tối đa phải lớn hơn khoảng cách tối thiểu'));
-                    },
-                  }),
-                ]}
-                dependencies={['minDistance']}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="Nhập khoảng cách tối đa"
-                  min={0}
-                  step={0.1}
-                />
-              </Form.Item>
-            </Col>
-
-            <Col span={24}>
-              <Form.Item
-                name="fare"
-                label="Giá Vé (VND)"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập giá vé' },
-                  { type: 'number', min: 0, message: 'Giá vé phải lớn hơn hoặc bằng 0' }
-                ]}
-              >
-                <InputNumber
-                  style={{ width: '100%' }}
-                  placeholder="Nhập giá vé"
-                  min={0}
-                  addonBefore="₫"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit" loading={loading}>
-                {editingRule ? 'Cập Nhật' : 'Thêm Mới'}
-              </Button>
-              <Button 
-                onClick={() => {
-                  setIsModalVisible(false);
-                  setEditingRule(null);
-                  form.resetFields();
-                }}
-              >
-                Hủy
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </Space>
+    </div>
   );
 };
 

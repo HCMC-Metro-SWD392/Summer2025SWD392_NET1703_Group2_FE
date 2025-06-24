@@ -1,7 +1,7 @@
 // src/api/axiosInstance.ts
 import axios from "axios";
 import endpoints from "../api/endpoints";
-import { removeTokens, getAccessToken, getRefreshToken, setTokens } from "../api/auth/tokenUtils";
+import { removeTokens, getAccessToken, getRefreshToken, setTokens, removeUserInfo } from "../api/auth/tokenUtils";
 
 export const BASE_URL = import.meta.env.VITE_BASE_URL;
 let isRefreshing = false;
@@ -66,6 +66,7 @@ axiosInstance.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
         removeTokens();
+        removeUserInfo();
         window.location.href = "/login"; // hoặc chuyển về trang đăng nhập
         return Promise.reject(err);
       } finally {
