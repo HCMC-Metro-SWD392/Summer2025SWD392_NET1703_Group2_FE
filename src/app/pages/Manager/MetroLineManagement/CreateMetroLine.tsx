@@ -160,27 +160,6 @@ const CreateMetroLine: React.FC = () => {
       key: 'stationName',
     },
     {
-      title: 'Khoảng Cách (km)',
-      dataIndex: 'distanceFromStart',
-      key: 'distanceFromStart',
-      render: (_, record) => (
-        <InputNumber
-          min={0}
-          step={0.1}
-          value={record.distanceFromStart}
-          onChange={(value) => {
-            const newStations = metroLineStations.map(station =>
-              station.id === record.id
-                ? { ...station, distanceFromStart: value || 0 }
-                : station
-            );
-            setMetroLineStations(newStations);
-          }}
-          style={{ width: '120px' }}
-        />
-      ),
-    },
-    {
       title: 'Thao Tác',
       key: 'actions',
       width: 150,
@@ -288,6 +267,12 @@ const CreateMetroLine: React.FC = () => {
               </Space>
             }
           >
+            {metroLineStations.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <b>Trạm bắt đầu:</b> {metroLineStations[0].stationName} <br />
+                <b>Trạm kết thúc:</b> {metroLineStations[metroLineStations.length - 1].stationName}
+              </div>
+            )}
             <Table
               columns={columns}
               dataSource={metroLineStations}

@@ -100,12 +100,8 @@ const MetroLineDetails: React.FC = () => {
       render: (_, record) => (
         <Space>
           {record.station.name}
-          {record.station.id === metroLine?.startStation?.id && (
-            <Tag color="green">Trạm Bắt Đầu</Tag>
-          )}
-          {record.station.id === metroLine?.endStation?.id && (
-            <Tag color="red">Trạm Kết Thúc</Tag>
-          )}
+          {record.station.id === metroLine?.startStation?.id }
+          {record.station.id === metroLine?.endStation?.id }
         </Space>
       ),
     },

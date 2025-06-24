@@ -4,6 +4,7 @@ import { Button, Card, Col, DatePicker, Radio, Row, Select, Space, Statistic, Ty
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { RevenueApi } from '../../../../api/revenue/RevenueApi';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
@@ -17,9 +18,11 @@ const RevenueReport: React.FC = () => {
   const [overTimeRevenue, setOverTimeRevenue] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [viewType, setViewType] = useState<string>('table');
+  const [monthlyRevenueData, setMonthlyRevenueData] = useState<{ month: number; revenue: number }[]>([]);
 
   useEffect(() => {
     fetchAllRevenue();
+    fetchMonthlyRevenueData(year);
     // eslint-disable-next-line
   }, []);
 
@@ -51,6 +54,43 @@ const RevenueReport: React.FC = () => {
     }
   };
 
+  const fetchMonthlyRevenueData = async (year: number) => {
+    setLoading(true);
+    try {
+      const now = dayjs();
+      const currentYear = now.year();
+      const currentMonth = now.month() + 1;
+      // Only include months up to the current month
+      const months = year === currentYear
+        ? Array.from({ length: currentMonth }, (_, i) => i + 1)
+        : Array.from({ length: 12 }, (_, i) => i + 1);
+      const data: { month: number; revenue: number }[] = [];
+      for (const m of months) {
+        try {
+          const res = await RevenueApi.viewRevenueMonth(m);
+          if (res.isSuccess && res.result != null) {
+            data.push({ month: m, revenue: res.result });
+          } else {
+            data.push({ month: m, revenue: 0 });
+          }
+        } catch (error: any) {
+          // If error is 404, treat as no data
+          if (error?.response?.status === 404) {
+            data.push({ month: m, revenue: 0 });
+          } else {
+            // For other errors, you may want to handle differently or break
+            data.push({ month: m, revenue: 0 });
+          }
+        }
+      }
+      setMonthlyRevenueData(data);
+    } catch (error) {
+      setMonthlyRevenueData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleExport = (format: 'csv' | 'pdf') => {
     // TODO: Implement export functionality
     console.log(`Exporting to ${format}...`);
@@ -77,36 +117,19 @@ const RevenueReport: React.FC = () => {
   // Refetch on filter change
   useEffect(() => {
     fetchAllRevenue();
+    fetchMonthlyRevenueData(year);
     // eslint-disable-next-line
   }, [month, year, dateRange]);
 
   return (
     <div className="w-full h-full p-2 md:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Báo Cáo Doanh Thu</h1>
-        </div>
-        <Space>
-          {/* <Button
-            icon={<FileExcelOutlined />}
-            onClick={() => handleExport('csv')}
-            size="large"
-          >
-            Export CSV
-          </Button>
-          <Button
-            icon={<FilePdfOutlined />}
-            onClick={() => handleExport('pdf')}
-            size="large"
-          >
-            Export PDF
-          </Button> */}
-        </Space>
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Báo Cáo Doanh Thu</h1>
 
-      {/* Filters Section */}
+      {/* Monthly Revenue Section */}
       <Card className="mb-6">
-        <Row gutter={[16, 16]} align="middle">
+        <Title level={4}>Doanh Thu Tháng</Title>
+        <Text type="secondary">Chọn tháng để xem doanh thu tháng hiện tại.</Text>
+        <Row gutter={[16, 16]} align="middle" className="mt-2">
           <Col xs={24} md={8}>
             <Text strong className="block mb-2">Tháng:</Text>
             <Select
@@ -119,6 +142,37 @@ const RevenueReport: React.FC = () => {
               ))}
             </Select>
           </Col>
+          <Col xs={24} md={16} className="flex items-center">
+            <Statistic
+              title="Doanh Thu Tháng"
+              value={monthlyRevenue}
+              precision={0}
+              prefix="₫"
+              valueStyle={{ color: '#3f8600' }}
+              loading={loading}
+            />
+          </Col>
+        </Row>
+        {/* Monthly Revenue Chart */}
+        <div className="mt-6">
+          <Title level={5}>Biểu Đồ Doanh Thu Theo Tháng (Năm hiện tại)</Title>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyRevenueData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" tickFormatter={(m) => `Tháng ${m}`} />
+              <YAxis tickFormatter={(v) => v.toLocaleString()} />
+              <Tooltip formatter={(value: number) => value.toLocaleString()} labelFormatter={(m) => `Tháng ${m}`} />
+              <Bar dataKey="revenue" fill="#1890ff" name="Doanh Thu" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      {/* Yearly Revenue Section */}
+      <Card className="mb-6">
+        <Title level={4}>Doanh Thu Năm</Title>
+        <Text type="secondary">Chọn năm để xem tổng doanh thu của năm đó.</Text>
+        <Row gutter={[16, 16]} align="middle" className="mt-2">
           <Col xs={24} md={8}>
             <Text strong className="block mb-2">Năm:</Text>
             <Select
@@ -131,7 +185,25 @@ const RevenueReport: React.FC = () => {
               ))}
             </Select>
           </Col>
-          <Col xs={24} md={8}>
+          <Col xs={24} md={16} className="flex items-center">
+            <Statistic
+              title="Doanh Thu Năm"
+              value={yearlyRevenue}
+              precision={0}
+              prefix="₫"
+              valueStyle={{ color: '#1890ff' }}
+              loading={loading}
+            />
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Overtime Revenue Section */}
+      <Card className="mb-6">
+        <Title level={4}>Doanh Thu Theo Ngày</Title>
+        <Text type="secondary">Chọn khoảng ngày để xem doanh thu trong khoảng thời gian đó.</Text>
+        <Row gutter={[16, 16]} align="middle" className="mt-2">
+          <Col xs={24} md={12}>
             <Text strong className="block mb-2">Doanh Thu Theo Ngày:</Text>
             <RangePicker
               value={dateRange}
@@ -139,50 +211,18 @@ const RevenueReport: React.FC = () => {
               className="w-full"
             />
           </Col>
+          <Col xs={24} md={12} className="flex items-center">
+            <Statistic
+              title="Doanh Thu Theo Ngày"
+              value={overTimeRevenue}
+              precision={0}
+              prefix="₫"
+              valueStyle={{ color: '#722ed1' }}
+              loading={loading}
+            />
+          </Col>
         </Row>
       </Card>
-
-      {/* Summary Statistics */}
-      <div className="mb-6">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8}>
-            <Card className="h-full">
-              <Statistic
-                title="Doanh Thu Tháng"
-                value={monthlyRevenue}
-                precision={0}
-                prefix="₫"
-                valueStyle={{ color: '#3f8600' }}
-                loading={loading}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Card className="h-full">
-              <Statistic
-                title="Doanh Thu Năm"
-                value={yearlyRevenue}
-                precision={0}
-                prefix="₫"
-                valueStyle={{ color: '#1890ff' }}
-                loading={loading}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={8}>
-            <Card className="h-full">
-              <Statistic
-                title="Doanh Thu Theo Ngày"
-                value={overTimeRevenue}
-                precision={0}
-                prefix="₫"
-                valueStyle={{ color: '#722ed1' }}
-                loading={loading}
-              />
-            </Card>
-          </Col>
-        </Row>
-      </div>
     </div>
   );
 };
