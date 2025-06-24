@@ -15,16 +15,22 @@ import React, { useState } from 'react';
 import AdjustTicket from './partials/AdjustTicket';
 
 import Sidebar from '../../components/SideBar/Sidebar';
-import LoginForm from '../Home/partials/Login/LoginForm';
 import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
 import CaseApproval from './partials/CaseApproval';
+import { checkUserRole } from '../../../api/auth/auth';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
+
 
 const Staff: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [broken, setBroken] = useState(false);
     const [selectedKey, setSelectedKey] = useState('1');
+
+    if (!checkUserRole(["STAFF"])) {
+        return <Navigate to="/unauthorized" replace />;
+    }
 
     const menuItems: MenuProps['items'] = [
         { key: '1', icon: <AppstoreOutlined />, label: 'Check QR' },
@@ -66,7 +72,7 @@ const Staff: React.FC = () => {
                 <Content className="mx-4 my-6 overflow-auto">
                     <div className="bg-white rounded-xl p-6 shadow min-h-[60vh]">
                         {renderContent()}
-                        
+
                     </div>
                 </Content>
             </Layout>

@@ -1,8 +1,9 @@
 import { useRef, useState, useEffect } from "react";
-import { Typography, Tag, Card, message, Modal, QRCode, Tabs } from "antd";
+import { Typography, Tag, Card, message, Modal, QRCode, Tabs, Space, Spin, type QRCodeProps } from "antd";
 import type { Ticket } from "../../../../../../types/types";
 import { getStatusColor, getStatusLabel } from "./ticketUtils";
 import logoMetro from "../../../../../assets/fpt.png";
+import logoMetroHCMC from "../../../../../assets/logo.png";
 import { getQRCodeFromSubscription } from "../../../../../../api/buyRouteTicket/buyRouteTicket";
 
 const { Text } = Typography;
@@ -97,6 +98,37 @@ const TicketCard = ({
     setActiveTab("1");
   };
 
+  const customStatusRender: QRCodeProps['statusRender'] = (info) => {
+    switch (info.status) {
+      // case 'expired':
+      //   return (
+      //     <div>
+      //       <CloseCircleFilled style={{ color: 'red' }} /> {info.locale?.expired}
+      //       <p>
+      //         <Button type="link" onClick={info.onRefresh}>
+      //           <ReloadOutlined /> {info.locale?.refresh}
+      //         </Button>
+      //       </p>
+      //     </div>
+      //   );
+      case 'loading':
+        return (
+          <Space direction="vertical">
+            <Spin />
+            <p>Loading...</p>
+          </Space>
+        );
+      // case 'scanned':
+      //   return (
+      //     <div>
+      //       <CheckCircleFilled style={{ color: 'green' }} /> {info.locale?.scanned}
+      //     </div>
+      //   );
+      default:
+        return null;
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (countdownRef.current) {
@@ -163,55 +195,71 @@ const TicketCard = ({
         </div>
       </Card>
 
-      <Modal open={isModalVisible} onCancel={handleCloseModal} footer={null} centered title="Sử dụng vé">
+      <Modal open={isModalVisible} onCancel={handleCloseModal} footer={null} centered title="Sử dụng vé" width={420}>
         <Tabs activeKey={activeTab} onChange={handleTabChange} centered>
           <TabPane tab="QR Code" key="1">
-            <div className="flex flex-col items-center py-4">
-              {loadingQR ? (
-                <div className="text-center text-gray-500 text-sm">Đang tải mã QR...</div>
-              ) : (
-                <>
-                  <QRCode
-                    value={qrCodeValue || ticket.id}
-                    size={180}
-                    icon={logoMetro}
-                    iconSize={40}
-                    bordered
-                  />
-                  {isSubscription && (
-                    <div className="mt-2 text-xs text-gray-500">
-                      Mã sẽ được làm mới sau:{" "}
-                      <span className="font-semibold text-black">{countdown}s</span>
-                    </div>
-                  )}
-                </>
-              )}
+            <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
+              <div className="flex justify-center mb-4">
+                <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+              </div>
+              <div className="flex flex-col items-center py-4">
+                {loadingQR ? (
+                  <div className="text-center text-gray-500 text-sm">Đang tải mã QR...</div>
+                ) : (
+                  <>
+                    <QRCode
+                      value={qrCodeValue || ticket.id}
+                      size={180}
+                      icon={logoMetro}
+                      iconSize={40}
+                      bordered
+                    />
+                    {isSubscription && (
+                      <div className="mt-2 text-xs text-gray-500">
+                        Mã sẽ được làm mới sau:{" "}
+                        <span className="font-semibold text-black">{countdown}s</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </TabPane>
 
           <TabPane tab="Thông tin vé" key="2">
-            <div className="text-sm text-left px-2 py-2">
-              <p>
-                <Text strong>Tuyến:</Text> {ticket.fromStation} → {ticket.toStation}
-              </p>
-              <p>
-                <Text strong>Ngày mua:</Text>{" "}
-                {new Date(ticket.startDate).toLocaleDateString("vi-VN")}
-              </p>
-              <p>
-                <Text strong>HSD:</Text> {new Date(ticket.endDate).toLocaleDateString("vi-VN")}
-              </p>
-              <p>
-                <Text strong>Giá:</Text> {ticket.price.toLocaleString()}₫
-              </p>
-              {ticket.id && (
-                <p>
-                  <Text strong>Mã vé:</Text> {ticket.id}
-                </p>
-              )}
-              <p>
-                <Text strong>Trạng thái:</Text> {getStatusLabel(status)}
-              </p>
+            <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
+              <div className="flex justify-center mb-4">
+                <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+              </div>
+
+              <div className="text-sm grid gap-2">
+                <div className="flex justify-between">
+                  <Text strong className="text-gray-600">Tuyến:</Text>
+                  <span>{ticket.fromStation} → {ticket.toStation}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <Text strong className="text-gray-600">Ngày mua:</Text>
+                  <span>{new Date(ticket.startDate).toLocaleDateString("vi-VN")}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <Text strong className="text-gray-600">HSD:</Text>
+                  <span>{new Date(ticket.endDate).toLocaleDateString("vi-VN")}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <Text strong className="text-gray-600">Giá:</Text>
+                  <span>{ticket.price.toLocaleString()}₫</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <Text strong className="text-gray-600">Trạng thái:</Text>
+                  <Tag color={getStatusColor(status)} className="!m-0">
+                    {getStatusLabel(status)}
+                  </Tag>
+                </div>
+              </div>
             </div>
           </TabPane>
         </Tabs>
