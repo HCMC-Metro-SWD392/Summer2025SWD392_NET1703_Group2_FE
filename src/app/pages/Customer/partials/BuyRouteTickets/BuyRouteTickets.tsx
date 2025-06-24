@@ -258,6 +258,7 @@ const BuyRouteTicket: React.FC = () => {
                 <h3 className="text-base font-semibold mb-2">Ga đi</h3>
                 <div ref={fromRef}>
                   <AutoComplete
+                    allowClear
                     className="w-full"
                     options={fromStationOptions}
                     placeholder="Chọn ga đi"
@@ -285,6 +286,7 @@ const BuyRouteTicket: React.FC = () => {
                 <h3 className="text-base font-semibold mb-2">Ga đến</h3>
                 <div ref={toRef}>
                   <AutoComplete
+                    allowClear
                     className="w-full"
                     options={toStationOptions}
                     placeholder="Chọn ga đến"

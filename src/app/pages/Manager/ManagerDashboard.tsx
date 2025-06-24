@@ -7,8 +7,15 @@ import {
   RiseOutlined,
   FallOutlined,
 } from '@ant-design/icons';
+import { checkUserRole } from '../../../api/auth/auth';
+import { Navigate } from 'react-router-dom';
 
 const ManagerDashboard: React.FC = () => {
+
+  if (!checkUserRole(["MANAGER"])) {
+        return <Navigate to="/unauthorized" replace />;
+    }
+
   // Mock data
   const recentActivities = [
     {
