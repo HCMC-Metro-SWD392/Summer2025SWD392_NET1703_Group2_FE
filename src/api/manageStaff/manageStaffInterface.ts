@@ -14,10 +14,10 @@ export interface StaffInfo {
   email: string;
   fullName: string;
   phoneNumber: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  address?: string;
+  identityId?: string;
+  sex: string;
+  dateOfBirth?: string;
 }
 
 export interface StaffListResponse extends ResponseDTO {

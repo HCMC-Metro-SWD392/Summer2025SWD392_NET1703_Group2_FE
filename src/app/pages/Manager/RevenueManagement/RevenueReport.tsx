@@ -1,103 +1,55 @@
 import { BarChartOutlined, FileExcelOutlined, FilePdfOutlined, LineChartOutlined } from '@ant-design/icons';
 import type { RadioChangeEvent } from 'antd';
-import { Button, Card, Col, DatePicker, Radio, Row, Select, Space, Statistic, Table, Typography } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Button, Card, Col, DatePicker, Radio, Row, Select, Space, Statistic, Typography, message } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { RevenueApi } from '../../../../api/revenue/RevenueApi';
 
 const { RangePicker } = DatePicker;
 const { Title, Text } = Typography;
 
-interface RevenueData {
-  key: string;
-  date: string;
-  ticketType: string;
-  quantity: number;
-  revenue: number;
-  refunds: number;
-  netRevenue: number;
-}
-
 const RevenueReport: React.FC = () => {
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([dayjs().subtract(30, 'days'), dayjs()]);
-  const [ticketType, setTicketType] = useState<string>('all');
-  const [reportType, setReportType] = useState<string>('daily');
+  const [month, setMonth] = useState<number>(dayjs().month() + 1);
+  const [year, setYear] = useState<number>(dayjs().year());
+  const [monthlyRevenue, setMonthlyRevenue] = useState<number>(0);
+  const [yearlyRevenue, setYearlyRevenue] = useState<number>(0);
+  const [overTimeRevenue, setOverTimeRevenue] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
   const [viewType, setViewType] = useState<string>('table');
 
-  // Mock data for demonstration
-  const mockData: RevenueData[] = [
-    {
-      key: '1',
-      date: '2025-05-01',
-      ticketType: 'Single Ride',
-      quantity: 150,
-      revenue: 1500000,
-      refunds: 50000,
-      netRevenue: 1450000,
-    },
-    {
-      key: '2',
-      date: '2025-05-02',
-      ticketType: 'Periodic',
-      quantity: 75,
-      revenue: 2250000,
-      refunds: 0,
-      netRevenue: 2250000,
-    },
-    // Add more mock data as needed
-  ];
+  useEffect(() => {
+    fetchAllRevenue();
+    // eslint-disable-next-line
+  }, []);
 
-  const columns: ColumnsType<RevenueData> = [
-    {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
-      width: 150,
-    },
-    {
-      title: 'Ticket Type',
-      dataIndex: 'ticketType',
-      key: 'ticketType',
-      filters: [
-        { text: 'Single Ride', value: 'Single Ride' },
-        { text: 'Periodic', value: 'Periodic' },
-      ],
-      onFilter: (value, record) => record.ticketType === value,
-      width: 180,
-    },
-    {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity',
-      sorter: (a, b) => a.quantity - b.quantity,
-      width: 120,
-    },
-    {
-      title: 'Revenue',
-      dataIndex: 'revenue',
-      key: 'revenue',
-      render: (value: number) => `₫${value.toLocaleString()}`,
-      sorter: (a, b) => a.revenue - b.revenue,
-      width: 180,
-    },
-    {
-      title: 'Refunds',
-      dataIndex: 'refunds',
-      key: 'refunds',
-      render: (value: number) => `₫${value.toLocaleString()}`,
-      sorter: (a, b) => a.refunds - b.refunds,
-      width: 150,
-    },
-    {
-      title: 'Net Revenue',
-      dataIndex: 'netRevenue',
-      key: 'netRevenue',
-      render: (value: number) => `₫${value.toLocaleString()}`,
-      sorter: (a, b) => a.netRevenue - b.netRevenue,
-      width: 180,
-    },
-  ];
+  const fetchAllRevenue = async () => {
+    setLoading(true);
+    try {
+      // Fetch monthly
+      const monthRes = await RevenueApi.viewRevenueMonth(month);
+      if (monthRes.isSuccess) setMonthlyRevenue(monthRes.result!);
+      else setMonthlyRevenue(0);
+      // Fetch yearly
+      const yearRes = await RevenueApi.viewRevenueYear(year);
+      if (yearRes.isSuccess) setYearlyRevenue(yearRes.result!);
+      else setYearlyRevenue(0);
+      // Fetch over time
+      const overTimeRes = await RevenueApi.viewRevenueOverTime(
+        dateRange[0].format('YYYY-MM-DD'),
+        dateRange[1].format('YYYY-MM-DD')
+      );
+      if (overTimeRes.isSuccess) setOverTimeRevenue(overTimeRes.result!);
+      else setOverTimeRevenue(0);
+    } catch (error) {
+      setMonthlyRevenue(0);
+      setYearlyRevenue(0);
+      setOverTimeRevenue(0);
+      message.error('Không Có Dữ Liệu Doanh Thu Trong Thời Gian Đã Chọn');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExport = (format: 'csv' | 'pdf') => {
     // TODO: Implement export functionality
@@ -114,15 +66,28 @@ const RevenueReport: React.FC = () => {
     }
   };
 
+  const handleMonthChange = (value: number) => {
+    setMonth(value);
+  };
+
+  const handleYearChange = (value: number) => {
+    setYear(value);
+  };
+
+  // Refetch on filter change
+  useEffect(() => {
+    fetchAllRevenue();
+    // eslint-disable-next-line
+  }, [month, year, dateRange]);
+
   return (
     <div className="w-full h-full p-2 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Revenue Report</h1>
-          <Text type="secondary">View and analyze revenue data from ticket sales</Text>
+          <h1 className="text-2xl font-bold">Báo Cáo Doanh Thu</h1>
         </div>
         <Space>
-          <Button
+          {/* <Button
             icon={<FileExcelOutlined />}
             onClick={() => handleExport('csv')}
             size="large"
@@ -135,7 +100,7 @@ const RevenueReport: React.FC = () => {
             size="large"
           >
             Export PDF
-          </Button>
+          </Button> */}
         </Space>
       </div>
 
@@ -143,36 +108,36 @@ const RevenueReport: React.FC = () => {
       <Card className="mb-6">
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} md={8}>
-            <Text strong className="block mb-2">Date Range:</Text>
+            <Text strong className="block mb-2">Tháng:</Text>
+            <Select
+              value={month}
+              onChange={handleMonthChange}
+              className="w-full"
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <Select.Option key={i + 1} value={i + 1}>{i + 1}</Select.Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} md={8}>
+            <Text strong className="block mb-2">Năm:</Text>
+            <Select
+              value={year}
+              onChange={handleYearChange}
+              className="w-full"
+            >
+              {Array.from({ length: 5 }, (_, i) => (
+                <Select.Option key={dayjs().year() - i} value={dayjs().year() - i}>{dayjs().year() - i}</Select.Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} md={8}>
+            <Text strong className="block mb-2">Doanh Thu Theo Ngày:</Text>
             <RangePicker
               value={dateRange}
               onChange={handleDateRangeChange}
               className="w-full"
             />
-          </Col>
-          <Col xs={24} md={8}>
-            <Text strong className="block mb-2">Ticket Type:</Text>
-            <Select
-              value={ticketType}
-              onChange={setTicketType}
-              className="w-full"
-            >
-              <Select.Option value="all">All Types</Select.Option>
-              <Select.Option value="single">Single Ride</Select.Option>
-              <Select.Option value="periodic">Periodic</Select.Option>
-            </Select>
-          </Col>
-          <Col xs={24} md={8}>
-            <Text strong className="block mb-2">Report Type:</Text>
-            <Select
-              value={reportType}
-              onChange={setReportType}
-              className="w-full"
-            >
-              <Select.Option value="daily">Daily</Select.Option>
-              <Select.Option value="weekly">Weekly</Select.Option>
-              <Select.Option value="monthly">Monthly</Select.Option>
-            </Select>
           </Col>
         </Row>
       </Card>
@@ -180,87 +145,44 @@ const RevenueReport: React.FC = () => {
       {/* Summary Statistics */}
       <div className="mb-6">
         <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={6}>
+          <Col xs={24} sm={12} md={8}>
             <Card className="h-full">
               <Statistic
-                title="Total Revenue"
-                value={3750000}
+                title="Doanh Thu Tháng"
+                value={monthlyRevenue}
                 precision={0}
                 prefix="₫"
                 valueStyle={{ color: '#3f8600' }}
+                loading={loading}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={6}>
+          <Col xs={24} sm={12} md={8}>
             <Card className="h-full">
               <Statistic
-                title="Total Tickets Sold"
-                value={225}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card className="h-full">
-              <Statistic
-                title="Total Refunds"
-                value={50000}
+                title="Doanh Thu Năm"
+                value={yearlyRevenue}
                 precision={0}
                 prefix="₫"
-                valueStyle={{ color: '#cf1322' }}
+                valueStyle={{ color: '#1890ff' }}
+                loading={loading}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={12} md={6}>
+          <Col xs={24} sm={12} md={8}>
             <Card className="h-full">
               <Statistic
-                title="Net Revenue"
-                value={3700000}
+                title="Doanh Thu Theo Ngày"
+                value={overTimeRevenue}
                 precision={0}
                 prefix="₫"
                 valueStyle={{ color: '#722ed1' }}
+                loading={loading}
               />
             </Card>
           </Col>
         </Row>
       </div>
-
-      {/* View Type Toggle */}
-      <div className="mb-4">
-        <Radio.Group value={viewType} onChange={handleViewTypeChange} className="w-full sm:w-auto">
-          <Radio.Button value="table" className="flex items-center gap-2">
-            <LineChartOutlined /> Table View
-          </Radio.Button>
-          <Radio.Button value="chart" className="flex items-center gap-2">
-            <BarChartOutlined /> Chart View
-          </Radio.Button>
-        </Radio.Group>
-      </div>
-
-      {/* Data Display */}
-      {viewType === 'table' ? (
-        <div className="w-full overflow-hidden">
-          <Table
-            columns={columns}
-            dataSource={mockData}
-            pagination={{
-              pageSize: 10,
-              showSizeChanger: true,
-              showTotal: (total) => `Total ${total} records`,
-              responsive: true,
-            }}
-            scroll={{ x: 'max-content' }}
-            className="w-full"
-            size="middle"
-          />
-        </div>
-      ) : (
-        <Card className="w-full">
-          <div className="h-96 flex items-center justify-center">
-            <Text type="secondary">Chart visualization will be implemented here</Text>
-          </div>
-        </Card>
-      )}
     </div>
   );
 };

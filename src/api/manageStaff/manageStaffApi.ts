@@ -11,12 +11,8 @@ import axiosInstance from "../../settings/axiosInstance";
 // API Endpoints
 const MANAGE_STAFF_ENDPOINTS = {
   SET_STAFF_ROLE: (email: string) => `/api/Auth/set-staff-role/${email}`,
-  GET_ALL_STAFF: "/api/Auth/get-all-staff",
+  GET_ALL_STAFF: "/api/Staff/GetAllStaff",
   GET_STAFF_BY_ID: (id: string) => `/api/Auth/get-staff/${id}`,
-  UPDATE_STAFF: (id: string) => `/api/Auth/update-staff/${id}`,
-  DELETE_STAFF: (id: string) => `/api/Auth/delete-staff/${id}`,
-  ACTIVATE_STAFF: (id: string) => `/api/Auth/activate-staff/${id}`,
-  DEACTIVATE_STAFF: (id: string) => `/api/Auth/deactivate-staff/${id}`,
 } as const;
 
 export interface PaginationParams {
@@ -44,20 +40,10 @@ export const ManageStaffApi = {
     }
   },
 
-  getAllStaff: async (params: PaginationParams): Promise<StaffListResponse> => {
+  getAllStaff: async (): Promise<ResponseDTO> => {
     try {
-      const response: AxiosResponse<StaffListResponse> = await axiosInstance.get(
+      const response: AxiosResponse<ResponseDTO> = await axiosInstance.get(
         MANAGE_STAFF_ENDPOINTS.GET_ALL_STAFF,
-        {
-          params: {
-            pageNumber: params.pageNumber || 1,
-            pageSize: params.pageSize || 10,
-            filterOn: params.filterOn,
-            filterQuery: params.filterQuery,
-            sortBy: params.sortBy,
-            isAscending: params.isAscending
-          }
-        }
       );
       return response.data;
     } catch (error: any) {
@@ -82,60 +68,4 @@ export const ManageStaffApi = {
     }
   },
 
-  updateStaff: async (id: string, data: Partial<StaffInfo>): Promise<ResponseDTO> => {
-    try {
-      const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
-        MANAGE_STAFF_ENDPOINTS.UPDATE_STAFF(id),
-        data
-      );
-      return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        return error.response.data;
-      }
-      throw error;
-    }
-  },
-
-  deleteStaff: async (id: string): Promise<ResponseDTO> => {
-    try {
-      const response: AxiosResponse<ResponseDTO> = await axiosInstance.delete(
-        MANAGE_STAFF_ENDPOINTS.DELETE_STAFF(id)
-      );
-      return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        return error.response.data;
-      }
-      throw error;
-    }
-  },
-
-  activateStaff: async (id: string): Promise<ResponseDTO> => {
-    try {
-      const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
-        MANAGE_STAFF_ENDPOINTS.ACTIVATE_STAFF(id)
-      );
-      return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        return error.response.data;
-      }
-      throw error;
-    }
-  },
-
-  deactivateStaff: async (id: string): Promise<ResponseDTO> => {
-    try {
-      const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
-        MANAGE_STAFF_ENDPOINTS.DEACTIVATE_STAFF(id)
-      );
-      return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        return error.response.data;
-      }
-      throw error;
-    }
-  }
 };
