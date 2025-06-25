@@ -3,8 +3,8 @@ import { Card, Typography, Row, Col, Avatar, Divider, Spin, Alert } from 'antd';
 import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, StarOutlined, CalendarOutlined } from '@ant-design/icons';
 import styles from './CustomerInfo.module.css';
 import UpdateProfileButton from './UpdateProfileButton';
-import axiosInstance from '../../../../settings/axiosInstance';
-import type { UserInfo } from '../../../../types/types';
+import axiosInstance from '../../../../../settings/axiosInstance';
+import type { UserInfo } from '../../../../../types/types';
 
 const { Title, Text } = Typography;
 
@@ -62,7 +62,7 @@ const CustomerInfo: React.FC = () => {
     if (!customerData) {
         return (
             <div className="flex min-h-screen justify-center items-center">
-                <Alert message="No customer data found." type="info" showIcon />
+                <Alert message="Không tìm thấy thông tin khách hàng." type="info" showIcon />
             </div>
         );
     }
@@ -90,32 +90,32 @@ const CustomerInfo: React.FC = () => {
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <PhoneOutlined /> <Text strong>Phone:</Text> {customerData.phoneNumber}
+                            <PhoneOutlined /> <Text strong>Số điện thoại:</Text> {customerData.phoneNumber}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <EnvironmentOutlined /> <Text strong>Address:</Text> {customerData.address}
+                            <EnvironmentOutlined /> <Text strong>Địa chỉ:</Text> {customerData.address}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <IdcardOutlined /> <Text strong>Identity ID:</Text> {customerData.identityId}
+                            <IdcardOutlined /> <Text strong>Số CMND/CCCD:</Text> {customerData.identityId}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <CalendarOutlined /> <Text strong>Date of Birth:</Text> {customerData.dateOfBirth?.slice(0, 10)}
+                            <CalendarOutlined /> <Text strong>Ngày sinh:</Text> {customerData.dateOfBirth?.slice(0, 10)}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            {customerData.sex === 'Male' ? <ManOutlined /> : <WomanOutlined />} <Text strong>Sex:</Text> {customerData.sex}
+                            {customerData.sex === 'Male' ? <ManOutlined /> : <WomanOutlined />} <Text strong>Giới tính:</Text> {customerData.sex === 'Male' ? 'Nam' : customerData.sex === 'Female' ? 'Nữ' : customerData.sex}
                         </div>
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <StarOutlined /> <Text strong>Customer Type:</Text> {customerData.customerType === 0 ? 'Normal' : 'VIP'}
+                            <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Thông thường' : 'Học sinh/Sinh viên'}
                         </div>
                     </Col>
                 </Row>

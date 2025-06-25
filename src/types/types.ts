@@ -25,12 +25,21 @@ export interface UserInfo  {
   customerType: number;
 };
 
+
+type MetroLine = {
+  id: string;
+  startStation: { id: string; name: string };
+  endStation: { id: string; name: string };
+  metroName: string;
+};
+
+
 export interface Station {
   id: string;
   name: string;
   address: string;
   description: string;
-  metroLines?: { id: string; metroName: string }[];
+  metroLines?: MetroLine[];
 };
 
 export interface Line {
@@ -39,8 +48,8 @@ export interface Line {
 };
 
 export interface LineStartAndEndStation {
-  startStation: Station;
-  endStation: Station;
+  startStationName: string | undefined;
+  endStationName: string | undefined;
 };
 
 // export interface Ticket {

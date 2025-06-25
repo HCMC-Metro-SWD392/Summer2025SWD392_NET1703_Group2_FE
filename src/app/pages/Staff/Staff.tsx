@@ -33,9 +33,9 @@ const Staff: React.FC = () => {
     }
 
     const menuItems: MenuProps['items'] = [
-        { key: '1', icon: <AppstoreOutlined />, label: 'Check QR' },
-        { key: '2', icon: <VideoCameraOutlined />, label: 'AdjustTicket' },
-        { key: '3', icon: <FileTextOutlined />, label: 'CaseApproval' },
+        { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
+        { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
+        { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
         // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
         // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
         // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },

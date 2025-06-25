@@ -21,7 +21,7 @@ const SubmitSuccess: React.FC = () => {
           </Button>,
           <Button
             key="my-requests"
-            onClick={() => navigate("/service/my-requests")}
+            onClick={() => navigate("/services/mySubmittedRequest")}
           >
             Xem đơn đã nộp
           </Button>,

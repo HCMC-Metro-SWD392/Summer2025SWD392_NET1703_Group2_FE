@@ -9,6 +9,7 @@ interface Props {
   fromStation: Station | null;
   toStation: Station | null;
   ticketPrice: number | null;
+  finalPrice: number | null;
   loadingPrice: boolean;
   ticketType: TicketType | null;
 }
@@ -17,6 +18,7 @@ const StepPayment: React.FC<Props> = ({
   fromStation,
   toStation,
   ticketPrice,
+  finalPrice,
   loadingPrice,
   ticketType,
 }) => (
@@ -38,9 +40,20 @@ const StepPayment: React.FC<Props> = ({
       {loadingPrice ? (
         <Spin />
       ) : ticketPrice !== null ? (
-        <Text strong className="text-xl text-green-600">
-          Giá vé: {ticketPrice.toLocaleString()}₫
-        </Text>
+        finalPrice !== null && finalPrice !== ticketPrice ? (
+          <div>
+            <Text delete type="secondary" className="text-base mr-2">
+              {ticketPrice.toLocaleString()}₫
+            </Text>
+            <Text strong className="text-xl text-green-600">
+              Còn: {finalPrice.toLocaleString()}₫
+            </Text>
+          </div>
+        ) : (
+          <Text strong className="text-xl text-green-600">
+            Giá vé: {ticketPrice.toLocaleString()}₫
+          </Text>
+        )
       ) : (
         <Text type="secondary">Vui lòng chọn đủ 2 ga để xem giá vé</Text>
       )}
