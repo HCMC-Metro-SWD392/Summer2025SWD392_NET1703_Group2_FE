@@ -126,14 +126,20 @@ const BuyRouteTicket: React.FC = () => {
   const fromStationOptions = useMemo(() => groupStationsByMetro(allStations, toStation?.id || null), [allStations, toStation]);
   const toStationOptions = useMemo(() => groupStationsByMetro(allStations, fromStation?.id || null), [allStations, fromStation]);
 
-  const handlePromotionCheck = async (code: string) => {
-    if (!code || !ticketPrice) {
-      if (!ticketPrice) {
+  const handlePromotionCheck = async (code: string, isChangePrice: boolean, inputPrice?: number) => {
+
+     const currentPrice = inputPrice ?? ticketPrice;
+
+    if (!code || !currentPrice) {
+      if (!currentPrice && !isChangePrice) {
         message.warning("Vui lòng hoàn thành bước chọn ga để áp dụng mã khuyến mãi")
+      }
+      if (!code && !isChangePrice) {
+        message.warning("Bạn chưa nhập mã khuyến mãi")
       }
       setIsPromoApplied(false);
       setPromoInfo(null);
-      setFinalPrice(ticketPrice);
+      setFinalPrice(currentPrice);
       return;
     }
     try {
@@ -146,12 +152,12 @@ const BuyRouteTicket: React.FC = () => {
         message.warning("Mã khuyến mãi đã hết hạn hoặc chưa có hiệu lực.");
         setIsPromoApplied(false);
         setPromoInfo(null);
-        setFinalPrice(ticketPrice);
+        setFinalPrice(currentPrice);
         return;
       }
       setPromoInfo(promo);
-      const discount = promo.percentage ? (ticketPrice * promo.percentage) / 100 : promo.fixedAmount || 0;
-      setFinalPrice(Math.max(0, ticketPrice - discount));
+      const discount = promo.percentage ? (currentPrice * promo.percentage) / 100 : promo.fixedAmount || 0;
+      setFinalPrice(Math.max(0, currentPrice - discount));
       setIsPromoApplied(true);
       message.success("Áp dụng mã khuyến mãi thành công")
     } catch {
@@ -171,10 +177,13 @@ const BuyRouteTicket: React.FC = () => {
             const data = await getTicketRoute(fromStation.id, toStation.id);
             setTicketPrice(data?.result?.price || null);
             setTicketRouteId(data?.result?.ticketRouteId || null);
+            handlePromotionCheck(promotionInput, true, data?.result?.price);
           } else {
             const res = await getSpecialTicket(fromStation.id, toStation.id, ticketSubcriptionId);
             setTicketPrice(res?.result?.price || null);
             setTicketRouteId(res?.result?.id || null);
+            handlePromotionCheck(promotionInput, true, res?.result?.price);
+
           }
         } catch {
           try {
@@ -183,11 +192,13 @@ const BuyRouteTicket: React.FC = () => {
               const retry = await getTicketRoute(fromStation.id, toStation.id);
               setTicketPrice(retry?.result?.price || null);
               setTicketRouteId(retry?.result?.ticketRouteId || null);
+              handlePromotionCheck(promotionInput, true, retry?.result?.price);
             } else {
               await createTicketSubcription(ticketSubcriptionId, fromStation.id, toStation.id);
               const retry = await getSpecialTicket(fromStation.id, toStation.id, ticketSubcriptionId);
               setTicketPrice(retry?.result?.price || null);
               setTicketRouteId(retry?.result?.id || null);
+              handlePromotionCheck(promotionInput, true, retry?.result?.price);
             }
           } catch {
             message.error("Không thể lấy giá vé.");
@@ -385,7 +396,7 @@ const BuyRouteTicket: React.FC = () => {
                     <Button
                       onClick={() => {
                         setPromotionCode(promotionInput);
-                        handlePromotionCheck(promotionInput);
+                        handlePromotionCheck(promotionInput, false);
                       }}
                       type="primary"
                     >
