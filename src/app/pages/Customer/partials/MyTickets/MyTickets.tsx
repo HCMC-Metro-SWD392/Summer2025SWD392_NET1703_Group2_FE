@@ -93,7 +93,7 @@ const MyTickets: React.FC = () => {
       if (link) {
         window.location.href = link;
       } else {
-        message.error("Không lấy được link thanh toán.");
+        // message.error("Không lấy được link thanh toán.");
       }
     } catch (error) {
       console.error("Lỗi thanh toán:", error);
@@ -145,7 +145,7 @@ const MyTickets: React.FC = () => {
               onClick={handlePaymentConfirm}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
             >
-              Thanh toán thêm
+              Xác nhận
             </button>
             <button
               onClick={() => setModalVisible(false)}
