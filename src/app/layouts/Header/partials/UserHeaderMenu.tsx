@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../../../../api/auth/auth";
 import type { UserInfo } from "../../../../types/types";
 
+
 const { Text } = Typography;
 
 const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
@@ -23,6 +24,12 @@ const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
           icon: <ProfileOutlined />,
           label: "Hồ sơ cá nhân",
           onClick: () => navigate("/customerInfor"),
+        },
+        {
+          key: "change-password",
+          icon: <FileTextOutlined />,
+          label: "Đổi mật khẩu",
+          onClick: () => navigate("/change-password"),
         },
         {
           key: "service",
