@@ -19,6 +19,7 @@ import { DeleteOutlined, PlusOutlined, ArrowUpOutlined, ArrowDownOutlined, Arrow
 import type { ColumnsType } from 'antd/es/table';
 import { MetroLineApi } from '../../../../api/metroLine/MetroLineApi';
 import { StationApi } from '../../../../api/station/StationApi';
+import { MetroLineStationApi } from '../../../../api/metroLine/MetroLineStationApi';
 import type { CreateMetroLineDTO, CreateMetroLineStationDTO } from '../../../../api/metroLine/MetroLineInterface';
 import type { GetStationDTO } from '../../../../api/station/StationInterface';
 
@@ -69,6 +70,11 @@ const CreateMetroLine: React.FC = () => {
       return;
     }
 
+    if (metroLineStations.length >= 2) {
+      message.warning('Chỉ có thể thêm tối đa 2 trạm cho tuyến Metro');
+      return;
+    }
+
     const station = stations.find(s => s.id === selectedStation);
     if (!station) return;
 
@@ -76,7 +82,7 @@ const CreateMetroLine: React.FC = () => {
       id: Math.random().toString(36).substr(2, 9), // Temporary ID for frontend
       stationId: station.id,
       stationName: station.name,
-      distanceFromStart: 0,
+      distanceFromStart: metroLineStations.length === 0 ? 0 : 1, // First station at 0km, second at 1km by default
       stationOrder: metroLineStations.length + 1,
     };
 
@@ -117,8 +123,8 @@ const CreateMetroLine: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    if (metroLineStations.length < 2) {
-      message.error('Tuyến Metro phải có ít nhất 2 trạm');
+    if (metroLineStations.length !== 2) {
+      message.error('Tuyến Metro phải có đúng 2 trạm');
       return;
     }
 
@@ -133,9 +139,37 @@ const CreateMetroLine: React.FC = () => {
 
       const response = await MetroLineApi.createMetroLine(metroLineData);
 
-      if (response.isSuccess) {
-        message.success('Tạo tuyến Metro thành công');
-        navigate('/manager/metro-line');
+      if (response.isSuccess && response.result) {
+        // Create metro line stations for both stations
+        const metroLineId = response.result.id;
+        
+        // Create first station (order 1)
+        const firstStationData: CreateMetroLineStationDTO = {
+          metroLineId: metroLineId,
+          stationId: metroLineStations[0].stationId,
+          distanceFromStart: 0, // Starting point
+          stationOder: 1,
+        };
+
+        // Create second station (order 2)
+        const secondStationData: CreateMetroLineStationDTO = {
+          metroLineId: metroLineId,
+          stationId: metroLineStations[1].stationId,
+          distanceFromStart: metroLineStations[1].distanceFromStart,
+          stationOder: 2,
+        };
+
+        // Create both metro line stations
+        const firstStationResponse = await MetroLineStationApi.createMetroLineStation(firstStationData);
+        const secondStationResponse = await MetroLineStationApi.createMetroLineStation(secondStationData);
+
+        if (firstStationResponse.isSuccess && secondStationResponse.isSuccess) {
+          message.success('Tạo tuyến Metro và thêm trạm thành công');
+          navigate('/manager/metro-line');
+        } else {
+          message.warning('Tạo tuyến Metro thành công nhưng có lỗi khi thêm trạm');
+          navigate('/manager/metro-line');
+        }
       } else {
         message.error(response.message || 'Không thể tạo tuyến Metro');
       }
@@ -238,7 +272,7 @@ const CreateMetroLine: React.FC = () => {
           </Row>
 
           <Card
-            title="Danh Sách Trạm"
+            title="Danh Sách Trạm (Tối đa 2 trạm)"
             extra={
               <Space>
                 <Select
@@ -247,6 +281,7 @@ const CreateMetroLine: React.FC = () => {
                   value={selectedStation}
                   onChange={setSelectedStation}
                   allowClear
+                  disabled={metroLineStations.length >= 2}
                 >
                   {stations
                     .filter(station => !metroLineStations.some(ms => ms.stationId === station.id))
@@ -260,7 +295,7 @@ const CreateMetroLine: React.FC = () => {
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleAddStation}
-                  disabled={!selectedStation}
+                  disabled={!selectedStation || metroLineStations.length >= 2}
                 >
                   Thêm Trạm
                 </Button>
@@ -285,6 +320,33 @@ const CreateMetroLine: React.FC = () => {
             />
           </Card>
 
+          {metroLineStations.length === 2 && (
+            <Card title="Cấu hình khoảng cách" style={{ marginTop: 16 }}>
+              <Row gutter={24}>
+                <Col span={12}>
+                  <Form.Item
+                    label={`Khoảng cách từ ${metroLineStations[0]?.stationName} đến ${metroLineStations[1]?.stationName} (km)`}
+                  >
+                    <InputNumber
+                      min={0.1}
+                      step={0.1}
+                      style={{ width: '100%' }}
+                      placeholder="Nhập khoảng cách"
+                      defaultValue={1}
+                      onChange={(value) => {
+                        if (value !== null) {
+                          const updatedStations = [...metroLineStations];
+                          updatedStations[1].distanceFromStart = value;
+                          setMetroLineStations(updatedStations);
+                        }
+                      }}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Card>
+          )}
+
           <Form.Item style={{ marginTop: 24, textAlign: 'right' }}>
             <Space>
               <Button onClick={() => navigate('/manager/metro-line')}>
@@ -294,7 +356,7 @@ const CreateMetroLine: React.FC = () => {
                 type="primary" 
                 htmlType="submit" 
                 loading={loading}
-                disabled={metroLineStations.length < 2}
+                disabled={metroLineStations.length !== 2}
               >
                 Tạo Tuyến Metro
               </Button>
