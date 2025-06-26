@@ -15,7 +15,8 @@ import {
   Statistic,
   Tabs,
   Input,
-  Image
+  Image,
+  DatePicker
 } from 'antd';
 import {
   EyeOutlined,
@@ -24,7 +25,8 @@ import {
   ExclamationCircleOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined
+  CloseCircleOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 import axiosInstance from '../../../../settings/axiosInstance';
 import TabPane from 'antd/es/tabs/TabPane';
@@ -141,24 +143,44 @@ const CaseApproval: React.FC = () => {
       let localExpiration = expiration;
       setExpirationError(null);
       Modal.confirm({
-        title: 'Nhập ngày hết hạn xác nhận học sinh/sinh viên',
-        icon: <ExclamationCircleOutlined />,
+        title: (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CalendarOutlined style={{ color: '#1890ff', fontSize: '18px' }} />
+            <span>Chọn ngày hết hạn xác nhận học sinh/sinh viên</span>
+          </div>
+        ),
+        icon: null,
         content: (
-          <Input
-            type="datetime-local"
-            onChange={e => {
-              localExpiration = e.target.value;
-              setExpiration(localExpiration);
-            }}
-            placeholder="Chọn ngày hết hạn"
-          />
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ marginBottom: '12px', color: '#666' }}>
+              Vui lòng chọn ngày hết hạn cho xác nhận học sinh/sinh viên này:
+            </div>
+            <DatePicker
+              style={{ width: '100%' }}
+              placeholder="Chọn ngày hết hạn"
+              format="DD/MM/YYYY"
+              onChange={e => {
+                localExpiration = e ? e.format('YYYY-MM-DD') : null;
+                setExpiration(localExpiration);
+              }}
+              disabledDate={(current) => {
+                return current && current < dayjs().startOf('day');
+              }}
+            />
+            {expirationError && (
+              <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '8px' }}>
+                {expirationError}
+              </div>
+            )}
+          </div>
         ),
         okText: 'Duyệt',
         cancelText: 'Hủy',
+        okButtonProps: { style: { backgroundColor: '#52c41a', borderColor: '#52c41a' } },
         onOk: async () => {
           if (!localExpiration) {
-            setExpirationError('Vui lòng nhập ngày hết hạn!');
-            message.error('Vui lòng nhập ngày hết hạn!');
+            setExpirationError('Vui lòng chọn ngày hết hạn!');
+            message.error('Vui lòng chọn ngày hết hạn!');
             throw new Error('Empty expiration');
           }
           const original = [...formRequests];
@@ -174,6 +196,7 @@ const CaseApproval: React.FC = () => {
             message.success('Đã duyệt đơn thành công!');
             fetchFormRequests(Number(activeTab));
             fetchAllFormRequests();
+            setDetailModalVisible(false);
           } catch {
             message.error('Lỗi khi duyệt đơn. Đang hoàn tác...');
             setFormRequests(original);
@@ -200,6 +223,7 @@ const CaseApproval: React.FC = () => {
           message.success('Đã duyệt đơn thành công!');
           fetchFormRequests(Number(activeTab));
           fetchAllFormRequests();
+          setDetailModalVisible(false);
         } catch {
           message.error('Lỗi khi duyệt đơn. Đang hoàn tác...');
           setFormRequests(original);
@@ -241,6 +265,7 @@ const CaseApproval: React.FC = () => {
           message.success('Đã từ chối đơn thành công!');
           fetchFormRequests(Number(activeTab));
           fetchAllFormRequests();
+          setDetailModalVisible(false);
         } catch {
           message.error('Lỗi khi từ chối đơn. Đang hoàn tác...');
           setFormRequests(original);
@@ -290,32 +315,11 @@ const CaseApproval: React.FC = () => {
     {
       title: 'Thao tác',
       key: 'actions',
-      width: 240,
+      width: 120,
       align: 'center' as const,
       render: (record: FormRequest) => (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
           <Button icon={<EyeOutlined />} onClick={() => handleViewDetails(record)}>Chi tiết</Button>
-          {record.status === 0 && (
-            <>
-              <Button
-                icon={<CheckOutlined />}
-                type="primary"
-                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-                loading={actionLoading === record.id}
-                onClick={() => handleApprove(record)}
-              >
-                Chấp nhận
-              </Button>
-              <Button
-                danger
-                icon={<CloseOutlined />}
-                loading={actionLoading === record.id}
-                onClick={() => handleReject(record)}
-              >
-                Từ chối
-              </Button>
-            </>
-          )}
         </div>
       )
     },
@@ -412,7 +416,29 @@ const CaseApproval: React.FC = () => {
         open={detailModalVisible}
         title="Chi tiết trường hợp đặc biệt"
         onCancel={() => setDetailModalVisible(false)}
-        footer={null}
+        footer={
+          selectedRequest && selectedRequest.status === 0 ? (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+              <Button
+                icon={<CheckOutlined />}
+                type="primary"
+                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+                loading={actionLoading === selectedRequest.id}
+                onClick={() => handleApprove(selectedRequest)}
+              >
+                Chấp nhận
+              </Button>
+              <Button
+                danger
+                icon={<CloseOutlined />}
+                loading={actionLoading === selectedRequest.id}
+                onClick={() => handleReject(selectedRequest)}
+              >
+                Từ chối
+              </Button>
+            </div>
+          ) : null
+        }
         width={800}
       >
         {selectedRequest && (
