@@ -16,6 +16,8 @@ import { getStatusColor, getStatusLabel } from "./ticketUtils";
 import logoMetro from "../../../../../assets/fpt.png";
 import logoMetroHCMC from "../../../../../assets/logo.png";
 import { getQRCodeFromSubscription } from "../../../../../../api/buyRouteTicket/buyRouteTicket";
+import { ClockCircleOutlined } from "@ant-design/icons";
+import TicketUsageHistory from "./TicketUsageHistory";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -33,6 +35,7 @@ const TicketCard = ({
   const [loadingQR, setLoadingQR] = useState(false);
   const [countdown, setCountdown] = useState(61);
   const [activeTab, setActiveTab] = useState("1");
+  const [historyReloadCount, setHistoryReloadCount] = useState(0);
 
   const isModalVisibleRef = useRef(isModalVisible);
   const countdownRef = useRef<number | null>(null);
@@ -100,6 +103,8 @@ const TicketCard = ({
     setActiveTab(key);
     if (key === "1") {
       fetchQRCode();
+    } else if (key === "3") {
+      setHistoryReloadCount((prev) => prev + 1);
     }
   };
 
@@ -256,6 +261,17 @@ const TicketCard = ({
                 </div>
               </div>
             </div>
+          </TabPane>
+
+          <TabPane
+            tab={
+              <span>
+                <ClockCircleOutlined /> Lịch sử sử dụng
+              </span>
+            }
+            key="3"
+          >
+            <TicketUsageHistory ticketId={ticket.id} reloadTrigger={historyReloadCount}　/>
           </TabPane>
         </Tabs>
       </Modal>
