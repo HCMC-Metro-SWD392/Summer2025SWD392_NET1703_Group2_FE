@@ -149,7 +149,11 @@ const BuyRouteTicket: React.FC = () => {
       const start = dayjs(promo.startDate);
       const end = dayjs(promo.endDate);
       if (now.isBefore(start) || now.isAfter(end)) {
-        message.warning("Mã khuyến mãi đã hết hạn hoặc chưa có hiệu lực.");
+        if (now.isBefore(start)) {
+          message.warning("Mã khuyến mãi chưa có hiệu lực.");
+        } else {
+          message.warning("Mã khuyến mãi đã hết hạn.");
+        }
         setIsPromoApplied(false);
         setPromoInfo(null);
         setFinalPrice(currentPrice);
@@ -220,8 +224,8 @@ const BuyRouteTicket: React.FC = () => {
     try {
       const res = await createPaymentLink(
         ticketType === "normal"
-          ? { ticketRouteId, codePromotion: promotionCode }
-          : { subscriptionTicketId: ticketRouteId, codePromotion: promotionCode }
+          ? { ticketRouteId, codePromotion: isPromoApplied ? promotionCode : undefined }
+          : { subscriptionTicketId: ticketRouteId, codePromotion: isPromoApplied ? promotionCode : undefined }
       );
       const url = res?.result?.paymentLink?.checkoutUrl;
       if (url) window.location.href = url;
