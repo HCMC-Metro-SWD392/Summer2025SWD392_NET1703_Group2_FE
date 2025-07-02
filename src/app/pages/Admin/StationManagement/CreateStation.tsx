@@ -33,7 +33,7 @@ const CreateStation: React.FC = () => {
       
       if (response.isSuccess) {
         message.success('Tạo trạm Metro thành công');
-        navigate('/manager/station');
+        navigate('/admin/station');
       } else {
         message.error(response.message || 'Có lỗi xảy ra khi tạo trạm Metro');
       }
@@ -91,7 +91,7 @@ const CreateStation: React.FC = () => {
         <div className="mb-4">
           <Button 
             icon={<ArrowLeftOutlined />} 
-            onClick={() => navigate('/manager/station')}
+            onClick={() => navigate('/admin/station')}
           >
             Quay lại
           </Button>

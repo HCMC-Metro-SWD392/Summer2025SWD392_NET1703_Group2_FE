@@ -44,7 +44,7 @@ const CreateTrainSchedule: React.FC = () => {
 
             if (response.isSuccess) {
                 message.success('Lịch tàu đã được tạo thành công!');
-                navigate('/manager/train-schedule');
+                navigate('/admin/train-schedule');
             } else {
                 // Handle specific error cases
                 if (response.statusCode === 400) {
@@ -90,7 +90,7 @@ const CreateTrainSchedule: React.FC = () => {
                                 <Button type="primary" htmlType="submit" loading={loading}>
                                     Tạo Lịch Tàu
                                 </Button>
-                                <Button onClick={() => navigate('/manager/train-schedule')} disabled={loading}>
+                                <Button onClick={() => navigate('/admin/train-schedule')} disabled={loading}>
                                     Hủy
                                 </Button>
                             </Space>

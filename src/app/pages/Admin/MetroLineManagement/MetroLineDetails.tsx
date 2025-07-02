@@ -72,12 +72,12 @@ const MetroLineDetails: React.FC = () => {
         setMetroLine(response.result);
       } else {
         message.error(response.message || 'Không thể tải thông tin tuyến Metro');
-        navigate('/manager/metro-line');
+        navigate('/admin/metro-line');
       }
     } catch (error) {
       console.error('Error fetching metro line details:', error);
       message.error('Có lỗi xảy ra khi tải thông tin tuyến Metro');
-      navigate('/manager/metro-line');
+      navigate('/admin/metro-line');
     } finally {
       setLoading(false);
     }
@@ -134,7 +134,7 @@ const MetroLineDetails: React.FC = () => {
         <Space>
           <Button 
             icon={<ArrowLeftOutlined />} 
-            onClick={() => navigate('/manager/metro-line')}
+            onClick={() => navigate('/admin/metro-line')}
           >
             Quay lại
           </Button>

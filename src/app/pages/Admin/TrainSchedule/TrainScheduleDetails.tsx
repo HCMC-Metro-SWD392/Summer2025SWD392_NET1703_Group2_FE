@@ -85,7 +85,7 @@ const TrainScheduleDetails: React.FC = () => {
                 <Button
                     type="default"
                     icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate('/manager/train-schedule')}
+                    onClick={() => navigate('/admin/train-schedule')}
                     className="mb-4"
                 >
                     Quay lại danh sách
