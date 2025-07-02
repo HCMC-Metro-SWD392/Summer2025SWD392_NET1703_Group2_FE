@@ -25,7 +25,7 @@ const StationDetails: React.FC = () => {
     const fetchStationData = async () => {
       if (!id) {
         message.error('Không tìm thấy ID trạm');
-        navigate('/manager/station');
+        navigate('/admin/station');
         return;
       }
 
@@ -37,12 +37,12 @@ const StationDetails: React.FC = () => {
           setStation(response.result);
         } else {
           message.error(response.message || 'Không thể tải thông tin trạm');
-          navigate('/manager/station');
+          navigate('/admin/station');
         }
       } catch (error) {
         console.error('Error fetching station:', error);
         message.error('Có lỗi xảy ra khi tải thông tin trạm');
-        navigate('/manager/station');
+        navigate('/admin/station');
       } finally {
         setLoading(false);
       }
@@ -72,7 +72,7 @@ const StationDetails: React.FC = () => {
       <Space>
         <Button 
           icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate('/manager/station')}
+          onClick={() => navigate('/admin/station')}
         >
           Quay lại
         </Button>

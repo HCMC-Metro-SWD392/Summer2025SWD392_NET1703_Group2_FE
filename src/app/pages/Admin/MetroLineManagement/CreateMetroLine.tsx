@@ -165,10 +165,10 @@ const CreateMetroLine: React.FC = () => {
 
         if (firstStationResponse.isSuccess && secondStationResponse.isSuccess) {
           message.success('Tạo tuyến Metro và thêm trạm thành công');
-          navigate('/manager/metro-line');
+          navigate('/admin/metro-line');
         } else {
           message.warning('Tạo tuyến Metro thành công nhưng có lỗi khi thêm trạm');
-          navigate('/manager/metro-line');
+          navigate('/admin/metro-line');
         }
       } else {
         message.error(response.message || 'Không thể tạo tuyến Metro');
@@ -230,7 +230,7 @@ const CreateMetroLine: React.FC = () => {
       <Space>
         <Button 
           icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/manager/metro-line')}
+          onClick={() => navigate('/admin/metro-line')}
         >
           Quay lại
         </Button>
@@ -349,7 +349,7 @@ const CreateMetroLine: React.FC = () => {
 
           <Form.Item style={{ marginTop: 24, textAlign: 'right' }}>
             <Space>
-              <Button onClick={() => navigate('/manager/metro-line')}>
+              <Button onClick={() => navigate('/admin/metro-line')}>
                 Hủy
               </Button>
               <Button 

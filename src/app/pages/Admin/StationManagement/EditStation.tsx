@@ -36,12 +36,12 @@ const EditStation: React.FC = () => {
         });
       } else {
         message.error(response.message || 'Không thể tải thông tin trạm');
-        navigate('/manager/station');
+        navigate('/admin/station');
       }
     } catch (error) {
       message.error('Không thể tải thông tin trạm');
       console.error('Error fetching station:', error);
-      navigate('/manager/station');
+      navigate('/admin/station');
     } finally {
       setInitialLoading(false);
     }
@@ -70,7 +70,7 @@ const EditStation: React.FC = () => {
       
       if (response.isSuccess) {
         message.success('Cập nhật trạm Metro thành công');
-        navigate('/manager/station');
+        navigate('/admin/station');
       } else {
         message.error(response.message || 'Có lỗi xảy ra khi cập nhật trạm Metro');
       }
@@ -104,7 +104,7 @@ const EditStation: React.FC = () => {
         <div className="mb-4">
           <Button 
             icon={<ArrowLeftOutlined />} 
-            onClick={() => navigate('/manager/station')}
+            onClick={() => navigate('/admin/station')}
           >
             Quay lại
           </Button>

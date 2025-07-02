@@ -12,32 +12,32 @@ import Home from "../pages/Home";
 import LoginForm from "../pages/Home/partials/Login/LoginForm";
 import RegisterForm from "../pages/Home/partials/Register/RegisterForm";
 import VerifyEmail from "../pages/Home/partials/Register/partials/VerifyEmail/VerifyEmail";
-import FareRule from "../pages/Manager/FareManagement/FareRule";
+import FareRule from "../pages/Admin/FareManagement/FareRule";
 import ManagerDashboard from "../pages/Manager/ManagerDashboard";
-import CreateMetroLine from "../pages/Manager/MetroLineManagement/CreateMetroLine";
-import MetroLineDetails from "../pages/Manager/MetroLineManagement/MetroLineDetails";
-import MetroLineList from "../pages/Manager/MetroLineManagement/MetroLineList";
-import CreatePromotion from "../pages/Manager/PromotionManagement/CreatePromotion";
-import EditPromotion from "../pages/Manager/PromotionManagement/EditPromotion";
-import PromotionDetails from "../pages/Manager/PromotionManagement/PromotionDetails";
-import PromotionList from "../pages/Manager/PromotionManagement/PromotionList";
+import CreateMetroLine from "../pages/Admin/MetroLineManagement/CreateMetroLine";
+import MetroLineDetails from "../pages/Admin/MetroLineManagement/MetroLineDetails";
+import MetroLineList from "../pages/Admin/MetroLineManagement/MetroLineList";
+import CreatePromotion from "../pages/Admin/PromotionManagement/CreatePromotion";
+import EditPromotion from "../pages/Admin/PromotionManagement/EditPromotion";
+import PromotionDetails from "../pages/Admin/PromotionManagement/PromotionDetails";
+import PromotionList from "../pages/Admin/PromotionManagement/PromotionList";
 import RevenueReport from "../pages/Manager/RevenueManagement/RevenueReport";
 import AssignStaffShift from "../pages/Manager/StaffManagement/AssignStaffShift";
 import EditStaff from "../pages/Manager/StaffManagement/EditStaff";
 import StaffDetails from "../pages/Manager/StaffManagement/StaffDetails";
 import StaffList from "../pages/Manager/StaffManagement/StaffList";
-import CreateStation from "../pages/Manager/StationManagement/CreateStation";
-import EditStation from "../pages/Manager/StationManagement/EditStation";
-import StationDetails from "../pages/Manager/StationManagement/StationDetails";
-import StationList from "../pages/Manager/StationManagement/StationList";
-import CreateSubscriptionTicket from "../pages/Manager/TicketManagement/CreateSubscriptionTicket";
-import SubscriptionTicketDetails from "../pages/Manager/TicketManagement/SubsciptionTicketDetails";
-import SubscriptionTicketList from "../pages/Manager/TicketManagement/SubscriptionTicketList";
+import CreateStation from "../pages/Admin/StationManagement/CreateStation";
+import EditStation from "../pages/Admin/StationManagement/EditStation";
+import StationDetails from "../pages/Admin/StationManagement/StationDetails";
+import StationList from "../pages/Admin/StationManagement/StationList";
+import CreateSubscriptionTicket from "../pages/Admin/TicketManagement/CreateSubscriptionTicket";
+import SubscriptionTicketDetails from "../pages/Admin/TicketManagement/SubsciptionTicketDetails";
+import SubscriptionTicketList from "../pages/Admin/TicketManagement/SubscriptionTicketList";
 import Staff from "../pages/Staff/Staff";
-import TrainScheduleList from "../pages/Manager/TrainSchedule/TrainScheduleList";
-import CreateTrainSchedule from "../pages/Manager/TrainSchedule/CreateTrainSchedule";
-import TrainScheduleDetails from "../pages/Manager/TrainSchedule/TrainScheduleDetails";
-import EditTrainSchedule from "../pages/Manager/TrainSchedule/EditTrainSchedule";
+import TrainScheduleList from "../pages/Admin/TrainSchedule/TrainScheduleList";
+import CreateTrainSchedule from "../pages/Admin/TrainSchedule/CreateTrainSchedule";
+import TrainScheduleDetails from "../pages/Admin/TrainSchedule/TrainScheduleDetails";
+import EditTrainSchedule from "../pages/Admin/TrainSchedule/EditTrainSchedule";
 import CaseApproval from "../pages/Staff/partials/CaseApproval";
 import SpecialCaseRequestForm from "../pages/Customer/partials/BuySubscriptionTicket/partials/SpecialCaseRequestForm";
 import SubmitSuccess from "../pages/Customer/partials/BuySubscriptionTicket/partials/SubmitSuccess";
@@ -45,7 +45,9 @@ import CreateStaff from "../pages/Manager/StaffManagement/CreateStaff";
 import UnauthorizedPage from "../pages/Home/partials/Unauthorized/UnauthorizedPage";
 import MySubmittedRequests from "../pages/Customer/partials/BuySubscriptionTicket/partials/MySubmittedRequests";
 import StaffSchedule from "../pages/Manager/StaffManagement/StaffSchedule";
-import AddMetroLineStation from "../pages/Manager/MetroLineManagement/AddMetroLineStation";
+import AddMetroLineStation from "../pages/Admin/MetroLineManagement/AddMetroLineStation";
+import AdminLayout from "../layouts/AdminLayout/AdminLayout";
+import AdminMain from "../pages/Admin/AdminMain";
 
 export default function MainRoutes() {
   return (
@@ -83,6 +85,8 @@ export default function MainRoutes() {
         <Route path="/manager/staffs/:id" element={<StaffDetails />} />
         <Route path="/manager/staffs/:id/edit" element={<EditStaff />} />
         <Route path="/manager/staffs/:id/assign-shift" element={<AssignStaffShift />} />
+        <Route path="/manager/create-staff" element={<CreateStaff />} />
+        <Route path="/manager/staff-schedule" element={<StaffSchedule />} />
         <Route path="/manager/revenue" element={<RevenueReport />} />
         <Route path="/manager/create-promotion" element={<CreatePromotion />} />
         <Route path="/manager/promotion" element={<PromotionList />} />
@@ -91,21 +95,23 @@ export default function MainRoutes() {
         <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
         <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
         <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
-        <Route path="/manager/fare-rule" element={<FareRule />} />
-        <Route path="/manager/station/:id" element={<StationDetails />} />
-        <Route path="/manager/station" element={<StationList />} />
-        <Route path="/manager/create-station" element={<CreateStation />} />
-        <Route path="/manager/create-metro-line" element={<CreateMetroLine />} />
-        <Route path="/manager/station/:id/edit" element={<EditStation />} />
-        <Route path="/manager/metro-line" element={<MetroLineList />} />
-        <Route path="/manager/metro-line/:id" element={<MetroLineDetails />} />
-        <Route path="/manager/train-schedule" element={<TrainScheduleList />} />
-        <Route path="/manager/create-train-schedule" element={<CreateTrainSchedule />} />
-        <Route path="/manager/train-schedule/:id" element={<TrainScheduleDetails />} />
-        <Route path="/manager/train-schedule/:id/edit" element={<EditTrainSchedule />} />
-        <Route path="/manager/create-staff" element={<CreateStaff />} />
-        <Route path="/manager/staff-schedule" element={<StaffSchedule />} />
-        <Route path="/manager/add-metro-line-station" element={<AddMetroLineStation />} />
+      </Route>
+
+      <Route element={<AdminLayout/>}>
+        <Route path="/admin" element={<AdminMain />} />
+        <Route path="/admin/fare-rule" element={<FareRule />} />
+        <Route path="/admin/station/:id" element={<StationDetails />} />
+        <Route path="/admin/station" element={<StationList />} />
+        <Route path="/admin/create-station" element={<CreateStation />} />
+        <Route path="/admin/create-metro-line" element={<CreateMetroLine />} />
+        <Route path="/admin/station/:id/edit" element={<EditStation />} />
+        <Route path="/admin/metro-line" element={<MetroLineList />} />
+        <Route path="/admin/metro-line/:id" element={<MetroLineDetails />} />
+        <Route path="/admin/train-schedule" element={<TrainScheduleList />} />
+        <Route path="/admin/create-train-schedule" element={<CreateTrainSchedule />} />
+        <Route path="/admin/train-schedule/:id" element={<TrainScheduleDetails />} />
+        <Route path="/admin/train-schedule/:id/edit" element={<EditTrainSchedule />} />
+        <Route path="/admin/add-metro-line-station" element={<AddMetroLineStation />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />
