@@ -101,7 +101,7 @@ const EditTrainSchedule: React.FC = () => {
 
             if (response.isSuccess) {
                 message.success('Train Schedule updated successfully!');
-                navigate(`/manager/train-schedule/${id}`);
+                navigate(`/admin/train-schedule/${id}`);
             } else {
                 message.error(response.message || 'Failed to update train schedule.');
             }
@@ -133,7 +133,7 @@ const EditTrainSchedule: React.FC = () => {
 
             if (response.isSuccess) {
                 message.success('Train Schedule cancelled successfully!');
-                navigate(`/manager/train-schedule`);
+                navigate(`/admin/train-schedule`);
             } else {
                 message.error(response.message || 'Failed to cancel train schedule.');
             }
@@ -211,7 +211,7 @@ const EditTrainSchedule: React.FC = () => {
                                 <Button type="primary" htmlType="submit" loading={submitting} disabled={isFormDisabled}>
                                     Cập Nhật Lịch Tàu
                                 </Button>
-                                <Button onClick={() => navigate(`/manager/train-schedule`)} disabled={submitting}>
+                                <Button onClick={() => navigate(`/admin/train-schedule`)} disabled={submitting}>
                                     Hủy
                                 </Button>
                                 {currentScheduleStatus === TrainScheduleStatus.Normal && (

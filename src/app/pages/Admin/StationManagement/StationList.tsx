@@ -142,14 +142,14 @@ const StationList: React.FC = () => {
           <Button
             type='primary'
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/manager/station/${record.id}`)}
+            onClick={() => navigate(`/admin/station/${record.id}`)}
           >
             Xem Chi Tiết
           </Button>
           <Button
             type='primary'
             icon={<EditOutlined />}
-            onClick={() => navigate(`/manager/station/${record.id}/edit`)}
+            onClick={() => navigate(`/admin/station/${record.id}/edit`)}
           >
             Chỉnh Sửa
           </Button>
@@ -182,7 +182,7 @@ const StationList: React.FC = () => {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => navigate('/manager/create-station')}
+              onClick={() => navigate('/admin/create-station')}
             >
               Thêm Trạm
             </Button>
