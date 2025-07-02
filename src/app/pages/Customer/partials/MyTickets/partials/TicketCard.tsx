@@ -34,7 +34,7 @@ const TicketCard = ({
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
   const [loadingQR, setLoadingQR] = useState(false);
   const [countdown, setCountdown] = useState(61);
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState(status === "used" ? "2" : "1");
   const [historyReloadCount, setHistoryReloadCount] = useState(0);
 
   const isModalVisibleRef = useRef(isModalVisible);
@@ -90,12 +90,12 @@ const TicketCard = ({
   };
 
   const handleUseTicket = () => {
-    if (status === "used") {
-      message.warning("Vé không còn hợp lệ để sử dụng.");
-      return;
-    }
+    // if (status === "used") {
+    //   message.warning("Vé không còn hợp lệ để sử dụng.");
+    //   return;
+    // }
     setIsModalVisible(true);
-    setActiveTab("1");
+    setActiveTab(status === "used" ? "2" : "1");
     fetchQRCode();
   };
 
@@ -195,36 +195,37 @@ const TicketCard = ({
 
       <Modal open={isModalVisible} onCancel={handleCloseModal} footer={null} centered title="Sử dụng vé" width={420}>
         <Tabs activeKey={activeTab} onChange={handleTabChange} centered>
-          <TabPane tab="QR Code" key="1">
-            <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
-              <div className="flex justify-center mb-4">
-                <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+          {status !== "used" && (
+            <TabPane tab="QR Code" key="1">
+              <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
+                <div className="flex justify-center mb-4">
+                  <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+                </div>
+                <div className="flex flex-col items-center py-4">
+                  {loadingQR ? (
+                    <div className="text-center text-gray-500 text-sm">Đang tải mã QR...</div>
+                  ) : (
+                    <>
+                      <QRCode
+                        value={qrCodeValue || ticket.id}
+                        size={180}
+                        icon={logoMetro}
+                        iconSize={40}
+                        bordered
+                        onClick={() => setIsFullScreenQRVisible(true)}
+                        style={{ cursor: "pointer" }}
+                      />
+                      {isSubscription && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          Mã sẽ được làm mới sau:{" "}
+                          <span className="font-semibold text-black">{countdown}s</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col items-center py-4">
-                {loadingQR ? (
-                  <div className="text-center text-gray-500 text-sm">Đang tải mã QR...</div>
-                ) : (
-                  <>
-                    <QRCode
-                      value={qrCodeValue || ticket.id}
-                      size={180}
-                      icon={logoMetro}
-                      iconSize={40}
-                      bordered
-                      onClick={() => setIsFullScreenQRVisible(true)}
-                      style={{ cursor: "pointer" }}
-                    />
-                    {isSubscription && (
-                      <div className="mt-2 text-xs text-gray-500">
-                        Mã sẽ được làm mới sau:{" "}
-                        <span className="font-semibold text-black">{countdown}s</span>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </TabPane>
+            </TabPane>)}
 
           <TabPane tab="Thông tin vé" key="2">
             <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
@@ -271,7 +272,7 @@ const TicketCard = ({
             }
             key="3"
           >
-            <TicketUsageHistory ticketId={ticket.id} reloadTrigger={historyReloadCount}　/>
+            <TicketUsageHistory ticketId={ticket.id} reloadTrigger={historyReloadCount} />
           </TabPane>
         </Tabs>
       </Modal>
