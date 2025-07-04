@@ -242,7 +242,7 @@ const StaffSchedule: React.FC = () => {
       </div>
       <div className="flex flex-col sm:flex-row gap-4 mb-4 items-start sm:items-center">
         <Select
-          placeholder="Select station for query"
+          placeholder="Chọn Trạm"
           style={{ minWidth: 200 }}
           value={stationIdForQuery}
           onChange={setStationIdForQuery}
@@ -262,7 +262,7 @@ const StaffSchedule: React.FC = () => {
         <DatePicker
           value={dateForStationQuery}
           onChange={setDateForStationQuery}
-          placeholder="Select date for query"
+          placeholder="Chọn Ngày"
         />
         <Button type="primary" onClick={handleLoadSchedulesByStationAndDate}>
           Tìm Lịch Làm Việc Theo Ga và Ngày
