@@ -41,6 +41,7 @@ const CreateMetroLine: React.FC = () => {
   const [stations, setStations] = useState<GetStationDTO[]>([]);
   const [metroLineStations, setMetroLineStations] = useState<MetroLineStationForm[]>([]);
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
+  const [endStationOrder, setEndStationOrder] = useState<number>(2); // Default order for end station
 
   useEffect(() => {
     fetchStations();
@@ -130,11 +131,13 @@ const CreateMetroLine: React.FC = () => {
 
     try {
       setLoading(true);
+      const startStation = metroLineStations[0];
+      const endStation = metroLineStations[1];
       const metroLineData: CreateMetroLineDTO = {
         metroLineNumber: values.metroLineNumber,
         metroName: values.metroName,
-        startStationId: metroLineStations[0].stationId,
-        endStationId: metroLineStations[metroLineStations.length - 1].stationId,
+        startStationId: startStation.stationId,
+        endStationId: endStation.stationId,
       };
 
       const response = await MetroLineApi.createMetroLine(metroLineData);
@@ -146,17 +149,17 @@ const CreateMetroLine: React.FC = () => {
         // Create first station (order 1)
         const firstStationData: CreateMetroLineStationDTO = {
           metroLineId: metroLineId,
-          stationId: metroLineStations[0].stationId,
+          stationId: startStation.stationId,
           distanceFromStart: 0, // Starting point
           stationOder: 1,
         };
 
-        // Create second station (order 2)
+        // Create second station (user-defined order)
         const secondStationData: CreateMetroLineStationDTO = {
           metroLineId: metroLineId,
-          stationId: metroLineStations[1].stationId,
-          distanceFromStart: metroLineStations[1].distanceFromStart,
-          stationOder: 2,
+          stationId: endStation.stationId,
+          distanceFromStart: endStation.distanceFromStart,
+          stationOder: endStationOrder,
         };
 
         // Create both metro line stations
@@ -302,15 +305,25 @@ const CreateMetroLine: React.FC = () => {
               </Space>
             }
           >
-            {metroLineStations.length > 0 && (
+            {metroLineStations.length === 2 && (
               <div style={{ marginBottom: 16 }}>
-                <b>Trạm bắt đầu:</b> {metroLineStations[0].stationName} <br />
-                <b>Trạm kết thúc:</b> {metroLineStations[metroLineStations.length - 1].stationName}
+                <b>Trạm bắt đầu:</b> {metroLineStations[0].stationName} (Thứ tự: 1 )<br />
+                <b>Trạm kết thúc:</b> {metroLineStations[1].stationName} (Thứ tự: 
+                  <InputNumber
+                    min={2}
+                    value={endStationOrder}
+                    onChange={value => setEndStationOrder(value || 2)}
+                    style={{ width: 80, marginLeft: 8 }}
+                  />
+                  )
               </div>
             )}
             <Table
               columns={columns}
-              dataSource={metroLineStations}
+              dataSource={metroLineStations.map((station, idx) => ({
+                ...station,
+                stationOrder: idx === 0 ? 1 : endStationOrder
+              }))}
               rowKey="id"
               pagination={false}
               size="small"
