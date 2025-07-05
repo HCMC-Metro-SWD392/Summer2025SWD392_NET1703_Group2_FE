@@ -1,7 +1,7 @@
 import type { GetStationDTO } from '../station/StationInterface';
 
 export interface CreateMetroLineDTO {
-    metroLineNumber: number;   
+    metroLineNumber: string;   
     metroName?: string;        
     startStationId: string;     
     endStationId: string;       
@@ -23,7 +23,7 @@ export interface GetMetroLineStationDTO {
 
 export interface GetMetroLineDTO {
     id: string;                 
-    metroLineNumber: number;    
+    metroLineNumber: string;    
     metroName?: string;         
     startStation?: GetStationDTO; 
     endStation?: GetStationDTO;   
