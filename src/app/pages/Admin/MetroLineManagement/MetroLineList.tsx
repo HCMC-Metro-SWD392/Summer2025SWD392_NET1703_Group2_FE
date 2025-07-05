@@ -50,8 +50,8 @@ const MetroLineList: React.FC = () => {
       title: 'Số Tuyến',
       dataIndex: 'metroLineNumber',
       key: 'metroLineNumber',
-      sorter: (a, b) => a.metroLineNumber - b.metroLineNumber,
-      render: (number: number) => `Tuyến ${number}`,
+      sorter: (a, b) => a.metroLineNumber.localeCompare(b.metroLineNumber),
+      render: (number: string) => `Tuyến ${number}`,
     },
     {
       title: 'Tên Tuyến',
