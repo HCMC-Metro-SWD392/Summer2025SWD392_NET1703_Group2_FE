@@ -254,12 +254,11 @@ const CreateMetroLine: React.FC = () => {
                 label="Số Tuyến"
                 rules={[
                   { required: true, message: 'Vui lòng nhập số tuyến' },
-                  { type: 'number', min: 1, message: 'Số tuyến phải lớn hơn 0' }
+                  { type: 'string', min: 1, message: 'Số tuyến không được để trống' }
                 ]}
               >
-                <InputNumber
+                <Input
                   style={{ width: '100%' }}
-                  min={1}
                   placeholder="Nhập số tuyến"
                 />
               </Form.Item>
