@@ -50,6 +50,7 @@ import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetro
 import AddMetroLineStation from "../pages/Admin/MetroLineManagement/AddMetroLineStation";
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminMain from "../pages/Admin/AdminMain";
+import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
 
 export default function MainRoutes() {
   return (
@@ -81,6 +82,7 @@ export default function MainRoutes() {
         <Route element={<HeaderOnlyLayout/>}>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/forgot-password" element={<EmailForm/>} />
         </Route>
 
         <Route element={<ManagerLayout/>}>

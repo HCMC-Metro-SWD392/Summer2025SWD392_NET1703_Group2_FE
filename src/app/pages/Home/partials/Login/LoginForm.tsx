@@ -138,6 +138,16 @@ const LoginForm: React.FC = () => {
           </Form.Item>
         </Form>
 
+        <div className="flex justify-between text-sm mt-2 mb-4">
+          <div></div>
+          <span
+            className="text-blue-600 font-medium cursor-pointer"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Quên Mật Khẩu?
+          </span>
+        </div>
+
         <div className="text-center text-sm mt-4">
           Chưa có tài khoản?{" "}
           <span

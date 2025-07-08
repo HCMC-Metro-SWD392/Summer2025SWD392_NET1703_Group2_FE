@@ -89,3 +89,8 @@ export const changePassword = async (data: {
   const response = await axiosInstance.put('/api/Auth/change-password', data);
   return response.data;
 };
+
+export const resetPassword = async (email: string) => {
+  const response = await axiosInstance.post(endpoints.resetPassword, { email });
+  return response.data;
+};
