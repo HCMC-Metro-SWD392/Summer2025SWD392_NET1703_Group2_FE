@@ -40,6 +40,7 @@ const AllMetroLine: React.FC = () => {
   const [searchText, setSearchText] = useState<string>('');
   const [filterDistance, setFilterDistance] = useState<string>('all');
   const [filteredStations, setFilteredStations] = useState<MetroLineStation[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const selectedLine = metroLines.find(line => line.id === selectedLineId) || null;
 
@@ -68,6 +69,10 @@ const AllMetroLine: React.FC = () => {
       setFilteredStations([]);
     }
   }, [selectedLine, searchText, filterDistance]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedLineId]);
 
   useEffect(() => {
     const fetchMetroLines = async () => {
@@ -271,11 +276,14 @@ const AllMetroLine: React.FC = () => {
                 key: 'distanceFromStart',
                 align: 'center' as const,
                 sorter: (a: MetroLineStation, b: MetroLineStation) => a.distanceFromStart - b.distanceFromStart,
+                render: (value: number) => value.toFixed(2),
               },
             ]}
-            dataSource={filteredStations}
+            dataSource={filteredStations.slice().sort((a, b) => a.stationOrder - b.stationOrder)}
             rowKey="id"
-            pagination={{ 
+            pagination={{
+              current: currentPage,
+              onChange: (page) => setCurrentPage(page),
               pageSize: 8,
               showSizeChanger: true,
               showQuickJumper: true,
@@ -283,7 +291,6 @@ const AllMetroLine: React.FC = () => {
             }}
             className="rounded-xl overflow-hidden mt-4"
             size="middle"
-            scroll={{ x: 'max-content' }}
             locale={{
               emptyText: hasActiveFilters ? 
                 'Không tìm thấy ga nào phù hợp với bộ lọc hiện tại' : 
