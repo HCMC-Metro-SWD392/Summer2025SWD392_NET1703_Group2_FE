@@ -143,7 +143,7 @@ const TrainScheduleList: React.FC = () => {
           <Button
             type="primary"
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/manager/train-schedule/${record.id}`)}
+            onClick={() => navigate(`/admin/train-schedule/${record.id}`)}
           >
             Chi Tiết
           </Button>
@@ -161,11 +161,11 @@ const TrainScheduleList: React.FC = () => {
   ];
 
   const handleEdit = (id: string) => {
-    navigate(`/manager/train-schedule/${id}/edit`);
+    navigate(`/admin/train-schedule/${id}/edit`);
   };
 
   const handleAdd = () => {
-    navigate('/manager/create-train-schedule');
+    navigate('/admin/create-train-schedule');
   };
 
   const handleStationChange = (value: string) => {

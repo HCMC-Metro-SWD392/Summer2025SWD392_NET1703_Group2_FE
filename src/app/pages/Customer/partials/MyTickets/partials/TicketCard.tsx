@@ -1,10 +1,23 @@
 import { useRef, useState, useEffect } from "react";
-import { Typography, Tag, Card, message, Modal, QRCode, Tabs, Space, Spin, type QRCodeProps } from "antd";
+import {
+  Typography,
+  Tag,
+  Card,
+  message,
+  Modal,
+  QRCode,
+  Tabs,
+  Space,
+  Spin,
+  type QRCodeProps,
+} from "antd";
 import type { Ticket } from "../../../../../../types/types";
 import { getStatusColor, getStatusLabel } from "./ticketUtils";
 import logoMetro from "../../../../../assets/fpt.png";
 import logoMetroHCMC from "../../../../../assets/logo.png";
 import { getQRCodeFromSubscription } from "../../../../../../api/buyRouteTicket/buyRouteTicket";
+import { ClockCircleOutlined } from "@ant-design/icons";
+import TicketUsageHistory from "./TicketUsageHistory";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -17,12 +30,14 @@ const TicketCard = ({
   status: "unused" | "active" | "used";
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isFullScreenQRVisible, setIsFullScreenQRVisible] = useState(false);
   const [qrCodeValue, setQrCodeValue] = useState<string | null>(null);
   const [loadingQR, setLoadingQR] = useState(false);
   const [countdown, setCountdown] = useState(61);
-  const [activeTab, setActiveTab] = useState("1");
-  const isModalVisibleRef = useRef(isModalVisible);
+  const [activeTab, setActiveTab] = useState(status === "used" ? "2" : "1");
+  const [historyReloadCount, setHistoryReloadCount] = useState(0);
 
+  const isModalVisibleRef = useRef(isModalVisible);
   const countdownRef = useRef<number | null>(null);
   const qrExpireTimeRef = useRef<number>(0);
 
@@ -51,7 +66,6 @@ const TicketCard = ({
   };
 
   const fetchQRCode = async () => {
-
     if (!isSubscription && qrCodeValue) return;
 
     const stillValid = isSubscription && qrCodeValue && Date.now() < qrExpireTimeRef.current;
@@ -59,8 +73,7 @@ const TicketCard = ({
 
     setLoadingQR(true);
     try {
-      const data = await getQRCodeFromSubscription(ticket.id); // dùng chung API cho cả vé lượt & tháng
-      console.log(data);
+      const data = await getQRCodeFromSubscription(ticket.id);
       const qrValue = data.result || ticket.id;
       setQrCodeValue(qrValue);
 
@@ -77,19 +90,21 @@ const TicketCard = ({
   };
 
   const handleUseTicket = () => {
-    if (status === "used") {
-      message.warning("Vé không còn hợp lệ để sử dụng.");
-      return;
-    }
+    // if (status === "used") {
+    //   message.warning("Vé không còn hợp lệ để sử dụng.");
+    //   return;
+    // }
     setIsModalVisible(true);
-    setActiveTab("1");
-    fetchQRCode(); // luôn gọi cho mọi loại vé
+    setActiveTab(status === "used" ? "2" : "1");
+    fetchQRCode();
   };
 
   const handleTabChange = (key: string) => {
     setActiveTab(key);
     if (key === "1") {
       fetchQRCode();
+    } else if (key === "3") {
+      setHistoryReloadCount((prev) => prev + 1);
     }
   };
 
@@ -98,32 +113,15 @@ const TicketCard = ({
     setActiveTab("1");
   };
 
-  const customStatusRender: QRCodeProps['statusRender'] = (info) => {
+  const customStatusRender: QRCodeProps["statusRender"] = (info) => {
     switch (info.status) {
-      // case 'expired':
-      //   return (
-      //     <div>
-      //       <CloseCircleFilled style={{ color: 'red' }} /> {info.locale?.expired}
-      //       <p>
-      //         <Button type="link" onClick={info.onRefresh}>
-      //           <ReloadOutlined /> {info.locale?.refresh}
-      //         </Button>
-      //       </p>
-      //     </div>
-      //   );
-      case 'loading':
+      case "loading":
         return (
           <Space direction="vertical">
             <Spin />
             <p>Loading...</p>
           </Space>
         );
-      // case 'scanned':
-      //   return (
-      //     <div>
-      //       <CheckCircleFilled style={{ color: 'green' }} /> {info.locale?.scanned}
-      //     </div>
-      //   );
       default:
         return null;
     }
@@ -197,34 +195,37 @@ const TicketCard = ({
 
       <Modal open={isModalVisible} onCancel={handleCloseModal} footer={null} centered title="Sử dụng vé" width={420}>
         <Tabs activeKey={activeTab} onChange={handleTabChange} centered>
-          <TabPane tab="QR Code" key="1">
-            <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
-              <div className="flex justify-center mb-4">
-                <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+          {status !== "used" && (
+            <TabPane tab="QR Code" key="1">
+              <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
+                <div className="flex justify-center mb-4">
+                  <img src={logoMetroHCMC} alt="Metro Logo" className="h-6" />
+                </div>
+                <div className="flex flex-col items-center py-4">
+                  {loadingQR ? (
+                    <div className="text-center text-gray-500 text-sm">Đang tải mã QR...</div>
+                  ) : (
+                    <>
+                      <QRCode
+                        value={qrCodeValue || ticket.id}
+                        size={180}
+                        icon={logoMetro}
+                        iconSize={40}
+                        bordered
+                        onClick={() => setIsFullScreenQRVisible(true)}
+                        style={{ cursor: "pointer" }}
+                      />
+                      {isSubscription && (
+                        <div className="mt-2 text-xs text-gray-500">
+                          Mã sẽ được làm mới sau:{" "}
+                          <span className="font-semibold text-black">{countdown}s</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col items-center py-4">
-                {loadingQR ? (
-                  <div className="text-center text-gray-500 text-sm">Đang tải mã QR...</div>
-                ) : (
-                  <>
-                    <QRCode
-                      value={qrCodeValue || ticket.id}
-                      size={180}
-                      icon={logoMetro}
-                      iconSize={40}
-                      bordered
-                    />
-                    {isSubscription && (
-                      <div className="mt-2 text-xs text-gray-500">
-                        Mã sẽ được làm mới sau:{" "}
-                        <span className="font-semibold text-black">{countdown}s</span>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-          </TabPane>
+            </TabPane>)}
 
           <TabPane tab="Thông tin vé" key="2">
             <div className="bg-[#f9fafb] rounded-xl p-6 border border-dashed border-gray-300">
@@ -262,7 +263,41 @@ const TicketCard = ({
               </div>
             </div>
           </TabPane>
+
+          <TabPane
+            tab={
+              <span>
+                <ClockCircleOutlined /> Lịch sử sử dụng
+              </span>
+            }
+            key="3"
+          >
+            <TicketUsageHistory ticketId={ticket.id} reloadTrigger={historyReloadCount} />
+          </TabPane>
         </Tabs>
+      </Modal>
+
+      {/* Modal fullscreen QR */}
+      <Modal
+        open={isFullScreenQRVisible}
+        onCancel={() => setIsFullScreenQRVisible(false)}
+        footer={null}
+        centered
+        closable
+        style={{ top: 0, padding: 0 }}
+        bodyStyle={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <QRCode
+          value={qrCodeValue || ticket.id}
+          size={320}
+          icon={logoMetro}
+          iconSize={60}
+          bordered
+        />
       </Modal>
     </>
   );

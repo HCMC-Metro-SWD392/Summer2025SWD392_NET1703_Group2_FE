@@ -50,9 +50,9 @@ interface FormRequest {
 
 const formRequestTypeMap: { [key: number]: string } = {
   0: 'Nộp đơn',
-  1: 'Báo mất vé',
-  2: 'Lỗi kỹ thuật',
-  3: 'Khiếu nại',
+  1: 'Nộp đơn',
+  2: 'Nộp đơn',
+  3: 'Nộp đơn',
   4: 'Khác',
 };
 
@@ -474,9 +474,9 @@ const CaseApproval: React.FC = () => {
             <Descriptions.Item label="Ngày tạo">
               {new Date(selectedRequest.createdAt).toLocaleString('vi-VN')}
             </Descriptions.Item>
-            {selectedRequest.reviewerId && (
+            {/* {selectedRequest.reviewerId && (
               <Descriptions.Item label="Người duyệt">{selectedRequest.reviewerId}</Descriptions.Item>
-            )}
+            )} */}
             {selectedRequest.rejectionReason && (
               <Descriptions.Item label="Lý do từ chối">{selectedRequest.rejectionReason}</Descriptions.Item>
             )}

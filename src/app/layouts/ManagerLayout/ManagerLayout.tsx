@@ -34,58 +34,6 @@ const ManagerLayout: React.FC = () => {
       label: 'Bảng Điều Khiển',
     },
     {
-      key: 'station-management',
-      icon: <ApartmentOutlined />,
-      label: 'Quản Lý Trạm',
-      children: [
-        {
-          key: '/manager/station',
-          label: 'Danh Sách Trạm',
-        },
-        {
-          key: '/manager/create-station',
-          label: 'Tạo Trạm',
-        },
-      ],
-    },
-    {
-      key: 'metro-line-management',
-      icon: <CarOutlined />,
-      label: 'Quản Lý Tuyến Metro',
-      children: [
-        {
-          key: '/manager/metro-line',
-          label: 'Danh Sách Tuyến Metro',
-        },
-        {
-          key: '/manager/create-metro-line',
-          label: 'Tạo Tuyến Metro',
-        },
-      ],
-    },
-    {
-      key: 'train-schedule',
-      icon: <ClockCircleOutlined />,
-      label: 'Quản Lý Lịch Trình Tàu',
-      children: [
-        {
-          key: '/manager/train-schedule',
-          label: 'Danh Sách Lịch Trình Tàu',
-        },
-      ],
-    },
-    {
-      key: 'fare-management',
-      icon: <DollarCircleOutlined />,
-      label: 'Quản Lý Giá Vé',
-      children: [
-        {
-          key: '/manager/fare-rule',
-          label: 'Quy Tắc Giá Vé',
-        },
-      ],
-    },
-    {
       key: 'staffs',
       icon: <UserOutlined />,
       label: 'Quản Lý Nhân Viên',

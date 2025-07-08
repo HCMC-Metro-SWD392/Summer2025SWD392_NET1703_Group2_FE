@@ -34,6 +34,9 @@ import mapImage from "../../../../assets/HCMC_METRO_SWD391.drawio.png";
 import { removeVietnameseTones } from "../../../../utils/string";
 import { TicketIcon } from "lucide-react";
 import type { SelectProps } from "antd";
+import dayjs from "dayjs";
+import axios from "axios";
+import axiosInstance from "../../../../../settings/axiosInstance";
 
 const BuyRouteTicket: React.FC = () => {
   const [allStations, setAllStations] = useState<Station[]>([]);
@@ -41,6 +44,7 @@ const BuyRouteTicket: React.FC = () => {
   const [toStation, setToStation] = useState<Station | null>(null);
   const [searchingStation, setSearchingStation] = useState(false);
   const [ticketPrice, setTicketPrice] = useState<number | null>(null);
+  const [finalPrice, setFinalPrice] = useState<number | null>(null);
   const [ticketRouteId, setTicketRouteId] = useState<string | null>(null);
   const [loadingPrice, setLoadingPrice] = useState(false);
   const [loadingPay, setLoadingPay] = useState(false);
@@ -49,7 +53,10 @@ const BuyRouteTicket: React.FC = () => {
   const [confirmed, setConfirmed] = useState(false);
   const [openTour, setOpenTour] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [promotionInput, setPromotionInput] = useState<string>("");
   const [promotionCode, setPromotionCode] = useState<string>("");
+  const [promoInfo, setPromoInfo] = useState<any>(null);
+  const [isPromoApplied, setIsPromoApplied] = useState(false);
 
   const fromRef = useRef<HTMLDivElement | null>(null);
   const toRef = useRef<HTMLDivElement | null>(null);
@@ -99,62 +106,70 @@ const BuyRouteTicket: React.FC = () => {
     fetchTicketTypes();
   }, []);
 
-  // const stationOptions = useMemo(() =>
-  //   allStations.map((station) => ({
-  //     value: station.name,
-  //     label: station.name,
-  //   })), [allStations]
-  // );
-
-  const groupStationsByMetro = (
-    stations: Station[],
-    excludeId: string | null
-  ): SelectProps['options'] => {
+  const groupStationsByMetro = (stations: Station[], excludeId: string | null): SelectProps['options'] => {
     const grouped: Record<string, { label: string; options: { value: string; label: string }[] }> = {};
-    const addedStationIds = new Set<string>(); // global Set để tránh lặp
-
     stations.forEach((station) => {
       if (excludeId && station.id === excludeId) return;
-
       station.metroLines?.forEach((line) => {
         if (!grouped[line.metroName]) {
-          grouped[line.metroName] = {
-            label: line.metroName,
-            options: [],
-          };
+          grouped[line.metroName] = { label: line.metroName, options: [] };
         }
-
-        // ✅ Cho phép thêm station vào nhiều tuyến
         grouped[line.metroName].options.push({
-          value: `${station.id}__${line.metroName}`, // value phân biệt tuyến
-          label: `${station.name} (${line.metroName})`, // label rõ ràng
+          value: `${station.id}__${line.metroName}`,
+          label: `${station.name} (${line.metroName})`,
         });
       });
     });
-
     return Object.values(grouped);
   };
 
+  const fromStationOptions = useMemo(() => groupStationsByMetro(allStations, toStation?.id || null), [allStations, toStation]);
+  const toStationOptions = useMemo(() => groupStationsByMetro(allStations, fromStation?.id || null), [allStations, fromStation]);
 
+  const handlePromotionCheck = async (code: string, isChangePrice: boolean, inputPrice?: number) => {
 
-  const fromStationOptions = useMemo(
-    () => groupStationsByMetro(allStations, toStation?.id || null),
-    [allStations, toStation]
-  );
+     const currentPrice = inputPrice ?? ticketPrice;
 
-  const toStationOptions = useMemo(
-    () => groupStationsByMetro(allStations, fromStation?.id || null),
-    [allStations, fromStation]
-  );
-
-  const findStationByName = (name: string): Station | null => {
-    const normalizedName = removeVietnameseTones(name.toLowerCase());
-    return (
-      allStations.find(
-        (station) =>
-          removeVietnameseTones(station.name.toLowerCase()) === normalizedName
-      ) || null
-    );
+    if (!code || !currentPrice) {
+      if (!currentPrice && !isChangePrice) {
+        message.warning("Vui lòng hoàn thành bước chọn ga để áp dụng mã khuyến mãi")
+      }
+      if (!code && !isChangePrice) {
+        message.warning("Bạn chưa nhập mã khuyến mãi")
+      }
+      setIsPromoApplied(false);
+      setPromoInfo(null);
+      setFinalPrice(currentPrice);
+      return;
+    }
+    try {
+      const res = await axiosInstance.get(`/api/Promotion/get-promotion-by-code/${code}`);
+      const promo = res?.data.result;
+      const now = dayjs();
+      const start = dayjs(promo.startDate);
+      const end = dayjs(promo.endDate);
+      if (now.isBefore(start) || now.isAfter(end)) {
+        if (now.isBefore(start)) {
+          message.warning("Mã khuyến mãi chưa có hiệu lực.");
+        } else {
+          message.warning("Mã khuyến mãi đã hết hạn.");
+        }
+        setIsPromoApplied(false);
+        setPromoInfo(null);
+        setFinalPrice(currentPrice);
+        return;
+      }
+      setPromoInfo(promo);
+      const discount = promo.percentage ? (currentPrice * promo.percentage) / 100 : promo.fixedAmount || 0;
+      setFinalPrice(Math.max(0, currentPrice - discount));
+      setIsPromoApplied(true);
+      message.success("Áp dụng mã khuyến mãi thành công")
+    } catch {
+      message.error("Mã khuyến mãi không hợp lệ.");
+      setIsPromoApplied(false);
+      setPromoInfo(null);
+      setFinalPrice(ticketPrice);
+    }
   };
 
   useEffect(() => {
@@ -166,14 +181,13 @@ const BuyRouteTicket: React.FC = () => {
             const data = await getTicketRoute(fromStation.id, toStation.id);
             setTicketPrice(data?.result?.price || null);
             setTicketRouteId(data?.result?.ticketRouteId || null);
+            handlePromotionCheck(promotionInput, true, data?.result?.price);
           } else {
-            const res = await getSpecialTicket(
-              fromStation.id,
-              toStation.id,
-              ticketSubcriptionId
-            );
+            const res = await getSpecialTicket(fromStation.id, toStation.id, ticketSubcriptionId);
             setTicketPrice(res?.result?.price || null);
             setTicketRouteId(res?.result?.id || null);
+            handlePromotionCheck(promotionInput, true, res?.result?.price);
+
           }
         } catch {
           try {
@@ -182,19 +196,13 @@ const BuyRouteTicket: React.FC = () => {
               const retry = await getTicketRoute(fromStation.id, toStation.id);
               setTicketPrice(retry?.result?.price || null);
               setTicketRouteId(retry?.result?.ticketRouteId || null);
+              handlePromotionCheck(promotionInput, true, retry?.result?.price);
             } else {
-              await createTicketSubcription(
-                ticketSubcriptionId,
-                fromStation.id,
-                toStation.id
-              );
-              const retry = await getSpecialTicket(
-                fromStation.id,
-                toStation.id,
-                ticketSubcriptionId
-              );
+              await createTicketSubcription(ticketSubcriptionId, fromStation.id, toStation.id);
+              const retry = await getSpecialTicket(fromStation.id, toStation.id, ticketSubcriptionId);
               setTicketPrice(retry?.result?.price || null);
               setTicketRouteId(retry?.result?.id || null);
+              handlePromotionCheck(promotionInput, true, retry?.result?.price);
             }
           } catch {
             message.error("Không thể lấy giá vé.");
@@ -216,8 +224,8 @@ const BuyRouteTicket: React.FC = () => {
     try {
       const res = await createPaymentLink(
         ticketType === "normal"
-          ? { ticketRouteId, codePromotion: promotionCode }
-          : { subscriptionTicketId: ticketRouteId, codePromotion: promotionCode }
+          ? { ticketRouteId, codePromotion: isPromoApplied ? promotionCode : undefined }
+          : { subscriptionTicketId: ticketRouteId, codePromotion: isPromoApplied ? promotionCode : undefined }
       );
       const url = res?.result?.paymentLink?.checkoutUrl;
       if (url) window.location.href = url;
@@ -264,6 +272,10 @@ const BuyRouteTicket: React.FC = () => {
                     placeholder="Chọn ga đi"
                     value={fromStation ? `${fromStation.name}` : undefined}
                     onChange={(value) => {
+                      if (!value) {
+                        setFromStation(null);
+                        return;
+                      }
                       const stationId = value.split("__")[0];
                       const found = allStations.find((s) => s.id === stationId);
                       setFromStation(found || null);
@@ -277,7 +289,9 @@ const BuyRouteTicket: React.FC = () => {
                 </div>
                 <StationTimetableChart
                   station={fromStation}
-                  startAndEndStationOfLine={null}
+                  startAndEndStationOfLine={{
+                    startStationName: fromStation?.metroLines?.[0]?.startStation?.name, endStationName: fromStation?.metroLines?.[0]?.endStation?.name
+                  }}
                   tourRef={timeFromInfoRef}
                 />
               </div>
@@ -292,6 +306,10 @@ const BuyRouteTicket: React.FC = () => {
                     placeholder="Chọn ga đến"
                     value={toStation ? `${toStation.name}` : undefined}
                     onChange={(value) => {
+                      if (!value) {
+                        setToStation(null);
+                        return;
+                      }
                       const stationId = value.split("__")[0];
                       const found = allStations.find((s) => s.id === stationId);
                       setToStation(found || null);
@@ -305,7 +323,9 @@ const BuyRouteTicket: React.FC = () => {
                 </div>
                 <StationTimetableChart
                   station={toStation}
-                  startAndEndStationOfLine={null}
+                  startAndEndStationOfLine={{
+                    startStationName: toStation?.metroLines?.[0]?.startStation?.name, endStationName: toStation?.metroLines?.[0]?.endStation?.name
+                  }}
                   tourRef={timeToInfoRef}
                 />
               </div>
@@ -356,6 +376,7 @@ const BuyRouteTicket: React.FC = () => {
               <StepPayment
                 fromStation={fromStation}
                 toStation={toStation}
+                finalPrice={finalPrice}
                 ticketPrice={ticketPrice}
                 loadingPrice={loadingPrice}
                 ticketType={ticketTypeObject}
@@ -366,12 +387,41 @@ const BuyRouteTicket: React.FC = () => {
             <div className="mt-4" ref={ticketPromotion}>
               <div className="mb-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
-                <Input
-                  placeholder="Nhập mã khuyến mãi"
-                  value={promotionCode}
-                  onChange={(e) => setPromotionCode(e.target.value)}
-                  className="w-full"
-                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nhập mã khuyến mãi"
+                    value={promotionInput}
+                    onChange={(e) => setPromotionInput(e.target.value)}
+                    className="flex-1"
+                    disabled={isPromoApplied}
+                    allowClear
+                  />
+                  {!isPromoApplied ? (
+                    <Button
+                      onClick={() => {
+                        setPromotionCode(promotionInput);
+                        handlePromotionCheck(promotionInput, false);
+                      }}
+                      type="primary"
+                    >
+                      Áp dụng
+                    </Button>
+                  ) : (
+                    <Button
+                      danger
+                      onClick={() => {
+                        setPromotionCode("");
+                        setPromotionInput("");
+                        setPromoInfo(null);
+                        setIsPromoApplied(false);
+                        setFinalPrice(ticketPrice);
+                      }}
+                    >
+                      Hủy áp dụng
+                    </Button>
+                  )}
+                </div>
+
               </div>
             </div>
 
