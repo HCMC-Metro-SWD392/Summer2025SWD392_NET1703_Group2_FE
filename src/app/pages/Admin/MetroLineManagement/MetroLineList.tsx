@@ -9,6 +9,7 @@ import {
   Spin,
   Tag,
   Tooltip,
+  Select,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -17,16 +18,18 @@ import { MetroLineApi } from '../../../../api/metroLine/MetroLineApi';
 import type { GetMetroLineDTO } from '../../../../api/metroLine/MetroLineInterface';
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const MetroLineList: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]);
+  const [isActiveFilter, setIsActiveFilter] = useState<boolean | null>(null);
 
-  const fetchMetroLines = async () => {
+  const fetchMetroLines = async (isActive?: boolean | null) => {
     try {
       setLoading(true);
-      const response = await MetroLineApi.getAllMetroLines();
+      const response = await MetroLineApi.getAllMetroLines(isActive);
       
       if (response.isSuccess && response.result) {
         setMetroLines(response.result);
@@ -42,8 +45,12 @@ const MetroLineList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchMetroLines();
-  }, []);
+    fetchMetroLines(isActiveFilter);
+  }, [isActiveFilter]);
+
+  const handleFilterChange = (value: boolean | null) => {
+    setIsActiveFilter(value);
+  };
 
   const columns: ColumnsType<GetMetroLineDTO> = [
     {
@@ -99,7 +106,7 @@ const MetroLineList: React.FC = () => {
           <Tooltip title="Làm mới">
             <Button
               icon={<ReloadOutlined />}
-              onClick={fetchMetroLines}
+              onClick={() => fetchMetroLines(isActiveFilter)}
               loading={loading}
             />
           </Tooltip>
@@ -114,6 +121,21 @@ const MetroLineList: React.FC = () => {
       </Space>
 
       <Card>
+        <Space style={{ marginBottom: 16 }}>
+          <Typography.Text strong>Lọc theo trạng thái:</Typography.Text>
+          <Select
+            style={{ width: 200 }}
+            value={isActiveFilter}
+            onChange={handleFilterChange}
+            placeholder="Chọn trạng thái"
+            allowClear
+          >
+            <Option value={null}>Tất cả</Option>
+            <Option value={true}>Đang hoạt động</Option>
+            <Option value={false}>Ngừng hoạt động</Option>
+          </Select>
+        </Space>
+
         <Spin spinning={loading}>
           <Table
             columns={columns}
