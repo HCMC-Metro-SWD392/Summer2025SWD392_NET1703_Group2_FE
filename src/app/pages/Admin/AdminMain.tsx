@@ -1,5 +1,5 @@
-import React from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Progress } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Card, Row, Col, Statistic, Table, Tag } from 'antd';
 import {
   UserOutlined,
   ShoppingCartOutlined,
@@ -9,97 +9,118 @@ import {
 } from '@ant-design/icons';
 import { checkUserRole } from '../../../api/auth/auth';
 import { Navigate } from 'react-router-dom';
+import axiosInstance from '../../../settings/axiosInstance';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/vi';
+
+dayjs.extend(relativeTime);
+dayjs.locale('vi');
 
 const AdminMain: React.FC = () => {
+  if (!checkUserRole(['ADMIN'])) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
-  if (!checkUserRole(["ADMIN"])) {
-        return <Navigate to="/unauthorized" replace />;
+  const [recentTicketSales, setRecentTicketSales] = useState<any[]>([]);
+  const [ticketPagination, setTicketPagination] = useState({
+    current: 1,
+    pageSize: 5,
+    total: 0,
+  });
+
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const [logPagination, setLogPagination] = useState({
+    current: 1,
+    pageSize: 5,
+    total: 0,
+  });
+
+  const fetchRecentTicketSales = async (page = 1, pageSize = 5) => {
+    const dateTo = dayjs();
+    const dateFrom = dateTo.subtract(7, 'day');
+
+    try {
+      const response = await axiosInstance.get('/api/DashBoard/ticket-statistics', {
+        params: {
+          dateFrom: dateFrom.format('YYYY-MM-DDT00:00:00'),
+          dateTo: dateTo.format('YYYY-MM-DDT23:59:59'),
+          isAccendingCreated: false,
+          pageNumber: page,
+          pageSize: pageSize,
+        },
+      });
+
+      const data = response.data?.result ?? [];
+      const total = response.data?.result.length ?? 0;
+
+      const transformed = data.map((item: any, index: number) => ({
+        key: item.orderCode ?? index,
+        ticketId: item.orderCode ?? `TCKT-${index}`,
+        customer: item.userFullName ?? 'Không rõ',
+        event: item.detailTicket?.[0] ?? 'Không rõ',
+        time: item.timeOfPurchase,
+        status: item.paymentStatus ?? 'completed',
+      }));
+
+      setRecentTicketSales(transformed);
+      setTicketPagination({
+        current: page,
+        pageSize,
+        total,
+      });
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu ticket-statistics:', err);
     }
+  };
 
-  // Mock data
-  const recentActivities = [
-    {
-      key: '1',
-      user: 'John Doe',
-      action: 'Tạo đơn hàng mới',
-      time: '2 giờ trước',
-      status: 'success',
-    },
-    {
-      key: '2',
-      user: 'Jane Smith',
-      action: 'Cập nhật kho',
-      time: '3 giờ trước',
-      status: 'processing',
-    },
-    {
-      key: '3',
-      user: 'Mike Johnson',
-      action: 'Hủy đơn hàng',
-      time: '5 giờ trước',
-      status: 'error',
-    },
-  ];
+  const fetchRecentLogs = async (page = 1, pageSize = 5) => {
+    try {
+      const response = await axiosInstance.get('/api/Log/all-logs', {
+        params: {
+          pageNumber: page,
+          pageSize: pageSize,
+        },
+      });
 
-  // Mock data for recent ticket sales
-  const recentTicketSales = [
-    {
-      key: '1',
-      ticketId: 'TCKT-1001',
-      customer: 'Nguyễn Văn A',
-      event: 'Tuyến Metro 1',
-      time: '10 phút trước',
-      status: 'completed',
-    },
-    {
-      key: '2',
-      ticketId: 'TCKT-1002',
-      customer: 'Tran Thi B',
-      event: 'Tuyến Metro 2',
-      time: '30 phút trước',
-      status: 'pending',
-    },
-    {
-      key: '3',
-      ticketId: 'TCKT-1003',
-      customer: 'Le Van C',
-      event: 'Tuyến Metro 1',
-      time: '1 giờ trước',
-      status: 'failed',
-    },
-  ];
+      const data = response.data?.result ?? [];
 
-  const columns = [
-    {
-      title: 'Người dùng',
-      dataIndex: 'user',
-      key: 'user',
-    },
-    {
-      title: 'Hành động',
-      dataIndex: 'action',
-      key: 'action',
-    },
-    {
-      title: 'Thời gian',
-      dataIndex: 'time',
-      key: 'time',
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const statusConfig = {
-          success: { color: 'success', text: 'Thành công' },
-          processing: { color: 'processing', text: 'Đang xử lý' },
-          error: { color: 'error', text: 'Thất bại' },
-        };
-        const config = statusConfig[status as keyof typeof statusConfig];
-        return <Tag color={config.color}>{config.text}</Tag>;
-      },
-    },
-  ];
+      const transformed = data.map((item: any, index: number) => ({
+        key: index,
+        user: item.userFullname ?? 'Không rõ',
+        action: item.description ?? '',
+        time: dayjs(item.createdAt).fromNow(),
+        status:
+          item.logType === 'Create'
+            ? 'success'
+            : item.logType === 'Update'
+            ? 'processing'
+            : 'error',
+      }));
+
+      setRecentLogs(transformed);
+      setLogPagination({
+        current: page,
+        pageSize,
+        total: response.data?.result.length ?? data.length,
+      });
+    } catch (err) {
+      console.error('Lỗi khi gọi API logs:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentTicketSales(ticketPagination.current, ticketPagination.pageSize);
+    fetchRecentLogs(logPagination.current, logPagination.pageSize);
+  }, []);
+
+  const handleTicketTableChange = (pagination: any) => {
+    fetchRecentTicketSales(pagination.current, pagination.pageSize);
+  };
+
+  const handleLogTableChange = (pagination: any) => {
+    fetchRecentLogs(pagination.current, pagination.pageSize);
+  };
 
   const ticketColumns = [
     {
@@ -127,10 +148,45 @@ const AdminMain: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
+        const statusConfig: Record<string, { color: string; text: string }> = {
+          'Đã thanh toán': { color: 'success', text: 'Đã thanh toán' },
+          'Chưa thanh toán': { color: 'error', text: 'Chưa thanh toán' },
+        };
+
+        const config = statusConfig[status] || {
+          color: 'default',
+          text: status || 'Không rõ',
+        };
+
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
+    },
+  ];
+
+  const activityColumns = [
+    {
+      title: 'Người dùng',
+      dataIndex: 'user',
+      key: 'user',
+    },
+    {
+      title: 'Hành động',
+      dataIndex: 'action',
+      key: 'action',
+    },
+    {
+      title: 'Thời gian',
+      dataIndex: 'time',
+      key: 'time',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
         const statusConfig = {
-          completed: { color: 'success', text: 'Hoàn thành' },
-          pending: { color: 'processing', text: 'Đang chờ' },
-          failed: { color: 'error', text: 'Thất bại' },
+          success: { color: 'success', text: 'Tạo mới' },
+          processing: { color: 'processing', text: 'Chỉnh sửa' },
         };
         const config = statusConfig[status as keyof typeof statusConfig];
         return <Tag color={config.color}>{config.text}</Tag>;
@@ -214,85 +270,47 @@ const AdminMain: React.FC = () => {
         </Row>
       </div>
 
-      {/* Progress and Recent Sales Section */}
+      {/* Recent Ticket Sales */}
       <div className="mb-6">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
-            <Card 
-              title="Mục tiêu hàng tháng" 
-              className="h-full"
-              headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
-            >
-              <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Mục tiêu doanh số</span>
-                  </div>
-                  <Progress percent={75} status="active" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Sự hài lòng của khách hàng</span>
-                  </div>
-                  <Progress percent={90} status="active" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Người dùng mới</span>
-                  </div>
-                  <Progress percent={60} status="active" />
-                </div>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12}>
-            <Card 
-              title="Giao dịch vé gần đây" 
-              className="h-full"
-              headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
-            >
-              <div className="w-full overflow-hidden">
-                <Table
-                  dataSource={recentTicketSales}
-                  columns={ticketColumns}
-                  pagination={{
-                    pageSize: 5,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Tổng số ${total} giao dịch`,
-                    responsive: true,
-                  }}
-                  scroll={{ x: 'max-content' }}
-                  className="w-full"
-                  size="middle"
-                />
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <Card title="Giao dịch vé gần đây" className="h-full">
+          <Table
+            dataSource={recentTicketSales}
+            columns={ticketColumns}
+            pagination={{
+              current: ticketPagination.current,
+              pageSize: ticketPagination.pageSize,
+              total: ticketPagination.total,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng số ${total} giao dịch`,
+              responsive: true,
+            }}
+            onChange={handleTicketTableChange}
+            scroll={{ x: 'max-content' }}
+            className="w-full"
+            size="middle"
+          />
+        </Card>
       </div>
 
-      {/* Recent Activities Section */}
+      {/* Recent Activities */}
       <div className="mb-6">
-        <Card 
-          title="Hoạt động gần đây" 
-          className="w-full"
-          headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
-        >
-          <div className="w-full overflow-hidden">
-            <Table
-              dataSource={recentActivities}
-              columns={columns}
-              pagination={{
-                pageSize: 5,
-                showSizeChanger: true,
-                showTotal: (total) => `Tổng số ${total} hoạt động`,
-                responsive: true,
-              }}
-              scroll={{ x: 'max-content' }}
-              className="w-full"
-              size="middle"
-            />
-          </div>
+        <Card title="Hoạt động gần đây" className="w-full">
+          <Table
+            dataSource={recentLogs}
+            columns={activityColumns}
+            pagination={{
+              current: logPagination.current,
+              pageSize: logPagination.pageSize,
+              total: logPagination.total,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng số ${total} hoạt động`,
+              responsive: true,
+            }}
+            onChange={handleLogTableChange}
+            scroll={{ x: 'max-content' }}
+            className="w-full"
+            size="middle"
+          />
         </Card>
       </div>
     </div>

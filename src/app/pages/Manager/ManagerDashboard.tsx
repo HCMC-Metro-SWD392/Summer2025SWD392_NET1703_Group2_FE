@@ -178,72 +178,24 @@ const ManagerDashboard: React.FC = () => {
 
       {/* Statistics Cards */}
       <div className="mb-6">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="h-full">
-              <Statistic
-                title="Tổng số khách hàng"
-                value={1128}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#3f8600' }}
-              />
-              <div className="mt-2">
-                <span className="text-green-500">
-                  <RiseOutlined /> 12%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="h-full">
-              <Statistic
-                title="Tổng số vé đã bán"
-                value={93}
-                prefix={<ShoppingCartOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-              <div className="mt-2">
-                <span className="text-green-500">
-                  <RiseOutlined /> 8%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="h-full">
-              <Statistic
-                title="Doanh thu"
-                value={11280}
-                prefix={<DollarOutlined />}
-                valueStyle={{ color: '#cf1322' }}
-              />
-              <div className="mt-2">
-                <span className="text-red-500">
-                  <FallOutlined /> 3%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="h-full">
-              <Statistic
-                title="Tỷ lệ chuyển đổi"
-                value={68}
-                suffix="%"
-                valueStyle={{ color: '#722ed1' }}
-              />
-              <div className="mt-2">
-                <span className="text-green-500">
-                  <RiseOutlined /> 5%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <Card title="Giao dịch vé gần đây" className="h-full">
+          <Table
+            dataSource={recentTicketSales}
+            columns={ticketColumns}
+            pagination={{
+              current: ticketPagination.current,
+              pageSize: ticketPagination.pageSize,
+              total: ticketPagination.total,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng số ${total} giao dịch`,
+              responsive: true,
+            }}
+            onChange={handleTicketTableChange}
+            scroll={{ x: 'max-content' }}
+            className="w-full"
+            size="middle"
+          />
+        </Card>
       </div>
 
       {/* Recent Ticket Sales */}
@@ -297,7 +249,7 @@ const ManagerDashboard: React.FC = () => {
       </div>
 
       {/* Recent Activities */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <Card title="Hoạt động gần đây" className="w-full">
           <Table
             dataSource={recentActivities}
@@ -313,7 +265,7 @@ const ManagerDashboard: React.FC = () => {
             size="middle"
           />
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 };
