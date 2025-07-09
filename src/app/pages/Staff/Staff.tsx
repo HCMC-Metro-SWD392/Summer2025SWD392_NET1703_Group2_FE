@@ -8,6 +8,7 @@ import {
     UserOutlined,
     VideoCameraOutlined,
     FileTextOutlined,
+    LogoutOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout } from 'antd';
@@ -17,7 +18,7 @@ import AdjustTicket from './partials/AdjustTicket';
 import Sidebar from '../../components/SideBar/Sidebar';
 import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
 import CaseApproval from './partials/CaseApproval';
-import { checkUserRole } from '../../../api/auth/auth';
+import { checkUserRole, logout } from '../../../api/auth/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
@@ -32,15 +33,20 @@ const Staff: React.FC = () => {
         return <Navigate to="/unauthorized" replace />;
     }
 
+    const handleLogout = async () => {
+        await logout();
+    };
+
     const menuItems: MenuProps['items'] = [
         { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
         { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
-        // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
-        // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
-        // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
-        // { key: '7', icon: <TeamOutlined />, label: 'Team' },
-        // { key: '8', icon: <ShopOutlined />, label: 'Shop' },
+        {
+            key: 'logout',
+            icon: <LogoutOutlined style={{ color: 'red' }} />,
+            label: <span style={{ color: 'red' }}>Đăng Xuất</span>,
+            style: { marginTop: 24 }
+        }
     ];
 
     const renderContent = () => {
@@ -64,7 +70,13 @@ const Staff: React.FC = () => {
                 setCollapsed={setCollapsed}
                 setBroken={setBroken}
                 menuItems={menuItems}
-                onMenuSelect={(key) => setSelectedKey(key)}
+                onMenuSelect={(key) => {
+                    if (key === 'logout') {
+                        handleLogout();
+                    } else {
+                        setSelectedKey(key);
+                    }
+                }}
                 theme='dark'
             />
 

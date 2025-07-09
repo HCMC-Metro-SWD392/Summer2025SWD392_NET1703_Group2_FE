@@ -119,7 +119,7 @@ const AddMetroLineStation: React.FC = () => {
       dataIndex: 'distanceFromStart',
       key: 'distanceFromStart',
       align: 'right' as const,
-      render: (distance: number) => distance?.toFixed(1),
+      render: (distance: number) => distance?.toFixed(2),
     },
   ];
 
@@ -200,7 +200,19 @@ const AddMetroLineStation: React.FC = () => {
               }
             ]}
           >
-            <InputNumber min={0} step={0.1} style={{ width: '100%' }} placeholder="Nhập khoảng cách" />
+            <InputNumber
+              min={0}
+              precision={2}
+              style={{ width: '100%' }}
+              placeholder="Nhập khoảng cách"
+              onBlur={e => {
+                const value = e.target.value;
+                if (value && /^\d+\.\d$/.test(value)) {
+                  // Nếu chỉ có 1 số thập phân, tự động thêm 0
+                  e.target.value = parseFloat(value).toFixed(2);
+                }
+              }}
+            />
           </Form.Item>
 
           <Form.Item
