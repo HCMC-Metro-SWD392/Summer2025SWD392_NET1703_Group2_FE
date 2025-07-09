@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Statistic, Table, Tag, Progress } from 'antd';
 import {
   UserOutlined,
@@ -9,14 +9,24 @@ import {
 } from '@ant-design/icons';
 import { checkUserRole } from '../../../api/auth/auth';
 import { Navigate } from 'react-router-dom';
+import axiosInstance from '../../../settings/axiosInstance';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const ManagerDashboard: React.FC = () => {
+  if (!checkUserRole(['MANAGER'])) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
-  if (!checkUserRole(["MANAGER"])) {
-        return <Navigate to="/unauthorized" replace />;
-    }
+  const [recentTicketSales, setRecentTicketSales] = useState<any[]>([]);
+  const [ticketPagination, setTicketPagination] = useState({
+    current: 1,
+    pageSize: 3,
+    total: 0,
+  });
 
-  // Mock data
   const recentActivities = [
     {
       key: '1',
@@ -41,31 +51,90 @@ const ManagerDashboard: React.FC = () => {
     },
   ];
 
-  // Mock data for recent ticket sales
-  const recentTicketSales = [
+  const fetchRecentTicketSales = async (page = 1, pageSize = 3) => {
+    const dateTo = dayjs();
+    const dateFrom = dateTo.subtract(7, 'day');
+
+    try {
+      const response = await axiosInstance.get('/api/DashBoard/ticket-statistics', {
+        params: {
+          dateFrom: dateFrom.format('YYYY-MM-DDT00:00:00'),
+          dateTo: dateTo.format('YYYY-MM-DDT23:59:59'),
+          isAccendingCreated: false,
+          pageNumber: page,
+          pageSize: pageSize,
+        },
+      });
+
+      const data = response.data?.result ?? [];
+      const total = response.data?.result.length ?? 0;
+
+      const transformed = data.map((item: any, index: number) => ({
+        key: item.orderCode ?? index,
+        ticketId: item.orderCode ?? `TCKT-${index}`,
+        customer: item.userFullName ?? 'Không rõ',
+        event: item.detailTicket[0] ?? 'Không rõ',
+        time: item.timeOfPurchase,
+        status: item.paymentStatus ?? 'completed',
+      }));
+
+      setRecentTicketSales(transformed);
+      setTicketPagination({
+        current: page,
+        pageSize,
+        total,
+      });
+    } catch (err) {
+      console.error('Lỗi khi tải dữ liệu ticket-statistics:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentTicketSales(ticketPagination.current, ticketPagination.pageSize);
+  }, []);
+
+  const handleTicketTableChange = (pagination: any) => {
+    fetchRecentTicketSales(pagination.current, pagination.pageSize);
+  };
+
+  const ticketColumns = [
     {
-      key: '1',
-      ticketId: 'TCKT-1001',
-      customer: 'Nguyễn Văn A',
-      event: 'Tuyến Metro 1',
-      time: '10 phút trước',
-      status: 'completed',
+      title: 'Mã vé',
+      dataIndex: 'ticketId',
+      key: 'ticketId',
     },
     {
-      key: '2',
-      ticketId: 'TCKT-1002',
-      customer: 'Tran Thi B',
-      event: 'Tuyến Metro 2',
-      time: '30 phút trước',
-      status: 'pending',
+      title: 'Khách hàng',
+      dataIndex: 'customer',
+      key: 'customer',
     },
     {
-      key: '3',
-      ticketId: 'TCKT-1003',
-      customer: 'Le Van C',
-      event: 'Tuyến Metro 1',
-      time: '1 giờ trước',
-      status: 'failed',
+      title: 'Sự kiện',
+      dataIndex: 'event',
+      key: 'event',
+    },
+    {
+      title: 'Thời gian mua',
+      dataIndex: 'time',
+      key: 'time',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        const statusConfig: Record<string, { color: string; text: string }> = {
+          'Đã thanh toán': { color: 'success', text: 'Đã thanh toán' },
+          'Chưa thanh toán': { color: 'error', text: 'Chưa thanh toán' },
+        };
+
+        const config = statusConfig[status] || {
+          color: 'default',
+          text: status || 'Không rõ',
+        };
+
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
     },
   ];
 
@@ -94,43 +163,6 @@ const ManagerDashboard: React.FC = () => {
           success: { color: 'success', text: 'Thành công' },
           processing: { color: 'processing', text: 'Đang xử lý' },
           error: { color: 'error', text: 'Thất bại' },
-        };
-        const config = statusConfig[status as keyof typeof statusConfig];
-        return <Tag color={config.color}>{config.text}</Tag>;
-      },
-    },
-  ];
-
-  const ticketColumns = [
-    {
-      title: 'Mã vé',
-      dataIndex: 'ticketId',
-      key: 'ticketId',
-    },
-    {
-      title: 'Khách hàng',
-      dataIndex: 'customer',
-      key: 'customer',
-    },
-    {
-      title: 'Sự kiện',
-      dataIndex: 'event',
-      key: 'event',
-    },
-    {
-      title: 'Thời gian mua',
-      dataIndex: 'time',
-      key: 'time',
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const statusConfig = {
-          completed: { color: 'success', text: 'Hoàn thành' },
-          pending: { color: 'processing', text: 'Đang chờ' },
-          failed: { color: 'error', text: 'Thất bại' },
         };
         const config = statusConfig[status as keyof typeof statusConfig];
         return <Tag color={config.color}>{config.text}</Tag>;
@@ -214,15 +246,11 @@ const ManagerDashboard: React.FC = () => {
         </Row>
       </div>
 
-      {/* Progress and Recent Sales Section */}
+      {/* Recent Ticket Sales */}
       <div className="mb-6">
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={12}>
-            <Card 
-              title="Mục tiêu hàng tháng" 
-              className="h-full"
-              headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
-            >
+            <Card title="Mục tiêu hàng tháng" className="h-full">
               <div className="space-y-6">
                 <div>
                   <div className="flex justify-between mb-2">
@@ -246,53 +274,44 @@ const ManagerDashboard: React.FC = () => {
             </Card>
           </Col>
           <Col xs={24} lg={12}>
-            <Card 
-              title="Giao dịch vé gần đây" 
-              className="h-full"
-              headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
-            >
-              <div className="w-full overflow-hidden">
-                <Table
-                  dataSource={recentTicketSales}
-                  columns={ticketColumns}
-                  pagination={{
-                    pageSize: 5,
-                    showSizeChanger: true,
-                    showTotal: (total) => `Tổng số ${total} giao dịch`,
-                    responsive: true,
-                  }}
-                  scroll={{ x: 'max-content' }}
-                  className="w-full"
-                  size="middle"
-                />
-              </div>
+            <Card title="Giao dịch vé gần đây" className="h-full">
+              <Table
+                dataSource={recentTicketSales}
+                columns={ticketColumns}
+                pagination={{
+                  current: ticketPagination.current,
+                  pageSize: ticketPagination.pageSize,
+                  total: ticketPagination.total,
+                  showSizeChanger: true,
+                  showTotal: (total) => `Tổng số ${total} giao dịch`,
+                  responsive: true,
+                }}
+                onChange={handleTicketTableChange}
+                scroll={{ x: 'max-content' }}
+                className="w-full"
+                size="middle"
+              />
             </Card>
           </Col>
         </Row>
       </div>
 
-      {/* Recent Activities Section */}
+      {/* Recent Activities */}
       <div className="mb-6">
-        <Card 
-          title="Hoạt động gần đây" 
-          className="w-full"
-          headStyle={{ fontSize: '1.1rem', fontWeight: 'bold' }}
-        >
-          <div className="w-full overflow-hidden">
-            <Table
-              dataSource={recentActivities}
-              columns={columns}
-              pagination={{
-                pageSize: 5,
-                showSizeChanger: true,
-                showTotal: (total) => `Tổng số ${total} hoạt động`,
-                responsive: true,
-              }}
-              scroll={{ x: 'max-content' }}
-              className="w-full"
-              size="middle"
-            />
-          </div>
+        <Card title="Hoạt động gần đây" className="w-full">
+          <Table
+            dataSource={recentActivities}
+            columns={columns}
+            pagination={{
+              pageSize: 5,
+              showSizeChanger: true,
+              showTotal: (total) => `Tổng số ${total} hoạt động`,
+              responsive: true,
+            }}
+            scroll={{ x: 'max-content' }}
+            className="w-full"
+            size="middle"
+          />
         </Card>
       </div>
     </div>

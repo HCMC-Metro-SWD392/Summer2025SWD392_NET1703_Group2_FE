@@ -48,6 +48,7 @@ import StaffSchedule from "../pages/Manager/StaffManagement/StaffSchedule";
 import AddMetroLineStation from "../pages/Admin/MetroLineManagement/AddMetroLineStation";
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminMain from "../pages/Admin/AdminMain";
+import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransactionPage";
 
 export default function MainRoutes() {
   return (
@@ -95,6 +96,7 @@ export default function MainRoutes() {
         <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
         <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
         <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
+        <Route path="/manager/transaction-ticket" element={<TicketTransactionPage />} />
       </Route>
 
       <Route element={<AdminLayout/>}>

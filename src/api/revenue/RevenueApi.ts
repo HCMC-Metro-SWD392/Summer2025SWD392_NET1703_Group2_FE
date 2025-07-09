@@ -10,7 +10,7 @@ import type {
 export const RevenueApi = {
   viewRevenueMonth: async (month: number): Promise<ResponseDTO<number>> => {
     const response: AxiosResponse<ResponseDTO<number>> = await axiosInstance.get(
-      '/api/PaymentTransaction/revenue-month',
+      '/api/DashBoard/revenue-month',
       { params: { month } }
     );
     return response.data;
@@ -18,7 +18,7 @@ export const RevenueApi = {
 
   viewRevenueYear: async (year: number): Promise<ResponseDTO<number>> => {
     const response: AxiosResponse<ResponseDTO<number>> = await axiosInstance.get(
-      '/api/PaymentTransaction/revenue-year',
+      '/api/DashBoard/revenue-year',
       { params: { year } }
     );
     return response.data;
@@ -26,7 +26,7 @@ export const RevenueApi = {
 
   viewRevenueOverTime: async (dateFrom: string, dateTo: string): Promise<ResponseDTO<number>> => {
     const response: AxiosResponse<ResponseDTO<number>> = await axiosInstance.get(
-      '/api/PaymentTransaction/revenue/overtime',
+      '/api/DashBoard/revenue/overtime',
       { params: { dateFrom, dateTo } }
     );
     return response.data;

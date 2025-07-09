@@ -8,6 +8,7 @@ import {
     UserOutlined,
     VideoCameraOutlined,
     FileTextOutlined,
+    LogoutOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout } from 'antd';
@@ -17,7 +18,7 @@ import AdjustTicket from './partials/AdjustTicket';
 import Sidebar from '../../components/SideBar/Sidebar';
 import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
 import CaseApproval from './partials/CaseApproval';
-import { checkUserRole } from '../../../api/auth/auth';
+import { checkUserRole, logout } from '../../../api/auth/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
 
 const { Content } = Layout;
@@ -27,6 +28,7 @@ const Staff: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [broken, setBroken] = useState(false);
     const [selectedKey, setSelectedKey] = useState('1');
+    const navigate = useNavigate();
 
     if (!checkUserRole(["STAFF"])) {
         return <Navigate to="/unauthorized" replace />;
@@ -36,6 +38,7 @@ const Staff: React.FC = () => {
         { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
         { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
+        { key: '4', icon: <LogoutOutlined />, label: 'Đăng xuất' },
         // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
         // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
         // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
@@ -51,6 +54,10 @@ const Staff: React.FC = () => {
                 return <AdjustTicket />;
             case '3':
                 return <CaseApproval />;
+            case '4':
+                logout();
+                navigate('/login');
+                return null;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;
         }

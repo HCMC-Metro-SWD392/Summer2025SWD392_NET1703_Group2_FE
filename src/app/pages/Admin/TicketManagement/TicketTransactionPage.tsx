@@ -1,0 +1,178 @@
+import React, { useEffect, useState } from 'react';
+import { Card, DatePicker, Table, Tag, Row, Col, Button, Form } from 'antd';
+import axiosInstance from '../../../../settings/axiosInstance';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
+
+const { RangePicker } = DatePicker;
+
+const TicketTransactionPage: React.FC = () => {
+  const [form] = Form.useForm();
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
+
+  const fetchData = async (params: {
+    page?: number;
+    pageSize?: number;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get('/api/DashBoard/ticket-statistics', {
+        params: {
+          dateFrom: params.dateFrom,
+          dateTo: params.dateTo,
+          isAccendingCreated: false,
+          pageNumber: params.page,
+          pageSize: params.pageSize,
+        },
+      });
+
+      const items = res.data?.result ?? [];
+      const total = res.data?.result.length ?? 0;
+
+      const transformed = items.map((item: any, index: number) => ({
+        key: item.orderCode ?? index,
+        ticketId: item.orderCode ?? `TCKT-${index}`,
+        customer: item.userFullName ?? 'Không rõ',
+        event: item.detailTicket[0] ?? 'Không rõ',
+        time: item.timeOfPurchase,
+        status: item.paymentStatus ?? 'completed',
+      }));
+
+      setData(transformed);
+      setPagination((prev) => ({
+        ...prev,
+        total,
+        current: params.page ?? 1,
+        pageSize: params.pageSize ?? 10,
+      }));
+    } catch (err) {
+      console.error('Lỗi khi lấy dữ liệu giao dịch vé:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    const range = form.getFieldValue('range');
+    const dateFrom = range?.[0]?.format('YYYY-MM-DDT00:00:00');
+    const dateTo = range?.[1]?.format('YYYY-MM-DDT23:59:59');
+    fetchData({
+      dateFrom,
+      dateTo,
+      page: 1,
+      pageSize: pagination.pageSize,
+    });
+  };
+
+  const handleTableChange = (paginationInfo: any) => {
+    const range = form.getFieldValue('range');
+    const dateFrom = range?.[0]?.format('YYYY-MM-DDT00:00:00');
+    const dateTo = range?.[1]?.format('YYYY-MM-DDT23:59:59');
+
+    fetchData({
+      dateFrom,
+      dateTo,
+      page: paginationInfo.current,
+      pageSize: paginationInfo.pageSize,
+    });
+  };
+
+  useEffect(() => {
+    // Load 7 ngày gần nhất mặc định
+    const defaultFrom = dayjs().subtract(7, 'day').startOf('day');
+    const defaultTo = dayjs().endOf('day');
+    form.setFieldsValue({ range: [defaultFrom, defaultTo] });
+
+    fetchData({
+      dateFrom: defaultFrom.format('YYYY-MM-DDT00:00:00'),
+      dateTo: defaultTo.format('YYYY-MM-DDT23:59:59'),
+      page: 1,
+      pageSize: 10,
+    });
+  }, []);
+
+  const columns = [
+    {
+      title: 'Mã vé',
+      dataIndex: 'ticketId',
+      key: 'ticketId',
+    },
+    {
+      title: 'Khách hàng',
+      dataIndex: 'customer',
+      key: 'customer',
+    },
+    {
+      title: 'Tuyến',
+      dataIndex: 'event',
+      key: 'event',
+    },
+    {
+      title: 'Thời gian mua',
+      dataIndex: 'time',
+      key: 'time',
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        const statusConfig: Record<string, { color: string; text: string }> = {
+          'Đã thanh toán': { color: 'success', text: 'Đã thanh toán' },
+          'Chưa thanh toán': { color: 'error', text: 'Chưa thanh toán' },
+        };
+        const config = statusConfig[status] || {
+          color: 'default',
+          text: status,
+        };
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
+    },
+  ];
+
+  return (
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Giao dịch vé</h1>
+
+      <Card className="mb-4">
+        <Form form={form} layout="inline" onFinish={handleSearch}>
+          <Form.Item name="range" label="Khoảng ngày">
+            <RangePicker format="DD/MM/YYYY" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">Tìm kiếm</Button>
+          </Form.Item>
+        </Form>
+      </Card>
+
+      <Card>
+        <Table
+          dataSource={data}
+          columns={columns}
+          loading={loading}
+          pagination={{
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
+            showSizeChanger: true,
+            showTotal: (total) => `Tổng ${total} giao dịch`,
+          }}
+          onChange={handleTableChange}
+          scroll={{ x: 'max-content' }}
+        />
+      </Card>
+    </div>
+  );
+};
+
+export default TicketTransactionPage;
