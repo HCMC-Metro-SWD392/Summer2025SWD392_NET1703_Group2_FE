@@ -85,7 +85,9 @@ export interface Ticket {
   startDate: string;
   endDate: string;
   qrCode: string;
-  fromStation: string;
-  toStation: string;
+  fromStationRoute: string;
+  toStationRoute: string;
+  fromStationSub: string;
+  toStationSub: string;
   price: number;
 }

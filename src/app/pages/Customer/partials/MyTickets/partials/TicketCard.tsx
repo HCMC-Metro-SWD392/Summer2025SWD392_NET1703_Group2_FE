@@ -158,11 +158,26 @@ const TicketCard = ({
             </div>
 
             <div className="text-sm mb-1 truncate">
-              <Text className="font-semibold">Tuyến:</Text>{" "}
-              <span className="truncate inline-block max-w-[200px] align-bottom">
-                {ticket.fromStation} → {ticket.toStation}
-              </span>
+              <Text className="font-semibold">Tuyến chính:</Text>{" "}
+              {ticket.subscriptionTicketId ? (
+                <span className="truncate inline-block max-w-[200px] align-bottom">
+                  {ticket.fromStationSub} → {ticket.toStationSub}
+                </span>
+              ) : (
+                <span className="truncate inline-block max-w-[200px] align-bottom">
+                  {ticket.fromStationRoute} → {ticket.toStationRoute}
+                </span>
+              )}
             </div>
+
+            {ticket.subscriptionTicketId && ticket.ticketRouteId && (
+              <div className="text-sm mb-1 truncate">
+                <Text className="font-semibold">Tuyến tích hợp:</Text>{" "}
+                <span className="truncate inline-block max-w-[200px] align-bottom">
+                  {ticket.fromStationRoute} → {ticket.toStationRoute}
+                </span>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-x-4 text-xs mt-1">
               <div>
@@ -234,10 +249,26 @@ const TicketCard = ({
               </div>
 
               <div className="text-sm grid gap-2">
-                <div className="flex justify-between">
-                  <Text strong className="text-gray-600">Tuyến:</Text>
-                  <span>{ticket.fromStation} → {ticket.toStation}</span>
-                </div>
+
+                  {ticket.subscriptionTicketId && ticket.subscriptionTicketId ? (
+                    <>
+                    <div className="flex justify-between">
+                      <Text strong className="text-gray-600">Tuyến chính :</Text>
+                      <span>{ticket.fromStationSub} → {ticket.toStationSub}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <Text strong className="text-gray-600">Tuyến tích hợp :</Text>
+                      <span>{ticket.fromStationSub} → {ticket.toStationSub}</span>
+                    </div>
+                    </>
+                    
+                  ) : (
+                    <div className="flex justify-between">
+                      <Text strong className="text-gray-600">Tuyến chính :</Text>
+                      <span>{ticket.fromStationRoute} → {ticket.toStationRoute}</span>
+                    </div>
+                  )}
 
                 <div className="flex justify-between">
                   <Text strong className="text-gray-600">Ngày mua:</Text>
