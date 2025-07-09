@@ -20,6 +20,14 @@ export interface StaffInfo {
   dateOfBirth?: string;
 }
 
+export interface StaffRegisterInfo {
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export interface StaffListResponse extends ResponseDTO {
   result: {
     items: StaffInfo[];

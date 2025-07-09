@@ -4,7 +4,8 @@ import type {
   SetStaffRoleRequest, 
   StaffInfo,
   StaffListResponse, 
-  StaffDetailResponse 
+  StaffDetailResponse, 
+  StaffRegisterInfo
 } from "./manageStaffInterface";
 import axiosInstance from "../../settings/axiosInstance";
 
@@ -13,6 +14,7 @@ const MANAGE_STAFF_ENDPOINTS = {
   SET_STAFF_ROLE: (email: string) => `/api/Auth/set-staff-role/${email}`,
   GET_ALL_STAFF: "/api/Staff/GetAllStaff",
   GET_STAFF_BY_ID: (id: string) => `/api/Auth/get-staff/${id}`,
+  CREATE_STAFF_MANUAL: "/api/Auth/create-staff",
 } as const;
 
 export interface PaginationParams {
@@ -30,6 +32,21 @@ export const ManageStaffApi = {
     try {
       const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
         MANAGE_STAFF_ENDPOINTS.SET_STAFF_ROLE(email)
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return error.response.data;
+      }
+      throw error;
+    }
+  },
+
+  createStaffManual: async (staffRegisterInfo: StaffRegisterInfo): Promise<ResponseDTO> => {
+    try {
+      const response: AxiosResponse<ResponseDTO> = await axiosInstance.post(
+        MANAGE_STAFF_ENDPOINTS.CREATE_STAFF_MANUAL,
+        staffRegisterInfo
       );
       return response.data;
     } catch (error: any) {
