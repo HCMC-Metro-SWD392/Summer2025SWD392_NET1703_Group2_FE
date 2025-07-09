@@ -1,5 +1,6 @@
 const endpoints = {
   login: "/api/Auth/sign-in",
+  loginByGoogle: "/api/Auth/sign-in-by-google",
   register: "/api/Auth/customer/register",
   refresh: "/auth/refresh-token",
   getUser: "/users/me",

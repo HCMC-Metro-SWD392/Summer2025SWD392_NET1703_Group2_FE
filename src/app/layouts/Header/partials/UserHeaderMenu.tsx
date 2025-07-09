@@ -63,7 +63,12 @@ const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
             <Avatar icon={<UserOutlined />} />
           )}
           <Text strong className="hidden sm:inline">
-            {userInfo.fullName}
+            <span
+              className="block max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap align-middle"
+              title={userInfo.fullName}
+            >
+              {userInfo.fullName}
+            </span>
           </Text>
         </Space>
       </Button>
