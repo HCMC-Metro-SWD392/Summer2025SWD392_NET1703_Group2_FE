@@ -89,6 +89,17 @@ import {
           },
         ],
       },
+      {
+        key: 'email-management',
+        icon: <SettingOutlined />,
+        label: 'Quản Lý Email',
+        children: [
+          {
+            key: '/admin/create-email-template',
+            label: 'Tạo Email Template',
+          },
+        ],
+      },
     ];
   
     const handleMenuClick = ({ key }: { key: string }) => {

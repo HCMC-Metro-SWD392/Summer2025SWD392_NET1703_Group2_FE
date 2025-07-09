@@ -52,6 +52,7 @@ import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminMain from "../pages/Admin/AdminMain";
 import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
 import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswordForm";
+import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
 
 export default function MainRoutes() {
   return (
@@ -120,6 +121,7 @@ export default function MainRoutes() {
         <Route path="/admin/train-schedule/:id" element={<TrainScheduleDetails />} />
         <Route path="/admin/train-schedule/:id/edit" element={<EditTrainSchedule />} />
         <Route path="/admin/add-metro-line-station" element={<AddMetroLineStation />} />
+        <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />
