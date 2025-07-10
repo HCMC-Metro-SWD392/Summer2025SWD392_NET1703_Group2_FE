@@ -20,6 +20,9 @@ export interface GetScheduleDTO
     workingDate: string;
     workingStation: StationInfoDto;
     status: StaffScheduleStatus;
+    shiftName: string;
+    startTime: string;
+    endTime: string;
 }
 export interface StaffInfoDto
 {

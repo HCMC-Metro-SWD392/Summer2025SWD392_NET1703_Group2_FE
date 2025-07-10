@@ -9,6 +9,7 @@ import {
     VideoCameraOutlined,
     FileTextOutlined,
     LogoutOutlined,
+    CalendarOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout } from 'antd';
@@ -20,6 +21,7 @@ import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
 import CaseApproval from './partials/CaseApproval';
 import { checkUserRole, logout } from '../../../api/auth/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
+import StaffWorkSchedule from './partials/StaffWorkSchedule';
 
 const { Content } = Layout;
 
@@ -38,7 +40,8 @@ const Staff: React.FC = () => {
         { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
         { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
-        { key: '4', icon: <LogoutOutlined />, label: 'Đăng xuất' },
+        { key: '4', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
+        { key: '5', icon: <LogoutOutlined />, label: 'Đăng xuất' },
         // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
         // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
         // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
@@ -55,6 +58,8 @@ const Staff: React.FC = () => {
             case '3':
                 return <CaseApproval />;
             case '4':
+                return <StaffWorkSchedule />;
+            case '5':
                 logout();
                 navigate('/login');
                 return null;

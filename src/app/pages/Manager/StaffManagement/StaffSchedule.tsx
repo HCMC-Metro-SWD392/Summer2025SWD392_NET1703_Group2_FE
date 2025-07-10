@@ -30,6 +30,12 @@ const StaffSchedule: React.FC = () => {
     fetchShifts();
     fetchStaffs();
     fetchStations();
+
+    const startOfWeek = dayjs().startOf('week');
+    const endOfWeek = startOfWeek.endOf('week');
+
+    setDateRange([startOfWeek, endOfWeek]);
+    fetchSchedules(startOfWeek.format('YYYY-MM-DD'), endOfWeek.format('YYYY-MM-DD'));
   }, []);
 
   const fetchSchedules = async (startDate: string, endDate: string) => {
@@ -181,15 +187,14 @@ const StaffSchedule: React.FC = () => {
   const columns: ColumnsType<GetScheduleDTO> = [
     {
       title: 'Nhân Viên',
-      dataIndex: ['staff', 'fullName'],
-      key: 'staff',
-      render: (_: any, record) => record.staff?.fullName || '',
+      dataIndex: 'staffFullName',
+      key: 'staffFullName',
     },
     {
       title: 'Ca Làm',
-      dataIndex: ['shift', 'shiftName'],
-      key: 'shift',
-      render: (_: any, record) => record.shift?.shiftName || '',
+      dataIndex: 'shiftName',
+      key: 'shiftName',
+      render: (_, record) => `${record.shiftName} (${record.startTime} - ${record.endTime})`,
     },
     {
       title: 'Ngày Làm',
@@ -198,20 +203,23 @@ const StaffSchedule: React.FC = () => {
     },
     {
       title: 'Ga',
-      dataIndex: ['workingStation', 'name'],
-      key: 'station',
-      render: (_: any, record) => record.workingStation?.name || '',
+      dataIndex: 'stationName',
+      key: 'stationName',
     },
     {
       title: 'Trạng Thái',
       dataIndex: 'status',
       key: 'status',
-      render: (status: number) => {
+      render: (status: string) => {
         switch (status) {
-          case 0: return 'Bình Thường';
-          case 1: return 'Tan Ca';
-          case 2: return 'Vắng';
-          default: return '';
+          case 'Normal':
+            return 'Bình Thường';
+          case 'Off':
+            return 'Tan Ca';
+          case 'Absent':
+            return 'Vắng';
+          default:
+            return status;
         }
       },
     },
