@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, DatePicker, Table, Tag, Row, Col, Button, Form } from 'antd';
+import { Card, DatePicker, Table, Tag, Button, Form } from 'antd';
 import axiosInstance from '../../../../settings/axiosInstance';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -44,7 +44,7 @@ const TicketTransactionPage: React.FC = () => {
         ticketId: item.orderCode ?? `TCKT-${index}`,
         customer: item.userFullName ?? 'Không rõ',
         event: item.detailTicket[0] ?? 'Không rõ',
-        time: item.timeOfPurchase,
+        time: dayjs(item.timeOfPurchase).format('DD/MM/YYYY HH:mm:ss'),
         status: item.paymentStatus ?? 'completed',
       }));
 
@@ -88,9 +88,8 @@ const TicketTransactionPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load 7 ngày gần nhất mặc định
-    const defaultFrom = dayjs().subtract(7, 'day').startOf('day');
-    const defaultTo = dayjs().endOf('day');
+    const defaultFrom = dayjs().startOf('week');
+    const defaultTo = dayjs().endOf('week');
     form.setFieldsValue({ range: [defaultFrom, defaultTo] });
 
     fetchData({
@@ -147,10 +146,12 @@ const TicketTransactionPage: React.FC = () => {
       <Card className="mb-4">
         <Form form={form} layout="inline" onFinish={handleSearch}>
           <Form.Item name="range" label="Khoảng ngày">
-            <RangePicker format="DD/MM/YYYY" />
+            <RangePicker format="DD/MM/YYYY" allowClear={false} />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">Tìm kiếm</Button>
+            <Button type="primary" htmlType="submit">
+              Tìm kiếm
+            </Button>
           </Form.Item>
         </Form>
       </Card>

@@ -49,6 +49,7 @@ import AddMetroLineStation from "../pages/Admin/MetroLineManagement/AddMetroLine
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminMain from "../pages/Admin/AdminMain";
 import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransactionPage";
+import RecentLogsPage from "../pages/Admin/LogActivityManagement/RecentLogsPage";
 
 export default function MainRoutes() {
   return (
@@ -114,6 +115,8 @@ export default function MainRoutes() {
         <Route path="/admin/train-schedule/:id" element={<TrainScheduleDetails />} />
         <Route path="/admin/train-schedule/:id/edit" element={<EditTrainSchedule />} />
         <Route path="/admin/add-metro-line-station" element={<AddMetroLineStation />} />
+        <Route path="/admin/transaction-ticket" element={<TicketTransactionPage />} />
+        <Route path="/admin/log-activity" element={<RecentLogsPage />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />

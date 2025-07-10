@@ -89,7 +89,7 @@ const AdminMain: React.FC = () => {
         key: index,
         user: item.userFullname ?? 'Không rõ',
         action: item.description ?? '',
-        time: dayjs(item.createdAt).fromNow(),
+        time: dayjs(item.createdAt).format('DD/MM/YYYY HH:mm:ss'),
         status:
           item.logType === 'Create'
             ? 'success'

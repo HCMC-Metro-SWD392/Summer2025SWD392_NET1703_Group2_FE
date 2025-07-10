@@ -7,6 +7,8 @@ import {
     ClockCircleOutlined,
     SettingOutlined,
     UserOutlined,
+    IdcardOutlined,
+    FileTextOutlined,
   } from '@ant-design/icons';
   import { Layout, Menu } from 'antd';
   import React, { useEffect } from 'react';
@@ -86,6 +88,28 @@ import {
           {
             key: '/admin/fare-rule',
             label: 'Quy Tắc Giá Vé',
+          },
+        ],
+      },
+      {
+        key: 'ticket-transaction-management',
+        icon: <IdcardOutlined />,
+        label: 'Quản Lý Giao Dịch Vé',
+        children: [
+          {
+            key: '/admin/transaction-ticket',
+            label: 'Giao Dịch Vé',
+          },
+        ],
+      },
+      {
+        key: 'log-activity-management',
+        icon: <FileTextOutlined />,
+        label: 'Quản Lý Hoạt Động',
+        children: [
+          {
+            key: '/admin/log-activity',
+            label: 'Hoạt động',
           },
         ],
       },
