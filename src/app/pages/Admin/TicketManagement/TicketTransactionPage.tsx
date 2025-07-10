@@ -44,7 +44,7 @@ const TicketTransactionPage: React.FC = () => {
         ticketId: item.orderCode ?? `TCKT-${index}`,
         customer: item.userFullName ?? 'Không rõ',
         event: item.detailTicket[0] ?? 'Không rõ',
-        time: dayjs(item.timeOfPurchase).format('DD/MM/YYYY HH:mm:ss'),
+        time: item.timeOfPurchase,
         status: item.paymentStatus ?? 'completed',
       }));
 
