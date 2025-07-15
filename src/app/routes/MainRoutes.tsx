@@ -54,10 +54,14 @@ import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransac
 import RecentLogsPage from "../pages/Admin/LogActivityManagement/RecentLogsPage";
 import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
 import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswordForm";
+import Contact from "../pages/Home/partials/InformationPage/Contact";
+import ScrollToTop from "../components/ScrollToTop";
+import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
 
 export default function MainRoutes() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<CommonLayout/>}>
           <Route path="/" element={<Home />} />
@@ -78,6 +82,7 @@ export default function MainRoutes() {
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
           <Route path="/metro-line" element={<AllMetroLine />} />
+          <Route path="/contact" element={<Contact />} />
         </Route>
 
 
@@ -125,6 +130,7 @@ export default function MainRoutes() {
         <Route path="/admin/add-metro-line-station" element={<AddMetroLineStation />} />
         <Route path="/admin/transaction-ticket" element={<TicketTransactionPage />} />
         <Route path="/admin/log-activity" element={<RecentLogsPage />} />
+        <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />

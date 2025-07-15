@@ -6,6 +6,7 @@ import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
 import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
 import { StationApi } from "../../../api/station/StationApi";
 import { PromotionApi } from "../../../api/promotion/PromotionApi";
+import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
@@ -164,18 +165,18 @@ export default function Home() {
           <Col xs={24} md={12}>
             <Card title="Liên kết nhanh">
               <Space direction="vertical" style={{ width: '100%' }}>
-                <a href="/tickets" className="text-blue-600 hover:text-blue-800">
+                <Link to="/tickets/buy-route" className="text-blue-600 hover:text-blue-800">
                   • Mua vé
-                </a>
-                <a href="/routes" className="text-blue-600 hover:text-blue-800">
+                </Link>
+                <Link to="/metro-line" className="text-blue-600 hover:text-blue-800">
                   • Xem tuyến đường
-                </a>
-                <a href="/schedule" className="text-blue-600 hover:text-blue-800">
+                </Link>
+                <Link to="/schedule" className="text-blue-600 hover:text-blue-800">
                   • Xem lịch trình
-                </a>
-                <a href="/contact" className="text-blue-600 hover:text-blue-800">
+                </Link>
+                <Link to="/contact" className="text-blue-600 hover:text-blue-800">
                   • Thông tin liên hệ
-                </a>
+                </Link>
               </Space>
             </Card>
           </Col>
