@@ -45,13 +45,20 @@ export const StationApi = {
     },
 
     // Get all stations
-    getAllStations: async (isActive?: boolean | null): Promise<ResponseDTO<Station[]>> => {
+    getAllStations: async (options?: {
+        isActive?: boolean | null,
+        isAscending?: boolean,
+        pageNumber?: number,
+        pageSize?: number
+    }): Promise<ResponseDTO<Station[]>> => {
         try {
             const params: any = {};
-            if (isActive !== null && isActive !== undefined) {
-                params.isActive = isActive;
+            if (options) {
+                if (options.isActive !== null && options.isActive !== undefined) params.isActive = options.isActive;
+                if (options.isAscending !== undefined) params.isAscending = options.isAscending;
+                if (options.pageNumber !== undefined) params.pageNumber = options.pageNumber;
+                if (options.pageSize !== undefined) params.pageSize = options.pageSize;
             }
-            
             const response: AxiosResponse<ResponseDTO<Station[]>> = await axiosInstance.get(
                 STATION_ENDPOINTS.GET_ALL,
                 { params }

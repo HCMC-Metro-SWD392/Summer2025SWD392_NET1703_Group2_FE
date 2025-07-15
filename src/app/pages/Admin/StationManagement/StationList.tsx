@@ -61,15 +61,23 @@ const StationList: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState<boolean | null>(null);
 
+  // Số lượng mặc định mỗi trang
+  const DEFAULT_PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+
   useEffect(() => {
     fetchStations();
-  }, [isActiveFilter]);
+  }, [isActiveFilter, page, pageSize]);
 
-  const fetchStations = async (isActive?: boolean | null) => {
+  const fetchStations = async () => {
     try {
       setLoading(true);
-      const response = await StationApi.getAllStations(isActive);
-      
+      const response = await StationApi.getAllStations({
+        isActive: isActiveFilter,
+        pageNumber: page,
+        pageSize: pageSize
+      });
       if (response.isSuccess && response.result) {
         setStations(response.result);
       } else {
@@ -103,12 +111,14 @@ const StationList: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    fetchStations(isActiveFilter);
+    fetchStations();
     setSearchText('');
   };
 
-  const handleFilterChange = (value: boolean | null) => {
-    setIsActiveFilter(value);
+  const handleFilterChange = (value: boolean | null | string) => {
+    if (value === null) setIsActiveFilter(null);
+    else if (value === true || value === 'true') setIsActiveFilter(true);
+    else setIsActiveFilter(false);
   };
 
   const columns: ColumnsType<Station> = [
@@ -219,7 +229,12 @@ const StationList: React.FC = () => {
           rowKey="id"
           loading={loading}
           pagination={{
-            pageSize: 10,
+            pageSize: pageSize,
+            current: page,
+            onChange: (p, ps) => {
+              setPage(p);
+              setPageSize(ps);
+            },
             showSizeChanger: true,
             showTotal: (total) => `Tổng số ${total} trạm`,
             locale: {

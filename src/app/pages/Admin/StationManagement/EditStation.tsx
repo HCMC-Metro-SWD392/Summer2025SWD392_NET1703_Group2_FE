@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, message, Spin, Switch } from 'antd';
+import { Button, Card, Form, Input, message, Spin, Switch, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
@@ -13,7 +13,7 @@ const EditStation: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [initialIsActive, setInitialIsActive] = useState<boolean | null>(null);
-  const { control, handleSubmit, reset, getValues, formState: { errors, isDirty, dirtyFields } } = useForm<UpdateStationDTO & { isActive: boolean }>({
+  const { control, handleSubmit, reset, getValues, formState: { errors, isDirty, dirtyFields } } = useForm<UpdateStationDTO>({
     mode: 'onBlur'
   });
 
@@ -28,13 +28,17 @@ const EditStation: React.FC = () => {
       const response = await StationApi.getStationById(id);
       if (response.isSuccess && response.result) {
         const station = response.result;
+        console.log('API trả về station:', station); // Log giá trị station trả về
         reset({
           name: station.name,
           address: station.address || undefined,
           description: station.description || undefined,
-          isActive: station.isActive
+          // initialIsActive: station.isActive
         });
         setInitialIsActive(station.isActive);
+        setTimeout(() => {
+          console.log('Giá trị form sau reset:', getValues());
+        }, 0);
       } else {
         message.error(response.message || 'Không thể tải thông tin trạm');
         navigate('/admin/station');
@@ -48,44 +52,63 @@ const EditStation: React.FC = () => {
     }
   };
 
-  const onSubmit = async (data: UpdateStationDTO & { isActive: boolean }) => {
+  const onSubmit = async (data: UpdateStationDTO) => {
     if (!id) return;
     let updated = false;
     try {
       setLoading(true);
+      console.log('Submit data:', data); // Log dữ liệu submit
       // Cập nhật thông tin station nếu có thay đổi
       const changedData = Object.entries(data).reduce((acc, [key, value]) => {
-        if (key !== 'isActive' && value !== undefined) {
+        if (value !== undefined) {
           acc[key as keyof UpdateStationDTO] = value;
         }
         return acc;
       }, {} as UpdateStationDTO);
       if (Object.keys(changedData).length > 0) {
         const response = await StationApi.updateStation(id, changedData);
+        console.log('Response updateStation:', response); // Log response updateStation
         if (!response.isSuccess) {
           message.error(response.message || 'Có lỗi xảy ra khi cập nhật trạm Metro');
           return;
         }
         updated = true;
       }
-      // Cập nhật trạng thái hoạt động nếu có thay đổi
-      if (typeof initialIsActive === 'boolean' && data.isActive !== initialIsActive) {
-        const response = await StationApi.setIsActive(id, data.isActive);
-        if (!response.isSuccess) {
-          message.error(response.message || 'Có lỗi xảy ra khi cập nhật trạng thái hoạt động');
-          return;
-        }
-        updated = true;
-      }
       if (updated) {
         message.success('Cập nhật trạm Metro thành công');
-        navigate('/admin/station');
+        await fetchStation(); // Lấy lại dữ liệu mới nhất và reset form
+        // navigate('/admin/station'); // Nếu muốn ở lại trang chỉnh sửa
       } else {
         message.info('Không có thay đổi nào được thực hiện');
       }
     } catch (error) {
       message.error('Có lỗi xảy ra khi cập nhật trạm Metro');
       console.error('Error updating station:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeIsActive = async (checked: boolean) => {
+    if (!id) return;
+    if (checked === initialIsActive) {
+      message.info(`Trạng thái đã là ${checked ? 'Hoạt động' : 'Ngừng hoạt động'}, không có thay đổi nào.`);
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await StationApi.setIsActive(id, checked);
+      console.log('Response setIsActive:', response);
+      if (response.isSuccess) {
+        setInitialIsActive(checked);
+        message.success('Cập nhật trạng thái hoạt động thành công');
+        await fetchStation();
+      } else {
+        message.error(response.message || 'Có lỗi khi cập nhật trạng thái hoạt động');
+      }
+    } catch (error) {
+      message.error('Có lỗi khi cập nhật trạng thái hoạt động');
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -127,18 +150,18 @@ const EditStation: React.FC = () => {
             className="space-y-4"
           >
             <Form.Item label="Trạng thái hoạt động">
-              <Controller
-                name="isActive"
-                control={control}
-                render={({ field }) => (
-                  <Switch
-                    checked={field.value}
-                    onChange={field.onChange}
-                    checkedChildren="Hoạt động"
-                    unCheckedChildren="Ngừng hoạt động"
-                  />
-                )}
-              />
+              <Select
+                value={initialIsActive === null ? undefined : initialIsActive ? 'active' : 'inactive'}
+                onChange={async (value) => {
+                  const checked = value === 'active';
+                  await handleChangeIsActive(checked);
+                }}
+                style={{ width: 200 }}
+                loading={loading}
+              >
+                <Select.Option value="active">Hoạt động</Select.Option>
+                <Select.Option value="inactive">Ngừng hoạt động</Select.Option>
+              </Select>
             </Form.Item>
             <Form.Item
               label="Tên Trạm"
