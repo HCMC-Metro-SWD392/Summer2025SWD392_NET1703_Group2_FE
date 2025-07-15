@@ -12,6 +12,12 @@ export interface LoginPayload {
   rememberMe: true;
 }
 
+export interface LoginByGooglePayload {
+  email: string;
+  fullName: string;
+  rememberMe: true;
+}
+
 export interface UserInfo  {
   id: string; 
   avatar?: string;
@@ -79,7 +85,9 @@ export interface Ticket {
   startDate: string;
   endDate: string;
   qrCode: string;
-  fromStation: string;
-  toStation: string;
+  fromStationRoute: string;
+  toStationRoute: string;
+  fromStationSub: string;
+  toStationSub: string;
   price: number;
 }

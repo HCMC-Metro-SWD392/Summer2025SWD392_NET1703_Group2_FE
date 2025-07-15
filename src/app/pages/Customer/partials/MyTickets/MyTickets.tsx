@@ -25,13 +25,18 @@ const MyTickets: React.FC = () => {
   const [currentNotifyData, setCurrentNotifyData] = useState<{ ticketId: string; stationId: string; message: string } | null>(null);
   const [checkinModalVisible, setCheckinModalVisible] = useState(false);
   const [checkinMessage, setCheckinMessage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(6);
+  const [total, setTotal] = useState(0);
 
-  const loadTickets = async (status: "unused" | "active" | "used") => {
+  const loadTickets = async (status: "unused" | "active" | "used", pageNumber = 1) => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(endpoints.getCustomerTicket, {
         params: {
           status: statusMap[status],
+          pageNumber,
+          pageSize,
         },
       });
       setTickets(response.data.result || []);
@@ -44,7 +49,7 @@ const MyTickets: React.FC = () => {
   };
 
   useEffect(() => {
-    loadTickets(activeTab);
+    loadTickets(activeTab, 1);
   }, [activeTab]);
 
   useEffect(() => {
@@ -114,13 +119,22 @@ const MyTickets: React.FC = () => {
         onChange={(key) => setActiveTab(key as "active" | "unused" | "used")}
       >
         <Tabs.TabPane tab="Vé chưa sử dụng" key="unused">
-          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab} />}</div>
+          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab} total={total}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={(page) => loadTickets(activeTab, page)} />}</div>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Vé đang sử dụng" key="active">
-          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab} />}</div>
+          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab} total={total}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={(page) => loadTickets(activeTab, page)} />}</div>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Vé đã sử dụng" key="used">
-          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab} />}</div>
+          <div className="flex justify-center">{loading ? <Spin size="large" /> : <TicketList tickets={tickets} status={activeTab} total={total}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onPageChange={(page) => loadTickets(activeTab, page)} />}</div>
         </Tabs.TabPane>
       </Tabs>
 

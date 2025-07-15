@@ -65,9 +65,13 @@ const ManagerLayout: React.FC = () => {
           key: '/manager/promotion',
           label: 'Khuyến Mãi',
         },
+        // {
+        //   key: '/manager/subscription-ticket',
+        //   label: 'Vé Đăng Ký',
+        // },
         {
-          key: '/manager/subscription-ticket',
-          label: 'Vé Đăng Ký',
+          key: '/manager/transaction-ticket',
+          label: 'Giao dịch vé',
         },
       ],
     },

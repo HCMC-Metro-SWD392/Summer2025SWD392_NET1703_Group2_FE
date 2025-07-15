@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { LoginPayload, RegisterPayload } from "../../types/types";
+import type { LoginByGooglePayload, LoginPayload, RegisterPayload } from "../../types/types";
 import endpoints from "../endpoints";
 import { removeTokens, setTokens, decodeToken, removeUserInfo } from "./tokenUtils";
 import axiosInstance, { BASE_URL } from "../../settings/axiosInstance";
@@ -14,6 +14,27 @@ export const register = async (data: RegisterPayload) => {
 
 export const login = async (data: LoginPayload) => {
   const res = await axios.post(endpoints.login, data, {
+    baseURL: BASE_URL
+  });
+  const { accessToken, refreshToken } = res.data.result;
+  setTokens(accessToken, refreshToken);
+  
+  // Decode token to get user role
+  const decodedToken = decodeToken(accessToken);
+  const userRole = decodedToken?.role?.toLowerCase();
+
+  // Store user info in localStorage
+  localStorage.setItem("userInfo", JSON.stringify(res.data.result?.user));
+
+  // Return both the response data and the user role
+  return {
+    ...res.data,
+    userRole
+  };
+};
+
+export const LoginByGoogle = async (data: LoginByGooglePayload) => {
+  const res = await axios.post(endpoints.loginByGoogle, data, {
     baseURL: BASE_URL
   });
   const { accessToken, refreshToken } = res.data.result;

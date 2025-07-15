@@ -50,9 +50,10 @@ import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetro
 import AddMetroLineStation from "../pages/Admin/MetroLineManagement/AddMetroLineStation";
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminMain from "../pages/Admin/AdminMain";
+import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransactionPage";
+import RecentLogsPage from "../pages/Admin/LogActivityManagement/RecentLogsPage";
 import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
 import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswordForm";
-import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
 
 export default function MainRoutes() {
   return (
@@ -104,6 +105,7 @@ export default function MainRoutes() {
         <Route path="/manager/create-subscription-ticket" element={<CreateSubscriptionTicket />} />
         <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
         <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
+        <Route path="/manager/transaction-ticket" element={<TicketTransactionPage />} />
       </Route>
 
       <Route element={<AdminLayout/>}>
@@ -121,7 +123,8 @@ export default function MainRoutes() {
         <Route path="/admin/train-schedule/:id" element={<TrainScheduleDetails />} />
         <Route path="/admin/train-schedule/:id/edit" element={<EditTrainSchedule />} />
         <Route path="/admin/add-metro-line-station" element={<AddMetroLineStation />} />
-        <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
+        <Route path="/admin/transaction-ticket" element={<TicketTransactionPage />} />
+        <Route path="/admin/log-activity" element={<RecentLogsPage />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />

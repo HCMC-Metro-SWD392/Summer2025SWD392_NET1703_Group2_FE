@@ -9,6 +9,7 @@ import {
     VideoCameraOutlined,
     FileTextOutlined,
     LogoutOutlined,
+    CalendarOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout } from 'antd';
@@ -20,6 +21,7 @@ import TicketProcessingQR from '../../components/Test/TicketProcessingQR';
 import CaseApproval from './partials/CaseApproval';
 import { checkUserRole, logout } from '../../../api/auth/auth';
 import { Navigate, useNavigate } from 'react-router-dom';
+import StaffWorkSchedule from './partials/StaffWorkSchedule';
 
 const { Content } = Layout;
 
@@ -28,6 +30,7 @@ const Staff: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [broken, setBroken] = useState(false);
     const [selectedKey, setSelectedKey] = useState('1');
+    const navigate = useNavigate();
 
     if (!checkUserRole(["STAFF"])) {
         return <Navigate to="/unauthorized" replace />;
@@ -41,12 +44,13 @@ const Staff: React.FC = () => {
         { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
         { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
-        {
-            key: 'logout',
-            icon: <LogoutOutlined style={{ color: 'red' }} />,
-            label: <span style={{ color: 'red' }}>Đăng Xuất</span>,
-            style: { marginTop: 24 }
-        }
+        { key: '4', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
+        { key: '5', icon: <LogoutOutlined />, label: 'Đăng xuất' },
+        // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
+        // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
+        // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
+        // { key: '7', icon: <TeamOutlined />, label: 'Team' },
+        // { key: '8', icon: <ShopOutlined />, label: 'Shop' },
     ];
 
     const renderContent = () => {
@@ -57,6 +61,12 @@ const Staff: React.FC = () => {
                 return <AdjustTicket />;
             case '3':
                 return <CaseApproval />;
+            case '4':
+                return <StaffWorkSchedule />;
+            case '5':
+                logout();
+                navigate('/login');
+                return null;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;
         }

@@ -416,29 +416,27 @@ const CaseApproval: React.FC = () => {
         open={detailModalVisible}
         title="Chi tiết trường hợp đặc biệt"
         onCancel={() => setDetailModalVisible(false)}
-        footer={
-          selectedRequest && selectedRequest.status === 0 ? (
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-              <Button
-                icon={<CheckOutlined />}
-                type="primary"
-                style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-                loading={actionLoading === selectedRequest.id}
-                onClick={() => handleApprove(selectedRequest)}
-              >
-                Chấp nhận
-              </Button>
-              <Button
-                danger
-                icon={<CloseOutlined />}
-                loading={actionLoading === selectedRequest.id}
-                onClick={() => handleReject(selectedRequest)}
-              >
-                Từ chối
-              </Button>
-            </div>
-          ) : null
-        }
+        footer={selectedRequest?.status === 0 && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+            <Button
+              icon={<CheckOutlined />}
+              type="primary"
+              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+              loading={actionLoading === selectedRequest.id}
+              onClick={() => handleApprove(selectedRequest)}
+            >
+              Chấp nhận
+            </Button>
+            <Button
+              danger
+              icon={<CloseOutlined />}
+              loading={actionLoading === selectedRequest.id}
+              onClick={() => handleReject(selectedRequest)}
+            >
+              Từ chối
+            </Button>
+          </div>
+        )}
         width={800}
       >
         {selectedRequest && (

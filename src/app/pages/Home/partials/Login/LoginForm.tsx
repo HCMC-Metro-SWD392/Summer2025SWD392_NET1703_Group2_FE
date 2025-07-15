@@ -13,10 +13,15 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import logoMetro from "../../../../assets/logo.png";
 import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
-import type { LoginPayload } from "../../../../../types/types";
-import { login } from "../../../../../api/auth/auth";
+import type { LoginByGooglePayload, LoginPayload } from "../../../../../types/types";
+import { login, LoginByGoogle } from "../../../../../api/auth/auth";
 
 const { Title } = Typography;
+
+interface GoogleJwtPayload {
+  email: string;
+  name: string;
+}
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
@@ -50,7 +55,52 @@ const LoginForm: React.FC = () => {
           break;
         case "ADMIN":
           navigate("/admin");
-          break;  
+          break;
+        default:
+          navigate("/");
+      }
+      // message.success("Đăng nhập thành công!");
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại.";
+      notification.error({
+        message: "Lỗi",
+        description: errorMessage,
+        placement: "topRight",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onFinishByGoogle = async (values: LoginByGooglePayload) => {
+    setLoading(true);
+    try {
+      const data = await LoginByGoogle(values);
+      message.success("Đăng nhập thành công!");
+      const token = localStorage.getItem("accessToken");
+
+      if (!token) {
+        message.error("Không tìm thấy token.");
+        return;
+      }
+
+      const decoded: any = jwtDecode(token);
+      const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+      switch (role) {
+        case "CUSTOMER":
+          navigate("/");
+          break;
+        case "STAFF":
+          navigate("/staff");
+          break;
+        case "MANAGER":
+          navigate("/manager");
+          break;
+        case "ADMIN":
+          navigate("/admin");
+          break;
         default:
           navigate("/");
       }
@@ -164,9 +214,15 @@ const LoginForm: React.FC = () => {
             <GoogleLogin
               onSuccess={(credentialResponse) => {
                 if (credentialResponse.credential) {
-                  const user = jwtDecode(credentialResponse.credential);
+                  const user = jwtDecode<GoogleJwtPayload>(credentialResponse.credential);
                   console.log("Google user info:", user);
-                  message.success("Đăng nhập Google thành công!");
+
+                  const loginData: LoginByGooglePayload = {
+                    email: user.email,
+                    fullName: user.name,
+                    rememberMe: true,
+                  };
+                  onFinishByGoogle(loginData);
                 }
               }}
               onError={() => {

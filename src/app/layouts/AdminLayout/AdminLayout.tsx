@@ -7,6 +7,8 @@ import {
     ClockCircleOutlined,
     SettingOutlined,
     UserOutlined,
+    IdcardOutlined,
+    FileTextOutlined,
   } from '@ant-design/icons';
   import { Layout, Menu } from 'antd';
   import React, { useEffect } from 'react';
@@ -90,6 +92,7 @@ import {
         ],
       },
       {
+<<<<<<< HEAD
         key: 'email-management',
         icon: <SettingOutlined />,
         label: 'Quản Lý Email',
@@ -97,6 +100,26 @@ import {
           {
             key: '/admin/create-email-template',
             label: 'Tạo Email Template',
+=======
+        key: 'ticket-transaction-management',
+        icon: <IdcardOutlined />,
+        label: 'Quản Lý Giao Dịch Vé',
+        children: [
+          {
+            key: '/admin/transaction-ticket',
+            label: 'Giao Dịch Vé',
+          },
+        ],
+      },
+      {
+        key: 'log-activity-management',
+        icon: <FileTextOutlined />,
+        label: 'Quản Lý Hoạt Động',
+        children: [
+          {
+            key: '/admin/log-activity',
+            label: 'Hoạt động',
+>>>>>>> c446bac6ff7485f45891b5b1f64613ad50551e61
           },
         ],
       },
