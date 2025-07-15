@@ -384,46 +384,48 @@ const BuyRouteTicket: React.FC = () => {
             </div>
 
 
-            <div className="mt-4" ref={ticketPromotion}>
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Nhập mã khuyến mãi"
-                    value={promotionInput}
-                    onChange={(e) => setPromotionInput(e.target.value)}
-                    className="flex-1"
-                    disabled={isPromoApplied}
-                    allowClear
-                  />
-                  {!isPromoApplied ? (
-                    <Button
-                      onClick={() => {
-                        setPromotionCode(promotionInput);
-                        handlePromotionCheck(promotionInput, false);
-                      }}
-                      type="primary"
-                    >
-                      Áp dụng
-                    </Button>
-                  ) : (
-                    <Button
-                      danger
-                      onClick={() => {
-                        setPromotionCode("");
-                        setPromotionInput("");
-                        setPromoInfo(null);
-                        setIsPromoApplied(false);
-                        setFinalPrice(ticketPrice);
-                      }}
-                    >
-                      Hủy áp dụng
-                    </Button>
-                  )}
-                </div>
+            {ticketType !== "monthly" && ticketType !== "student" && (
+              <div className="mt-4" ref={ticketPromotion}>
+                <div className="mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Nhập mã khuyến mãi"
+                      value={promotionInput}
+                      onChange={(e) => setPromotionInput(e.target.value)}
+                      className="flex-1"
+                      disabled={isPromoApplied}
+                      allowClear
+                    />
+                    {!isPromoApplied ? (
+                      <Button
+                        onClick={() => {
+                          setPromotionCode(promotionInput);
+                          handlePromotionCheck(promotionInput, false);
+                        }}
+                        type="primary"
+                      >
+                        Áp dụng
+                      </Button>
+                    ) : (
+                      <Button
+                        danger
+                        onClick={() => {
+                          setPromotionCode("");
+                          setPromotionInput("");
+                          setPromoInfo(null);
+                          setIsPromoApplied(false);
+                          setFinalPrice(ticketPrice);
+                        }}
+                      >
+                        Hủy áp dụng
+                      </Button>
+                    )}
+                  </div>
 
+                </div>
               </div>
-            </div>
+            )}
 
             <Divider className="!my-4" />
 
@@ -494,11 +496,11 @@ const BuyRouteTicket: React.FC = () => {
             description: "Tại đây bạn có thể xem tóm tắt thông tin vé đã chọn như ga đi, ga đến và loại vé.",
             target: () => ticketInfoRef.current!,
           },
-          {
+          ...(ticketType !== "monthly" && ticketType !== "student" ? [{
             title: "Nhập mã khuyến mãi",
             description: "Nếu bạn có mã khuyến mãi hãy nhập để được giảm giá.",
             target: () => ticketPromotion.current!,
-          },
+          }] : []),
           {
             title: "Xác nhận thanh toán",
             description: "Kiểm tra kỹ thông tin trước khi thanh toán.",
