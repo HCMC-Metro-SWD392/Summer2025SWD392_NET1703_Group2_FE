@@ -57,6 +57,23 @@ import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswo
 import Contact from "../pages/Home/partials/InformationPage/Contact";
 import ScrollToTop from "../components/ScrollToTop";
 import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
+import UpdateEmailTemplate from "../pages/Admin/EmailManagement/UpdateEmailTemplate";
+import EmailTemplatetList from "../pages/Admin/EmailManagement/EmailTemplatetList";
+import { useParams, useNavigate } from "react-router-dom";
+import React from "react";
+const UpdateEmailTemplateWrapper = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  if (!id) return null;
+  return (
+    <UpdateEmailTemplate
+      templateId={id}
+      open={true}
+      onClose={() => navigate(-1)}
+    />
+  );
+};
+
 
 export default function MainRoutes() {
   return (
@@ -131,6 +148,8 @@ export default function MainRoutes() {
         <Route path="/admin/transaction-ticket" element={<TicketTransactionPage />} />
         <Route path="/admin/log-activity" element={<RecentLogsPage />} />
         <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
+        <Route path="/admin/email-template" element={<EmailTemplatetList />} />
+        <Route path="/admin/email-management/update/:id" element={<UpdateEmailTemplateWrapper />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />

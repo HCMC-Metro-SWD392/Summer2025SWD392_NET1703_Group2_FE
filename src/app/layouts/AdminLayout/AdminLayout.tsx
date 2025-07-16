@@ -124,6 +124,14 @@ import {
             key: '/admin/create-email-template',
             label: 'Tạo Email Template',
           },
+          {
+            key: '/admin/email-template',
+            label: 'Danh Sách Email Template',
+          },
+          {
+            key: '/admin/update-email-template',
+            label: 'Sửa Email Template (Test)',
+          },
         ],
       },
     ];
