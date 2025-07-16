@@ -113,6 +113,31 @@ export default function Home() {
   const now = time.toLocaleTimeString();
   const today = time.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
 
+  // Hardcoded news data (replace with API later)
+  const newsList = [
+    {
+      id: 1,
+      title: 'Khánh thành tuyến Metro số 1 vào cuối năm 2025',
+      date: '15/07/2025',
+      description: 'Tuyến Metro số 1 (Bến Thành – Suối Tiên) dự kiến sẽ được khánh thành và đưa vào vận hành vào cuối năm 2025, góp phần giảm ùn tắc giao thông cho TP.HCM.'
+    },
+    {
+      id: 2,
+      title: 'Ưu đãi vé tháng cho học sinh, sinh viên',
+      date: '10/07/2025',
+      description: 'Học sinh, sinh viên sẽ được giảm giá vé tháng lên đến 50% khi sử dụng dịch vụ Metro TP.HCM.'
+    },
+    {
+      id: 3,
+      title: 'Tăng cường an ninh tại các nhà ga Metro',
+      date: '05/07/2025',
+      description: 'Lực lượng an ninh sẽ được tăng cường tại các nhà ga Metro nhằm đảm bảo an toàn cho hành khách.'
+    },
+  ];
+
+  // State to toggle Metro Map visibility
+  const [showMap, setShowMap] = useState(false);
+
   return (
     <div className="min-h-[calc(100vh-120px)] bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Hero Section */}
@@ -173,50 +198,76 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Metro Map Section - Interactive */}
+      {/* Metro Map Toggle Button and Section */}
+      <div className="max-w-7xl mx-auto px-4 pb-6 flex flex-col items-center">
+        <button
+          className="mb-4 px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-full shadow transition-all duration-200"
+          onClick={() => setShowMap((prev) => !prev)}
+        >
+          {showMap ? 'Ẩn bản đồ Metro' : 'Xem bản đồ Metro'}
+        </button>
+        {showMap && (
+          <div className="w-full">
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+              <h2 className="text-blue-700 font-bold text-3xl mb-4">Bản đồ HCMC Metro</h2>
+              <div className="w-full max-w-2xl h-auto border border-blue-200 rounded overflow-hidden bg-gray-50">
+                {/* Types for zoomIn, zoomOut, resetTransform are () => void */}
+                <TransformWrapper
+                  initialScale={1}
+                  minScale={0.7}
+                  maxScale={3}
+                  doubleClick={{ disabled: true }}
+                >
+                  {({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
+                    <>
+                      <div className="flex gap-2 mb-2 justify-end">
+                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomIn} aria-label="Phóng to">+</button>
+                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomOut} aria-label="Thu nhỏ">-</button>
+                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={resetTransform} aria-label="Đặt lại">Reset</button>
+                      </div>
+                      <TransformComponent>
+                        <img
+                          src={metroMap}
+                          alt="Bản đồ HCMC Metro"
+                          className="w-full h-auto select-none"
+                          style={{ objectFit: 'contain', pointerEvents: 'all' }}
+                        />
+                      </TransformComponent>
+                    </>
+                  )}
+                </TransformWrapper>
+              </div>
+              {/* Legend for highlighting lines (static for now) */}
+              <div className="flex flex-wrap gap-4 mt-4 justify-center">
+                {metroLines.map((line, idx) => {
+                  const color = defaultColors[idx % defaultColors.length];
+                  return (
+                    <div key={line.id} className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full inline-block" style={{ background: color }}></span>
+                      <span className="text-gray-700 text-sm">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* News Section */}
       <div className="max-w-7xl mx-auto px-4 pb-12">
-        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
-          <h2 className="text-blue-700 font-bold text-3xl mb-4">Bản đồ HCMC Metro</h2>
-          <div className="w-full max-w-2xl h-auto border border-blue-200 rounded overflow-hidden bg-gray-50">
-            {/* Types for zoomIn, zoomOut, resetTransform are () => void */}
-            <TransformWrapper
-              initialScale={1}
-              minScale={0.7}
-              maxScale={3}
-              doubleClick={{ disabled: true }}
-            >
-              {({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
-                <>
-                  <div className="flex gap-2 mb-2 justify-end">
-                    <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomIn} aria-label="Phóng to">+</button>
-                    <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomOut} aria-label="Thu nhỏ">-</button>
-                    <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={resetTransform} aria-label="Đặt lại">Reset</button>
-                  </div>
-                  <TransformComponent>
-                    <img
-                      src={metroMap}
-                      alt="Bản đồ HCMC Metro"
-                      className="w-full h-auto select-none"
-                      style={{ objectFit: 'contain', pointerEvents: 'all' }}
-                    />
-                  </TransformComponent>
-                </>
-              )}
-            </TransformWrapper>
-          </div>
-          {/* Legend for highlighting lines (static for now) */}
-          <div className="flex flex-wrap gap-4 mt-4 justify-center">
-            {metroLines.map((line, idx) => {
-              const color = defaultColors[idx % defaultColors.length];
-              return (
-                <div key={line.id} className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full inline-block" style={{ background: color }}></span>
-                  <span className="text-gray-700 text-sm">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</span>
-                </div>
-              );
-            })}
-          </div>
+        <h2 className="text-blue-700 font-bold text-3xl mb-6">Tin tức</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {newsList.map(news => (
+            <div key={news.id} className="bg-white rounded-xl shadow-md p-5 flex flex-col h-full">
+              <div className="text-xs text-gray-400 mb-2">{news.date}</div>
+              <div className="font-bold text-lg text-blue-800 mb-2">{news.title}</div>
+              <div className="text-gray-700 flex-1">{news.description}</div>
+              {/* <a href="#" className="text-blue-500 mt-3 hover:underline">Xem chi tiết</a> */}
+            </div>
+          ))}
         </div>
+        {/* TODO: Replace newsList with API data in the future */}
       </div>
 
       {/* FAQ Section */}
