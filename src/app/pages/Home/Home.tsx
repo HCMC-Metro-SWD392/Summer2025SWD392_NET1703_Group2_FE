@@ -14,63 +14,25 @@ const { Title, Text } = Typography;
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
 const CITY_NAME = "Ho Chi Minh";
 
-const metroLineStatusList = [
-  {
-    code: "T1",
-    name: "Tuyến Số 1",
-    icon: "/stations/icon_t01.png",
-    status: "Normal service",
-    color: "#FFA500", // orange
-  },
-  {
-    code: "T2",
-    name: "Tuyến Số 2",
-    icon: "/stations/icon_t02.png",
-    status: "Normal service",
-    color: "#FF3B30", // red
-  },
-  {
-    code: "T3",
-    name: "Tuyến Số 3",
-    icon: "/stations/icon_t03.png",
-    status: "Normal service",
-    color: "#4A90E2", // blue
-  },
-  {
-    code: "T4",
-    name: "Tuyến Số 4",
-    icon: "/stations/icon_t04.png",
-    status: "Normal service",
-    color: "#50E3C2", // teal
-  },
-  {
-    code: "T5",
-    name: "Tuyến Số 5",
-    icon: "/stations/icon_t05.png",
-    status: "Normal service",
-    color: "#B8E986", // light green
-  },
-  {
-    code: "T6",
-    name: "Tuyến Số 6",
-    icon: "/stations/icon_t06.png",
-    status: "Normal service",
-    color: "#BD10E0", // purple
-  },
-  {
-    code: "T7",
-    name: "Tuyến Số 7",
-    icon: "/stations/icon_t07.png",
-    status: "Normal service",
-    color: "#7ED321", // green
-  },
-  {
-    code: "T8",
-    name: "Tuyến Số 8",
-    icon: "/stations/icon_t08.png",
-    status: "Normal service",
-    color: "#A0522D", // brown
-  },
+const defaultColors = [
+  "#FFA500", // orange
+  "#FF3B30", // red
+  "#4A90E2", // blue
+  "#50E3C2", // teal
+  "#B8E986", // light green
+  "#BD10E0", // purple
+  "#7ED321", // green
+  "#A0522D", // brown
+];
+const defaultIcons = [
+  "/stations/icon_t01.png",
+  "/stations/icon_t02.png",
+  "/stations/icon_t03.png",
+  "/stations/icon_t04.png",
+  "/stations/icon_t05.png",
+  "/stations/icon_t06.png",
+  "/stations/icon_t07.png",
+  "/stations/icon_t08.png",
 ];
 
 export default function Home() {
@@ -184,26 +146,30 @@ export default function Home() {
       {/* Metro Line Status Cards */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-wrap gap-6 justify-center">
-          {metroLineStatusList.map((line, idx) => (
-            <div
-              key={line.code}
-              className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              style={{ minWidth: 150 }}
-              tabIndex={0}
-              aria-label={`Thông tin ${line.name}`}
-              onKeyDown={e => { if (e.key === 'Enter') alert(`Bạn đã chọn ${line.name}`); }}
-            >
+          {metroLines.map((line, idx) => {
+            const color = defaultColors[idx % defaultColors.length];
+            const icon = defaultIcons[idx % defaultIcons.length];
+            return (
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-                style={{ background: line.color }}
+                key={line.id}
+                className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                style={{ minWidth: 150 }}
+                tabIndex={0}
+                aria-label={`Thông tin ${line.metroName || `Tuyến Số ${line.metroLineNumber}`}`}
+                onKeyDown={e => { if (e.key === 'Enter') alert(`Bạn đã chọn ${line.metroName || `Tuyến Số ${line.metroLineNumber}`}`); }}
               >
-                <img src={line.icon} alt={line.name} className="w-8 h-8" />
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                  style={{ background: color }}
+                >
+                  <img src={icon} alt={line.metroName || `Tuyến Số ${line.metroLineNumber}`} className="w-8 h-8" />
+                </div>
+                <div className="font-bold text-blue-700 text-base mb-1 text-center w-full">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</div>
+                <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
+                <div className="text-gray-900 text-sm">Normal service</div>
               </div>
-              <div className="font-bold text-blue-700 text-base mb-1">{line.name}</div>
-              <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
-              <div className="text-gray-900 text-sm">{line.status}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -240,12 +206,15 @@ export default function Home() {
           </div>
           {/* Legend for highlighting lines (static for now) */}
           <div className="flex flex-wrap gap-4 mt-4 justify-center">
-            {metroLineStatusList.map((line) => (
-              <div key={line.code} className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full inline-block" style={{ background: line.color }}></span>
-                <span className="text-gray-700 text-sm">{line.name}</span>
-              </div>
-            ))}
+            {metroLines.map((line, idx) => {
+              const color = defaultColors[idx % defaultColors.length];
+              return (
+                <div key={line.id} className="flex items-center gap-2">
+                  <span className="w-4 h-4 rounded-full inline-block" style={{ background: color }}></span>
+                  <span className="text-gray-700 text-sm">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
