@@ -25,21 +25,28 @@ interface EmailTemplate {
 
 const { Title, Text } = Typography;
 
+const LOCAL_KEY = 'admin_create_email_template_form';
+
 const EmailTemplatetList: React.FC = () => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<EmailTemplate | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [filter, setFilter] = useState('');
+  const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null);
   const navigate = useNavigate();
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = async (sorter?: any) => {
     setLoading(true);
     try {
       const params: any = {};
       if (filter) {
         params.filterOn = 'templateName';
         params.filterQuery = filter;
+      }
+      if (sorter && sorter.field === 'createdAt') {
+        params.sortBy = 'createdAt';
+        params.isAscending = sorter.order === 'ascend';
       }
       const res = await axiosInstance.get('/api/Email/get-all-email-template', { params });
       setTemplates(res.data.result || []);
@@ -54,6 +61,11 @@ const EmailTemplatetList: React.FC = () => {
     fetchTemplates();
     // eslint-disable-next-line
   }, []);
+
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    setSortOrder(sorter.order || null);
+    fetchTemplates(sorter);
+  };
 
   const handleView = (template: EmailTemplate) => {
     setSelected(template);
@@ -78,6 +90,11 @@ const EmailTemplatetList: React.FC = () => {
     fetchTemplates();
   };
 
+  const handleCreateNew = () => {
+    localStorage.removeItem(LOCAL_KEY);
+    navigate('/admin/create-email-template');
+  };
+
   const columns = [
     {
       title: 'Tên Template',
@@ -85,12 +102,24 @@ const EmailTemplatetList: React.FC = () => {
       key: 'templateName',
     },
     {
+      title: 'Ngày tạo',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: true,
+      sortOrder: sortOrder,
+      render: (val: string) => val ? new Date(val).toLocaleString() : '',
+    },
+    {
       title: 'Hành động',
       key: 'action',
       render: (_: any, record: EmailTemplate) => (
         <Space>
-          <Button onClick={() => handleView(record)} size="small">Xem chi tiết</Button>
-          <Button type="primary" onClick={() => handleEdit(record)} size="small">Chỉnh sửa</Button>
+          <Button type="default" size="small" onClick={() => handleView(record)}>
+            Xem chi tiết
+          </Button>
+          <Button type="primary" size="small" onClick={() => handleEdit(record)}>
+            Chỉnh sửa
+          </Button>
         </Space>
       ),
       align: 'right' as const,
@@ -99,8 +128,11 @@ const EmailTemplatetList: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Title level={3} style={{ marginBottom: 16 }}>Danh sách Email Template</Title>
-      <form onSubmit={handleFilterSubmit} style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Title level={3} style={{ margin: 0 }}>Danh sách Email Template</Title>
+        <Button type="primary" onClick={handleCreateNew}>Tạo mới</Button>
+      </div>
+      <form onSubmit={handleFilterSubmit} style={{ marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
         <Input
           placeholder="Tìm kiếm theo tên template"
           value={filter}
@@ -119,6 +151,8 @@ const EmailTemplatetList: React.FC = () => {
           columns={columns}
           rowKey="id"
           pagination={false}
+          loading={loading}
+          onChange={handleTableChange}
         />
       )}
       <Modal
