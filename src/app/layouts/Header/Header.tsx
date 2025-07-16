@@ -6,9 +6,10 @@ import { useNavigate } from "react-router-dom";
 import logoImg from "../../assets/logo.png";
 import TicketServiceMenu from "./partials/TicketServiceMenu";
 import UserHeaderMenu from "./partials/UserHeaderMenu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
+import type { GetMetroLineDTO } from "../../../api/metroLine/MetroLineInterface";
 
-// For now, hardcoded metro line status (can refactor to share with Home.tsx)
 const defaultColors = [
   "#FFA500", // orange
   "#FF3B30", // red
@@ -28,16 +29,10 @@ const defaultIcons = [
   "/stations/icon_t06.png",
   "/stations/icon_t07.png",
   "/stations/icon_t08.png",
-];
-const metroLineStatusList = [
-  { code: "T1", name: "Tuyến Số 1", icon: defaultIcons[0], status: "Normal service", color: defaultColors[0] },
-  { code: "T2", name: "Tuyến Số 2", icon: defaultIcons[1], status: "Normal service", color: defaultColors[1] },
-  { code: "T3", name: "Tuyến Số 3", icon: defaultIcons[2], status: "Normal service", color: defaultColors[2] },
-  { code: "T4", name: "Tuyến Số 4", icon: defaultIcons[3], status: "Normal service", color: defaultColors[3] },
-  { code: "T5", name: "Tuyến Số 5", icon: defaultIcons[4], status: "Normal service", color: defaultColors[4] },
-  { code: "T6", name: "Tuyến Số 6", icon: defaultIcons[5], status: "Normal service", color: defaultColors[5] },
-  { code: "T7", name: "Tuyến Số 7", icon: defaultIcons[6], status: "Normal service", color: defaultColors[6] },
-  { code: "T8", name: "Tuyến Số 8", icon: defaultIcons[7], status: "Normal service", color: defaultColors[7] },
+  "/stations/icon_t09.png",
+  "/stations/icon_t10.png",
+  "/stations/icon_t11.png",
+  "/stations/icon_t12.png",
 ];
 
 export default function Header() {
@@ -45,6 +40,23 @@ export default function Header() {
   const storedUserInfo = localStorage.getItem("userInfo");
   const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : null;
   const [isMetroStatusModalOpen, setIsMetroStatusModalOpen] = useState(false);
+  const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]);
+  const [metroLinesLoading, setMetroLinesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMetroLines = async () => {
+      try {
+        setMetroLinesLoading(true);
+        const res = await MetroLineApi.getAllMetroLines();
+        setMetroLines(res.result || []);
+      } catch (err) {
+        setMetroLines([]);
+      } finally {
+        setMetroLinesLoading(false);
+      }
+    };
+    fetchMetroLines();
+  }, []);
 
   return (
     <>
@@ -116,25 +128,36 @@ export default function Header() {
         centered
       >
         <div className="flex flex-wrap gap-6 justify-center py-4">
-          {metroLineStatusList.map((line) => (
-            <div
-              key={line.code}
-              className="bg-white rounded-xl shadow p-4 flex flex-col items-center w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              style={{ minWidth: 150 }}
-              tabIndex={0}
-              aria-label={`Thông tin ${line.name}`}
-            >
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-                style={{ background: line.color }}
-              >
-                <img src={line.icon} alt={line.name} className="w-8 h-8" />
-              </div>
-              <div className="font-bold text-blue-700 text-base mb-1 text-center w-full">{line.name}</div>
-              <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
-              <div className="text-gray-900 text-sm">{line.status}</div>
-            </div>
-          ))}
+          {metroLinesLoading ? (
+            <div className="text-center text-gray-500 py-8 w-full">Đang tải trạng thái tuyến Metro...</div>
+          ) : (
+            metroLines
+              .slice()
+              .sort((a, b) => Number(a.metroLineNumber) - Number(b.metroLineNumber))
+              .map((line, idx) => {
+                const color = defaultColors[idx % defaultColors.length];
+                const icon = defaultIcons[idx % defaultIcons.length];
+                return (
+                  <div
+                    key={line.id}
+                    className="bg-white rounded-xl shadow p-4 flex flex-col items-center w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    style={{ minWidth: 150 }}
+                    tabIndex={0}
+                    aria-label={`Thông tin ${line.metroName || `Tuyến Số ${line.metroLineNumber}`}`}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                      style={{ background: color }}
+                    >
+                      <img src={icon} alt={line.metroName || `Tuyến Số ${line.metroLineNumber}`} className="w-8 h-8" />
+                    </div>
+                    <div className="font-bold text-blue-700 text-base mb-1 text-center w-full">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</div>
+                    <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
+                    <div className="text-gray-900 text-sm">Normal service</div>
+                  </div>
+                );
+              })
+          )}
         </div>
       </Modal>
 
