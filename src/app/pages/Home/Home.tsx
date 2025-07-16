@@ -4,8 +4,6 @@ import { Card, Row, Col, Typography, Space, Statistic, Spin, Collapse } from "an
 import { ClockCircleOutlined, EnvironmentOutlined, CarOutlined, TeamOutlined } from "@ant-design/icons";
 import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
 import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
-import { StationApi } from "../../../api/station/StationApi";
-import { PromotionApi } from "../../../api/promotion/PromotionApi";
 import metroMap from '../../assets/Metro Map.png';
 import type { GetMetroLineDTO } from "../../../api/metroLine/MetroLineInterface";
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
@@ -14,35 +12,12 @@ const { Title, Text } = Typography;
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
 const CITY_NAME = "Ho Chi Minh";
 
-const defaultColors = [
-  "#FFA500", // orange
-  "#FF3B30", // red
-  "#4A90E2", // blue
-  "#50E3C2", // teal
-  "#B8E986", // light green
-  "#BD10E0", // purple
-  "#7ED321", // green
-  "#A0522D", // brown
-];
-const defaultIcons = [
-  "/stations/icon_t01.png",
-  "/stations/icon_t02.png",
-  "/stations/icon_t03.png",
-  "/stations/icon_t04.png",
-  "/stations/icon_t05.png",
-  "/stations/icon_t06.png",
-  "/stations/icon_t07.png",
-  "/stations/icon_t08.png",
-];
-
 export default function Home() {
   const [time, setTime] = useState(new Date());
   const [temperature, setTemperature] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     metroLines: 0,
-    stations: 0,
-    promotions: 0,
     operatingHours: "5:00 - 23:00"
   });
 
@@ -74,16 +49,12 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [metroLinesRes, stationsRes, promotionsRes] = await Promise.all([
+        const [metroLinesRes] = await Promise.all([
           MetroLineApi.getAllMetroLines(),
-          StationApi.getAllStations(),
-          PromotionApi.getAllPromotions({})
         ]);
 
         setStats({
           metroLines: metroLinesRes.result?.length || 0,
-          stations: stationsRes.result?.length || 0,
-          promotions: promotionsRes.result?.length || 0,
           operatingHours: "5:00 - 23:00"
         });
 
@@ -168,38 +139,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Metro Line Status Cards */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-wrap gap-6 justify-center">
-          {metroLines.map((line, idx) => {
-            const color = defaultColors[idx % defaultColors.length];
-            const icon = defaultIcons[idx % defaultIcons.length];
-            return (
-              <div
-                key={line.id}
-                className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                style={{ minWidth: 150 }}
-                tabIndex={0}
-                aria-label={`Thông tin ${line.metroName || `Tuyến Số ${line.metroLineNumber}`}`}
-                onKeyDown={e => { if (e.key === 'Enter') alert(`Bạn đã chọn ${line.metroName || `Tuyến Số ${line.metroLineNumber}`}`); }}
-              >
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
-                  style={{ background: color }}
-                >
-                  <img src={icon} alt={line.metroName || `Tuyến Số ${line.metroLineNumber}`} className="w-8 h-8" />
-                </div>
-                <div className="font-bold text-blue-700 text-base mb-1 text-center w-full">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</div>
-                <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
-                <div className="text-gray-900 text-sm">Normal service</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Metro Map Toggle Button and Section */}
-      <div className="max-w-7xl mx-auto px-4 pb-6 flex flex-col items-center">
+      <div className="max-w-7xl mx-auto px-4 pb-6 flex flex-col items-center mt-8">
         <button
           className="mb-4 px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-full shadow transition-all duration-200"
           onClick={() => setShowMap((prev) => !prev)}
@@ -238,7 +179,7 @@ export default function Home() {
                 </TransformWrapper>
               </div>
               {/* Legend for highlighting lines (static for now) */}
-              <div className="flex flex-wrap gap-4 mt-4 justify-center">
+              {/* <div className="flex flex-wrap gap-4 mt-4 justify-center">
                 {metroLines.map((line, idx) => {
                   const color = defaultColors[idx % defaultColors.length];
                   return (
@@ -248,7 +189,7 @@ export default function Home() {
                     </div>
                   );
                 })}
-              </div>
+              </div> */}
             </div>
           </div>
         )}
@@ -332,7 +273,7 @@ export default function Home() {
                 Hệ thống được thiết kế để giảm thiểu tắc nghẽn giao thông và cung cấp một giải pháp vận tải hiện đại, hiệu quả cho các cư dân thành phố.
               </p>
               <p className="mt-4">
-                Hiện đang vận hành {stats.metroLines} tuyến đường với {stats.stations} ga, hệ thống metro
+                Hiện đang vận hành {stats.metroLines} tuyến đường với các ga, hệ thống metro
                 cung cấp một phương tiện di chuyển an toàn, tiện lợi và hiện đại cho người dân thành phố.
               </p>
             </Card>
