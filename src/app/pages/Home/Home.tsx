@@ -111,7 +111,7 @@ export default function Home() {
   }, []);
 
   const now = time.toLocaleTimeString();
-  const today = time.toDateString();
+  const today = time.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
 
   return (
     <div className="min-h-[calc(100vh-120px)] bg-gradient-to-br from-blue-50 via-white to-blue-100">
