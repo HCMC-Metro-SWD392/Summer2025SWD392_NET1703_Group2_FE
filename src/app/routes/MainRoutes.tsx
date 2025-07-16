@@ -54,6 +54,7 @@ import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransac
 import RecentLogsPage from "../pages/Admin/LogActivityManagement/RecentLogsPage";
 import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
 import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswordForm";
+import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
 
 export default function MainRoutes() {
   return (
@@ -125,6 +126,7 @@ export default function MainRoutes() {
         <Route path="/admin/add-metro-line-station" element={<AddMetroLineStation />} />
         <Route path="/admin/transaction-ticket" element={<TicketTransactionPage />} />
         <Route path="/admin/log-activity" element={<RecentLogsPage />} />
+        <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
       </Route>
 
       <Route path="/staff" element={<Staff />} />
