@@ -15,7 +15,8 @@ import {
   Space,
   Table,
   Tooltip,
-  Typography
+  Typography,
+  Select,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
@@ -25,6 +26,7 @@ import type { Station } from '../../../../api/station/StationInterface';
 
 const { Title } = Typography;
 const { Search } = Input;
+const { Option } = Select;
 
 // Station status types
 type StationStatus = 'Active' | 'Partially Active' | 'Inactive';
@@ -57,16 +59,25 @@ const StationList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [stations, setStations] = useState<Station[]>([]);
   const [searchText, setSearchText] = useState('');
+  const [isActiveFilter, setIsActiveFilter] = useState<boolean | null>(null);
+
+  // Số lượng mặc định mỗi trang
+  const DEFAULT_PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   useEffect(() => {
     fetchStations();
-  }, []);
+  }, [isActiveFilter, page, pageSize]);
 
   const fetchStations = async () => {
     try {
       setLoading(true);
-      const response = await StationApi.getAllStations();
-      
+      const response = await StationApi.getAllStations({
+        isActive: isActiveFilter,
+        pageNumber: page,
+        pageSize: pageSize
+      });
       if (response.isSuccess && response.result) {
         setStations(response.result);
       } else {
@@ -102,6 +113,12 @@ const StationList: React.FC = () => {
   const handleRefresh = () => {
     fetchStations();
     setSearchText('');
+  };
+
+  const handleFilterChange = (value: boolean | null | string) => {
+    if (value === null) setIsActiveFilter(null);
+    else if (value === true || value === 'true') setIsActiveFilter(true);
+    else setIsActiveFilter(false);
   };
 
   const columns: ColumnsType<Station> = [
@@ -191,13 +208,33 @@ const StationList: React.FC = () => {
       </Row>
 
       <Card>
+        <Space style={{ marginBottom: 16 }}>
+          <Typography.Text strong>Lọc theo trạng thái:</Typography.Text>
+          <Select
+            style={{ width: 200 }}
+            value={isActiveFilter}
+            onChange={handleFilterChange}
+            placeholder="Chọn trạng thái"
+            allowClear
+          >
+            <Option value={null}>Tất cả</Option>
+            <Option value={true}>Đang hoạt động</Option>
+            <Option value={false}>Ngừng hoạt động</Option>
+          </Select>
+        </Space>
+
         <Table
           columns={columns}
           dataSource={stations}
           rowKey="id"
           loading={loading}
           pagination={{
-            pageSize: 10,
+            pageSize: pageSize,
+            current: page,
+            onChange: (p, ps) => {
+              setPage(p);
+              setPageSize(ps);
+            },
             showSizeChanger: true,
             showTotal: (total) => `Tổng số ${total} trạm`,
             locale: {

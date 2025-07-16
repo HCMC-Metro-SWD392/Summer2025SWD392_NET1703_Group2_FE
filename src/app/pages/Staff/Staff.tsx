@@ -36,6 +36,10 @@ const Staff: React.FC = () => {
         return <Navigate to="/unauthorized" replace />;
     }
 
+    const handleLogout = async () => {
+        await logout();
+    };
+
     const menuItems: MenuProps['items'] = [
         { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
@@ -76,7 +80,13 @@ const Staff: React.FC = () => {
                 setCollapsed={setCollapsed}
                 setBroken={setBroken}
                 menuItems={menuItems}
-                onMenuSelect={(key) => setSelectedKey(key)}
+                onMenuSelect={(key) => {
+                    if (key === 'logout') {
+                        handleLogout();
+                    } else {
+                        setSelectedKey(key);
+                    }
+                }}
                 theme='dark'
             />
 

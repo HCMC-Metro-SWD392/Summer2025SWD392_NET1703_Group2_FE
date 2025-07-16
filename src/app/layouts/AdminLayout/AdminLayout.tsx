@@ -92,6 +92,17 @@ import {
         ],
       },
       {
+        key: 'email-management',
+        icon: <SettingOutlined />,
+        label: 'Quản Lý Email',
+        children: [
+          {
+            key: '/admin/create-email-template',
+            label: 'Tạo Email Template',
+          },
+        ],
+      },
+      {
         key: 'ticket-transaction-management',
         icon: <IdcardOutlined />,
         label: 'Quản Lý Giao Dịch Vé',

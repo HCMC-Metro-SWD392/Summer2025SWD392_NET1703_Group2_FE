@@ -45,10 +45,23 @@ export const StationApi = {
     },
 
     // Get all stations
-    getAllStations: async (): Promise<ResponseDTO<Station[]>> => {
+    getAllStations: async (options?: {
+        isActive?: boolean | null,
+        isAscending?: boolean,
+        pageNumber?: number,
+        pageSize?: number
+    }): Promise<ResponseDTO<Station[]>> => {
         try {
+            const params: any = {};
+            if (options) {
+                if (options.isActive !== null && options.isActive !== undefined) params.isActive = options.isActive;
+                if (options.isAscending !== undefined) params.isAscending = options.isAscending;
+                if (options.pageNumber !== undefined) params.pageNumber = options.pageNumber;
+                if (options.pageSize !== undefined) params.pageSize = options.pageSize;
+            }
             const response: AxiosResponse<ResponseDTO<Station[]>> = await axiosInstance.get(
-                STATION_ENDPOINTS.GET_ALL
+                STATION_ENDPOINTS.GET_ALL,
+                { params }
             );
             return response.data;
         } catch (error: any) {
@@ -64,6 +77,22 @@ export const StationApi = {
         try {
             const response: AxiosResponse<ResponseDTO<Station>> = await axiosInstance.get(
                 `${STATION_ENDPOINTS.GET_BY_ID}/${stationId}`
+            );
+            return response.data;
+        } catch (error: any) {
+            if (error.response) {
+                return error.response.data;
+            }
+            throw error;
+        }
+    },
+
+    // Set isActive status for a station
+    setIsActive: async (stationId: string, isActive: boolean): Promise<ResponseDTO<Station>> => {
+        try {
+            const response: AxiosResponse<ResponseDTO<Station>> = await axiosInstance.patch(
+                `/api/Station/set-isActive/${stationId}`,
+                { isActive }
             );
             return response.data;
         } catch (error: any) {

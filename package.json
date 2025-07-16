@@ -28,7 +28,7 @@
     "react-router-dom": "^7.6.0",
     "react-signify": "^1.5.7",
     "react-zoom-pan-pinch": "^3.7.0",
-    "recharts": "^3.0.0",
+    "recharts": "^3.0.2",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
-import { MenuUnfoldOutlined } from '@ant-design/icons';
+import { MenuUnfoldOutlined, LogoutOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Button } from 'antd';
 import React from 'react';
 import logoMetro from "../../assets/logo.png";
 
@@ -13,6 +13,7 @@ interface SidebarProps {
   setBroken: (val: boolean) => void;
   menuItems: MenuProps['items'];      // ✅ nhận menuItems qua props
   onMenuSelect: (key: string) => void;
+  onLogout?: () => void;
   theme?: 'light' | 'dark';
 }
 
@@ -23,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   setBroken,
   menuItems,
   onMenuSelect,
+  onLogout,
   theme,
 }) => {
   return (
@@ -75,6 +77,20 @@ const Sidebar: React.FC<SidebarProps> = ({
           items={menuItems}
           onClick={({ key }) => onMenuSelect(key)}
         />
+        {onLogout && (
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <Button
+              type="primary"
+              danger
+              icon={<LogoutOutlined />}
+              onClick={onLogout}
+              block
+              size="large"
+            >
+              {!collapsed && 'Đăng xuất'}
+            </Button>
+          </div>
+        )}
       </Sider>
     </>
   );
