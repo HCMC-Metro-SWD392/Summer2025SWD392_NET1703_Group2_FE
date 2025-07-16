@@ -103,11 +103,12 @@ export const checkUserRole = (allowedRoles: string | string[]): boolean => {
 };
 
 export const changePassword = async (data: {
-  currentPassword: string;
+  email: string;
+  token: string;
   newPassword: string;
   confirmPassword: string;
 }) => {
-  const response = await axiosInstance.put('/api/Auth/change-password', data);
+  const response = await axiosInstance.post('/api/Auth/reset-password', data);
   return response.data;
 };
 

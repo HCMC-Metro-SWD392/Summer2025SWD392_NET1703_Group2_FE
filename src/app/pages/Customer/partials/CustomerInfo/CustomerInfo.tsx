@@ -5,15 +5,20 @@ import styles from './CustomerInfo.module.css';
 import UpdateProfileButton from './UpdateProfileButton';
 import axiosInstance from '../../../../../settings/axiosInstance';
 import type { UserInfo } from '../../../../../types/types';
+import { useNavigate } from 'react-router-dom';
+import { getUserInfo } from '../../../../../api/auth/tokenUtils';
 
 const { Title, Text } = Typography;
 
-const CustomerInfo: React.FC = () => {
+const AccountInfo: React.FC = () => {
+    const navigate = useNavigate();
     const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const customerId = user.id;
     const [customerData, setCustomerData] = useState<UserInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const userInfo = getUserInfo();
+    const role = userInfo?.role?.toUpperCase?.() || '';
 
     useEffect(() => {
         if (!customerId) {
@@ -69,16 +74,26 @@ const CustomerInfo: React.FC = () => {
 
     return (
         <div className="flex min-h-screen justify-center items-start pt-16 pb-8">
+            <div style={{ width: '100%', maxWidth: 800, display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <button
+                    onClick={() => navigate(-1)}
+                    style={{ background: '#f0f0f0', border: 'none', borderRadius: 6, padding: '6px 16px', cursor: 'pointer', fontWeight: 500 }}
+                >
+                    ← Quay lại
+                </button>
+            </div>
             <Card className={styles['customer-info-card']}>
-                <div className={styles['customer-header']}>
-                    <Avatar
-                        size={64}
-                        icon={<UserOutlined />}
-                    />
-                    <Title level={3} style={{ margin: '12px 0' }}>
-                        {customerData.fullName}
-                    </Title>
-                </div>
+                {role === 'CUSTOMER' && (
+                    <div className={styles['customer-header']}>
+                        <Avatar
+                            size={64}
+                            icon={<UserOutlined />}
+                        />
+                        <Title level={3} style={{ margin: '12px 0' }}>
+                            {customerData.fullName}
+                        </Title>
+                    </div>
+                )}
 
                 <Divider style={{ margin: '12px 0' }} />
 
@@ -143,4 +158,4 @@ const CustomerInfo: React.FC = () => {
     );
 };
 
-export default CustomerInfo;
+export default AccountInfo;

@@ -46,6 +46,7 @@ const Staff: React.FC = () => {
         { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
         { key: '4', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
         { key: '5', icon: <LogoutOutlined />, label: 'Đăng xuất' },
+        { key: 'account', icon: <UserOutlined />, label: 'Quản lý tài khoản' },
         // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
         // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
         // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
@@ -66,6 +67,9 @@ const Staff: React.FC = () => {
             case '5':
                 logout();
                 navigate('/login');
+                return null;
+            case 'account':
+                navigate('/accountInfor');
                 return null;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;

@@ -5,7 +5,7 @@ import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
 import BuySubscriptionTicket from "../pages/Customer/partials/BuySubscriptionTicket/BuySubscriptionTicket";
-import CustomerInfo from "../pages/Customer/partials/CustomerInfo/CustomerInfo";
+import AccountInfo from "../pages/Customer/partials/CustomerInfo/CustomerInfo";
 import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
 import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
 import Home from "../pages/Home";
@@ -95,7 +95,7 @@ export default function MainRoutes() {
             <Route path="mySubmittedRequest" element={<MySubmittedRequests />}/>
             <Route path="submit-success" element={<SubmitSuccess />}/>
           </Route>
-          <Route path="/customerInfor" element={<CustomerInfo />} />
+          <Route path="/accountInfor" element={<AccountInfo />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
           <Route path="/metro-line" element={<AllMetroLine />} />
@@ -108,7 +108,7 @@ export default function MainRoutes() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/forgot-password" element={<EmailForm/>} />
-          <Route path="/reset-password" element={<ResetPasswordForm/>} />
+          <Route path="/resetPassword" element={<ResetPasswordForm/>} />
         </Route>
 
         <Route element={<ManagerLayout/>}>

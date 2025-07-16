@@ -126,6 +126,11 @@ import {
           },
         ],
       },
+      {
+        key: '/accountInfor',
+        icon: <UserOutlined />,
+        label: 'Quản lý tài khoản',
+      },
     ];
   
     const handleMenuClick = ({ key }: { key: string }) => {
