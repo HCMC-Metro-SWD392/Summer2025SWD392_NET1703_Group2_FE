@@ -7,48 +7,69 @@ import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
 import { StationApi } from "../../../api/station/StationApi";
 import { PromotionApi } from "../../../api/promotion/PromotionApi";
 import metroMap from '../../assets/Metro Map.png';
+import type { GetMetroLineDTO } from "../../../api/metroLine/MetroLineInterface";
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 
 const { Title, Text } = Typography;
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
 const CITY_NAME = "Ho Chi Minh";
 
-// Hardcoded metro line info
-const metroLineInfos = [
+const metroLineStatusList = [
   {
-    name: "TUYẾN METRO SỐ 1",
-    subtitle: "(Bến Thành - Suối Tiên)",
-    description:
-      "Tuyến metro số 1 (Bến Thành – Suối Tiên) của TP.HCM là tuyến metro đầu tiên của thành phố, dài khoảng 19,7 km, bao gồm 14 ga và một depot. Tuyến này sẽ kết nối các khu vực trung tâm như Bến Thành với các quận vùng ven như Thủ Đức và các khu vực đô thị phát triển, giúp giảm ùn tắc giao thông và tạo ra một phương tiện vận chuyển công cộng hiện đại, tiện lợi.",
+    code: "T1",
+    name: "Tuyến Số 1",
+    icon: "/stations/icon_t01.png",
+    status: "Normal service",
+    color: "#FFA500", // orange
   },
   {
-    name: "TUYẾN METRO SỐ 2",
-    subtitle: "(Bến Thành - Tham Lương)",
-    description:
-      "Tuyến metro số 2 (Bến Thành – Tham Lương) sẽ kết nối trung tâm thành phố với các khu vực phía Tây Bắc, góp phần giảm ùn tắc giao thông và thúc đẩy phát triển đô thị tại các quận lân cận.",
+    code: "T2",
+    name: "Tuyến Số 2",
+    icon: "/stations/icon_t02.png",
+    status: "Normal service",
+    color: "#FF3B30", // red
   },
   {
-    name: "TUYẾN METRO SỐ 3",
-    subtitle: "(Thạnh Xuân - Hiệp Phước)",
-    description:
-      "Tuyến metro số 3B (Thạnh Xuân – Hiệp Phước) là một trong những tuyến metro dự kiến phát triển tại TP.HCM, dài khoảng 23 km, đi qua nhiều quận như 12, Gò Vấp, Phú Nhuận, Quận 1, Quận 4, và Nhà Bè. Tuyến này bao gồm các ga ngầm và trên cao, với mục tiêu kết nối các khu dân cư phía Bắc thành phố (Thạnh Xuân) đến khu đô thị – cảng Hiệp Phước ở phía Nam. Tuyến metro số 3B sẽ góp phần tăng cường giao thông trục Bắc – Nam, giảm áp lực cho các tuyến đường chính như Nguyễn Thị Minh Khai, Trường Chinh, và Nguyễn Văn Linh.",
+    code: "T3",
+    name: "Tuyến Số 3",
+    icon: "/stations/icon_t03.png",
+    status: "Normal service",
+    color: "#4A90E2", // blue
   },
   {
-    name: "TUYẾN METRO SỐ 4",
-    subtitle: "(Công viên Gia Định - Lăng Cha Cả)",
-    description:
-      "Tuyến metro số 4 (Công viên Gia Định – Khu đô thị Hiệp Phước) có tổng chiều dài khoảng 35,7 km, là một trong những tuyến dài nhất theo quy hoạch, bao gồm khoảng 32 ga và hai depot lớn. Tuyến đi qua các quận trung tâm như Gò Vấp, Phú Nhuận, Quận 3, Quận 1, Quận 4, Quận 7 và kết thúc tại Hiệp Phước (Nhà Bè). Với vai trò là trục xương sống theo hướng Bắc – Nam, tuyến metro số 4 kỳ vọng sẽ tạo đột phá trong kết nối đô thị và phục vụ nhu cầu đi lại cho hàng chục nghìn lượt hành khách mỗi ngày.",
+    code: "T4",
+    name: "Tuyến Số 4",
+    icon: "/stations/icon_t04.png",
+    status: "Normal service",
+    color: "#50E3C2", // teal
   },
   {
-    name: "TUYẾN METRO SỐ 5",
-    subtitle: "(Cộng Hòa - Hiệp Bình)",
-    description:
-      "Tuyến metro số 5 (Cộng Hòa – Hiệp Bình Phước) là tuyến metro theo trục Đông – Tây, dài khoảng 23 km, kết nối từ nút giao Cộng Hòa – Trường Chinh (quận Tân Bình) đến Hiệp Bình Phước (TP Thủ Đức). Tuyến này đi qua nhiều khu vực dân cư đông đúc như Quận 10, Bình Thạnh và Thủ Đức. Khi hoàn thành, tuyến số 5 sẽ giúp phân luồng giao thông giữa nội đô và các khu công nghiệp phía Đông, đồng thời kết nối với các tuyến metro khác như số 1, 2 và 3B để tạo thành mạng lưới giao thông hiện đại và liên hoàn.",
+    code: "T5",
+    name: "Tuyến Số 5",
+    icon: "/stations/icon_t05.png",
+    status: "Normal service",
+    color: "#B8E986", // light green
   },
   {
-    name: "TUYẾN METRO SỐ 6",
-    subtitle: "(Bà Quẹo - Công viên Phú Lâm)",
-    description:
-      "Tuyến metro số 6 (Bà Quẹo – Công viên Phú Lâm) là tuyến metro ngầm dài khoảng 6,8 km, với 7 nhà ga. Tuyến này bắt đầu từ khu vực Bà Quẹo (gần đường Âu Cơ – Tân Bình), đi qua các trục đường lớn như Lũy Bán Bích và Tân Hòa Đông, và kết thúc tại vòng xoay Phú Lâm (Quận 6). Tuyến metro số 6 có vai trò kết nối khu vực phía Tây TP.HCM với trung tâm, góp phần giảm tải áp lực giao thông tại các tuyến đường huyết mạch, đặc biệt là tuyến xe buýt đông đúc số 69 và các trục Nguyễn Văn Luông, Hồng Bàng.",
+    code: "T6",
+    name: "Tuyến Số 6",
+    icon: "/stations/icon_t06.png",
+    status: "Normal service",
+    color: "#BD10E0", // purple
+  },
+  {
+    code: "T7",
+    name: "Tuyến Số 7",
+    icon: "/stations/icon_t07.png",
+    status: "Normal service",
+    color: "#7ED321", // green
+  },
+  {
+    code: "T8",
+    name: "Tuyến Số 8",
+    icon: "/stations/icon_t08.png",
+    status: "Normal service",
+    color: "#A0522D", // brown
   },
 ];
 
@@ -63,9 +84,21 @@ export default function Home() {
     operatingHours: "5:00 - 23:00"
   });
 
+  // New state for fetched metro lines
+  const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]); // Array of metro line objects
   const [currentMetroIndex, setCurrentMetroIndex] = useState(0);
+  const [metroLinesLoading, setMetroLinesLoading] = useState(true);
+
+  // Personalization: get username from localStorage
+  const [username, setUsername] = useState<string | null>(null);
+  useEffect(() => {
+    setUsername(localStorage.getItem('username'));
+  }, []);
+
   const handleNextMetro = () => {
-    setCurrentMetroIndex((prev) => (prev + 1) % metroLineInfos.length);
+    if (metroLines.length > 0) {
+      setCurrentMetroIndex((prev) => (prev + 1) % metroLines.length);
+    }
   };
 
   useEffect(() => {
@@ -91,10 +124,14 @@ export default function Home() {
           promotions: promotionsRes.result?.length || 0,
           operatingHours: "5:00 - 23:00"
         });
+
+        // Set metro lines from API
+        setMetroLines(metroLinesRes.result || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
+        setMetroLinesLoading(false);
       }
     };
 
@@ -115,7 +152,7 @@ export default function Home() {
   const today = time.toDateString();
 
   return (
-    <div className="min-h-[calc(100vh-120px)] bg-gray-100">
+    <div className="min-h-[calc(100vh-120px)] bg-gradient-to-br from-blue-50 via-white to-blue-100">
       {/* Hero Section */}
       <div 
         className="relative h-[400px] bg-cover bg-center"
@@ -126,7 +163,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative h-full flex flex-col items-center justify-center text-white px-4">
           <Title level={1} className="text-5xl font-bold text-center drop-shadow-md" style={{ color: 'white' }}>
-            Chào Mừng Đến Với HCMC Metro
+            {username ? `Chào mừng, ${username}!` : 'Chào Mừng Đến Với HCMC Metro'}
           </Title>
           <Text className="mt-4 text-lg text-center bg-black/40 px-4 py-2 rounded-md inline-block" style={{ color: 'white' }}>
             {today} | {now}
@@ -144,99 +181,79 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Stats Section */}
+      {/* Metro Line Status Cards */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <Spin spinning={loading}>
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} md={6}>
-              <Card>
-                <Statistic
-                  title="Số tuyến đường"
-                  value={stats.metroLines}
-                  prefix={<CarOutlined />}
-                  valueStyle={{ color: '#1890ff' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card>
-                <Statistic
-                  title="Số ga"
-                  value={stats.stations}
-                  prefix={<EnvironmentOutlined />}
-                  valueStyle={{ color: '#52c41a' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card>
-                <Statistic
-                  title="Khuyến mãi đang áp dụng"
-                  value={stats.promotions}
-                  prefix={<TeamOutlined />}
-                  valueStyle={{ color: '#722ed1' }}
-                />
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card>
-                <Statistic
-                  title="Giờ hoạt động"
-                  value={stats.operatingHours}
-                  prefix={<ClockCircleOutlined />}
-                  valueStyle={{ color: '#fa8c16' }}
-                />
-              </Card>
-            </Col>
-          </Row>
-        </Spin>
-      </div>
-
-      {/* Metro Line Info Card Section */}
-      <div className="max-w-7xl mx-auto px-4 pb-8">
-        <div
-          className="flex flex-col md:flex-row items-center bg-[#f7f4f0] border-2 border-blue-700 rounded-none p-8 gap-8"
-          style={{ minHeight: 220 }}
-        >
-          <div className="flex-1 flex flex-col items-center md:items-start">
-            <div className="text-blue-800 font-bold text-2xl md:text-3xl text-center md:text-left leading-tight">
-              {metroLineInfos[currentMetroIndex].name}
-            </div>
-            <div className="text-blue-800 font-bold text-xl md:text-2xl mt-1 text-center md:text-left">
-              {metroLineInfos[currentMetroIndex].subtitle}
-            </div>
-          </div>
-          <div className="flex-[2] text-gray-800 text-base md:text-lg leading-relaxed">
-            {metroLineInfos[currentMetroIndex].description}
-          </div>
-          <div className="flex items-center justify-center mt-6 md:mt-0">
-            <button
-              className="bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-8 rounded-full text-lg shadow transition-all duration-200"
-              onClick={handleNextMetro}
+        <div className="flex flex-wrap gap-6 justify-center">
+          {metroLineStatusList.map((line, idx) => (
+            <div
+              key={line.code}
+              className="bg-white rounded-xl shadow-lg p-4 flex flex-col items-center w-40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              style={{ minWidth: 150 }}
+              tabIndex={0}
+              aria-label={`Thông tin ${line.name}`}
+              onKeyDown={e => { if (e.key === 'Enter') alert(`Bạn đã chọn ${line.name}`); }}
             >
-              Tuyến Tiếp Theo <span className="ml-2">&#8594;</span>
-            </button>
-          </div>
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                style={{ background: line.color }}
+              >
+                <img src={line.icon} alt={line.name} className="w-8 h-8" />
+              </div>
+              <div className="font-bold text-blue-700 text-base mb-1">{line.name}</div>
+              <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
+              <div className="text-gray-900 text-sm">{line.status}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Metro Map Section */}
+      {/* Metro Map Section - Interactive */}
       <div className="max-w-7xl mx-auto px-4 pb-12">
-        <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+        <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
           <h2 className="text-blue-700 font-bold text-3xl mb-4">Bản đồ HCMC Metro</h2>
-          <img
-            src={metroMap}
-            alt="Bản đồ HCMC Metro"
-            className="w-full max-w-2xl h-auto border border-blue-200 rounded"
-            style={{ objectFit: 'contain' }}
-          />
+          <div className="w-full max-w-2xl h-auto border border-blue-200 rounded overflow-hidden bg-gray-50">
+            {/* Types for zoomIn, zoomOut, resetTransform are () => void */}
+            <TransformWrapper
+              initialScale={1}
+              minScale={0.7}
+              maxScale={3}
+              doubleClick={{ disabled: true }}
+            >
+              {({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
+                <>
+                  <div className="flex gap-2 mb-2 justify-end">
+                    <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomIn} aria-label="Phóng to">+</button>
+                    <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomOut} aria-label="Thu nhỏ">-</button>
+                    <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={resetTransform} aria-label="Đặt lại">Reset</button>
+                  </div>
+                  <TransformComponent>
+                    <img
+                      src={metroMap}
+                      alt="Bản đồ HCMC Metro"
+                      className="w-full h-auto select-none"
+                      style={{ objectFit: 'contain', pointerEvents: 'all' }}
+                    />
+                  </TransformComponent>
+                </>
+              )}
+            </TransformWrapper>
+          </div>
+          {/* Legend for highlighting lines (static for now) */}
+          <div className="flex flex-wrap gap-4 mt-4 justify-center">
+            {metroLineStatusList.map((line) => (
+              <div key={line.code} className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full inline-block" style={{ background: line.color }}></span>
+                <span className="text-gray-700 text-sm">{line.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* FAQ Section */}
       <div className="max-w-7xl mx-auto px-4 pb-8 bg-[#f7f4f0]">
         <div className="pt-8 pb-4">
-          <h2 className="text-blue-700 font-bold text-4xl mb-4">Thông tin nhanh</h2>
+          <h2 className="text-blue-700 font-bold text-4xl mb-4">Câu Hỏi Thường Gặp</h2>
           <Collapse
             accordion
             bordered={false}
