@@ -15,6 +15,7 @@ export interface GetStationDTO {
     name: string;      
     address?: string;  
     description?: string; 
+    isActive: boolean;
 }
 
 export interface Station extends GetStationDTO {

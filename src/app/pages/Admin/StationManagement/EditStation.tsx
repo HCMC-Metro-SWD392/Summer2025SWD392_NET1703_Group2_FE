@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, message, Spin } from 'antd';
+import { Button, Card, Form, Input, message, Spin, Switch, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { Controller, useForm } from 'react-hook-form';
@@ -12,7 +12,8 @@ const EditStation: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const { control, handleSubmit, reset, formState: { errors, isDirty } } = useForm<UpdateStationDTO>({
+  const [initialIsActive, setInitialIsActive] = useState<boolean | null>(null);
+  const { control, handleSubmit, reset, getValues, formState: { errors, isDirty, dirtyFields } } = useForm<UpdateStationDTO>({
     mode: 'onBlur'
   });
 
@@ -22,18 +23,22 @@ const EditStation: React.FC = () => {
 
   const fetchStation = async () => {
     if (!id) return;
-    
     try {
       setInitialLoading(true);
       const response = await StationApi.getStationById(id);
-      
       if (response.isSuccess && response.result) {
         const station = response.result;
+        console.log('API trả về station:', station); // Log giá trị station trả về
         reset({
           name: station.name,
-          address: station.address || undefined, // Convert null to undefined for optional fields
-          description: station.description || undefined
+          address: station.address || undefined,
+          description: station.description || undefined,
+          // initialIsActive: station.isActive
         });
+        setInitialIsActive(station.isActive);
+        setTimeout(() => {
+          console.log('Giá trị form sau reset:', getValues());
+        }, 0);
       } else {
         message.error(response.message || 'Không thể tải thông tin trạm');
         navigate('/admin/station');
@@ -49,30 +54,32 @@ const EditStation: React.FC = () => {
 
   const onSubmit = async (data: UpdateStationDTO) => {
     if (!id) return;
-
-    // Only send fields that have been changed
-    const changedData = Object.entries(data).reduce((acc, [key, value]) => {
-      if (value !== undefined) {
-        acc[key as keyof UpdateStationDTO] = value;
-      }
-      return acc;
-    }, {} as UpdateStationDTO);
-
-    // Don't submit if no changes
-    if (Object.keys(changedData).length === 0) {
-      message.info('Không có thay đổi nào được thực hiện');
-      return;
-    }
-
+    let updated = false;
     try {
       setLoading(true);
-      const response = await StationApi.updateStation(id, changedData);
-      
-      if (response.isSuccess) {
+      console.log('Submit data:', data); // Log dữ liệu submit
+      // Cập nhật thông tin station nếu có thay đổi
+      const changedData = Object.entries(data).reduce((acc, [key, value]) => {
+        if (value !== undefined) {
+          acc[key as keyof UpdateStationDTO] = value;
+        }
+        return acc;
+      }, {} as UpdateStationDTO);
+      if (Object.keys(changedData).length > 0) {
+        const response = await StationApi.updateStation(id, changedData);
+        console.log('Response updateStation:', response); // Log response updateStation
+        if (!response.isSuccess) {
+          message.error(response.message || 'Có lỗi xảy ra khi cập nhật trạm Metro');
+          return;
+        }
+        updated = true;
+      }
+      if (updated) {
         message.success('Cập nhật trạm Metro thành công');
-        navigate('/admin/station');
+        await fetchStation(); // Lấy lại dữ liệu mới nhất và reset form
+        // navigate('/admin/station'); // Nếu muốn ở lại trang chỉnh sửa
       } else {
-        message.error(response.message || 'Có lỗi xảy ra khi cập nhật trạm Metro');
+        message.info('Không có thay đổi nào được thực hiện');
       }
     } catch (error) {
       message.error('Có lỗi xảy ra khi cập nhật trạm Metro');
@@ -82,6 +89,32 @@ const EditStation: React.FC = () => {
     }
   };
 
+  const handleChangeIsActive = async (checked: boolean) => {
+    if (!id) return;
+    if (checked === initialIsActive) {
+      message.info(`Trạng thái đã là ${checked ? 'Hoạt động' : 'Ngừng hoạt động'}, không có thay đổi nào.`);
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await StationApi.setIsActive(id, checked);
+      console.log('Response setIsActive:', response);
+      if (response.isSuccess) {
+        setInitialIsActive(checked);
+        message.success('Cập nhật trạng thái hoạt động thành công');
+        await fetchStation();
+      } else {
+        message.error(response.message || 'Có lỗi khi cập nhật trạng thái hoạt động');
+      }
+    } catch (error) {
+      message.error('Có lỗi khi cập nhật trạng thái hoạt động');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sửa lại generic cho renderField và renderTextArea để chỉ dùng cho các trường string
   const renderField = (field: ControllerRenderProps<UpdateStationDTO, keyof UpdateStationDTO>) => (
     <Input {...field} />
   );
@@ -116,6 +149,20 @@ const EditStation: React.FC = () => {
             onFinish={handleSubmit(onSubmit)}
             className="space-y-4"
           >
+            <Form.Item label="Trạng thái hoạt động">
+              <Select
+                value={initialIsActive === null ? undefined : initialIsActive ? 'active' : 'inactive'}
+                onChange={async (value) => {
+                  const checked = value === 'active';
+                  await handleChangeIsActive(checked);
+                }}
+                style={{ width: 200 }}
+                loading={loading}
+              >
+                <Select.Option value="active">Hoạt động</Select.Option>
+                <Select.Option value="inactive">Ngừng hoạt động</Select.Option>
+              </Select>
+            </Form.Item>
             <Form.Item
               label="Tên Trạm"
               validateStatus={errors.name ? 'error' : ''}
@@ -138,10 +185,9 @@ const EditStation: React.FC = () => {
                     message: 'Tên trạm chỉ được chứa chữ cái, số và khoảng trắng'
                   }
                 }}
-                render={({ field }) => renderField(field)}
+                render={({ field }) => <Input {...field} />}
               />
             </Form.Item>
-
             <Form.Item
               label="Địa Chỉ"
               validateStatus={errors.address ? 'error' : ''}
@@ -160,10 +206,9 @@ const EditStation: React.FC = () => {
                     message: 'Địa chỉ không được vượt quá 200 ký tự'
                   }
                 }}
-                render={({ field }) => renderField(field)}
+                render={({ field }) => <Input {...field} />}
               />
             </Form.Item>
-
             <Form.Item
               label="Mô Tả"
               validateStatus={errors.description ? 'error' : ''}
@@ -182,10 +227,9 @@ const EditStation: React.FC = () => {
                     message: 'Mô tả không được vượt quá 500 ký tự'
                   }
                 }}
-                render={({ field }) => renderTextArea(field)}
+                render={({ field }) => <Input.TextArea {...field} rows={4} />}
               />
             </Form.Item>
-
             <Form.Item>
               <Button
                 type="primary"

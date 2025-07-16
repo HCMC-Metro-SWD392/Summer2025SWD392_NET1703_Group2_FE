@@ -92,6 +92,15 @@ import {
         ],
       },
       {
+<<<<<<< HEAD
+        key: 'email-management',
+        icon: <SettingOutlined />,
+        label: 'Quản Lý Email',
+        children: [
+          {
+            key: '/admin/create-email-template',
+            label: 'Tạo Email Template',
+=======
         key: 'ticket-transaction-management',
         icon: <IdcardOutlined />,
         label: 'Quản Lý Giao Dịch Vé',
@@ -110,6 +119,7 @@ import {
           {
             key: '/admin/log-activity',
             label: 'Hoạt động',
+>>>>>>> c446bac6ff7485f45891b5b1f64613ad50551e61
           },
         ],
       },

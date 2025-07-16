@@ -45,11 +45,15 @@ import CreateStaff from "../pages/Manager/StaffManagement/CreateStaff";
 import UnauthorizedPage from "../pages/Home/partials/Unauthorized/UnauthorizedPage";
 import MySubmittedRequests from "../pages/Customer/partials/BuySubscriptionTicket/partials/MySubmittedRequests";
 import StaffSchedule from "../pages/Manager/StaffManagement/StaffSchedule";
+import ChangePasswordForm from "../pages/Home/partials/ChangePassword/ChangePasswordForm";
+import AllMetroLine from "../pages/Customer/partials/MetroLine/partials/AllMetroLine";
 import AddMetroLineStation from "../pages/Admin/MetroLineManagement/AddMetroLineStation";
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminMain from "../pages/Admin/AdminMain";
 import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransactionPage";
 import RecentLogsPage from "../pages/Admin/LogActivityManagement/RecentLogsPage";
+import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
+import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswordForm";
 
 export default function MainRoutes() {
   return (
@@ -72,6 +76,8 @@ export default function MainRoutes() {
           </Route>
           <Route path="/customerInfor" element={<CustomerInfo />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route path="/change-password" element={<ChangePasswordForm />} />
+          <Route path="/metro-line" element={<AllMetroLine />} />
         </Route>
 
 
@@ -79,6 +85,8 @@ export default function MainRoutes() {
         <Route element={<HeaderOnlyLayout/>}>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/forgot-password" element={<EmailForm/>} />
+          <Route path="/reset-password" element={<ResetPasswordForm/>} />
         </Route>
 
         <Route element={<ManagerLayout/>}>
