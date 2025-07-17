@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button, message, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../../../settings/axiosInstance';
 
 const { Title } = Typography;
@@ -22,6 +23,7 @@ interface CreateNewsData {
 }
 
 const CreateNews: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateNewsData>({
     title: '',
@@ -133,6 +135,7 @@ const CreateNews: React.FC = () => {
       if (response.data?.isSuccess) {
         console.log('[DEBUG] Success! Message:', response.data?.message);
         message.success(response.data?.message || 'Tạo tin tức thành công!');
+        
         // Reset form
         setFormData({
           title: '',
@@ -144,6 +147,11 @@ const CreateNews: React.FC = () => {
         });
         setErrors({});
         console.log('[DEBUG] Form reset successfully');
+        
+        // Redirect to news list page after successful creation
+        setTimeout(() => {
+          navigate('/staff/news-list');
+        }, 1500); // Delay để người dùng thấy message success
       } else {
         console.log('[DEBUG] Request failed. Response:', response.data);
         message.error(response.data?.message || 'Tạo tin tức thất bại');
