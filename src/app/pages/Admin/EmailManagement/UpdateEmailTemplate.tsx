@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Modal, Form, Input, Button, message, Typography, Select, Spin, Descriptions } from 'antd';
+import { Modal, Button, message, Typography, Spin, Descriptions } from 'antd';
 import axiosInstance from '../../../../settings/axiosInstance';
 
 const { Title } = Typography;
@@ -26,7 +26,6 @@ interface UpdateEmailTemplateProps {
 }
 
 const UpdateEmailTemplate: React.FC<UpdateEmailTemplateProps> = ({ templateId, open, onClose, onSuccess }) => {
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -34,10 +33,27 @@ const UpdateEmailTemplate: React.FC<UpdateEmailTemplateProps> = ({ templateId, o
   const location = useLocation();
   const templateData = location.state;
 
-  // Nếu có state truyền sang thì set initialValues cho form
+  // Form state
+  const [formData, setFormData] = useState({
+    templateName: '',
+    subjectLine: '',
+    bodyContent: '',
+    senderName: '',
+    category: '',
+    preHeaderText: '',
+    personalizationTags: '',
+    footerContent: '',
+    callToAction: '',
+    language: '',
+    recipientType: ''
+  });
+
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+  // Load initial data
   useEffect(() => {
     if (templateData) {
-      form.setFieldsValue(templateData);
+      setFormData(templateData);
       // Lưu vào localStorage để fallback nếu F5 hoặc vào lại
       localStorage.setItem('update_email_template_data', JSON.stringify({ id: templateId, data: templateData }));
     } else {
@@ -47,25 +63,52 @@ const UpdateEmailTemplate: React.FC<UpdateEmailTemplateProps> = ({ templateId, o
         try {
           const parsed = JSON.parse(local);
           if (parsed.id === templateId && parsed.data) {
-            form.setFieldsValue(parsed.data);
-          } else {
-            // Nếu không đúng id, gọi API lấy chi tiết (nếu muốn)
-            // setFetching(true);
-            // axiosInstance.get(`/api/Email/get-email-template/${templateId}`)
-            //   .then(res => {
-            //     if (res.data) form.setFieldsValue(res.data);
-            //   })
-            //   .catch(() => message.error('Không lấy được thông tin template!'))
-            //   .finally(() => setFetching(false));
+            setFormData(parsed.data);
           }
         } catch {}
       }
     }
-  }, [templateData, templateId, form]);
+  }, [templateData, templateId]);
 
-  const handlePreview = (values: any) => {
-    setPreviewData(values);
-    setPreviewVisible(true);
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {};
+    
+    if (!formData.templateName.trim()) newErrors.templateName = 'Tên template là bắt buộc';
+    if (!formData.subjectLine.trim()) newErrors.subjectLine = 'Tiêu đề là bắt buộc';
+    if (!formData.bodyContent.trim()) newErrors.bodyContent = 'Nội dung là bắt buộc';
+    if (!formData.senderName.trim()) newErrors.senderName = 'Tên người gửi là bắt buộc';
+    if (!formData.category.trim()) newErrors.category = 'Danh mục là bắt buộc';
+    if (!formData.preHeaderText.trim()) newErrors.preHeaderText = 'Pre-header text là bắt buộc';
+    if (!formData.personalizationTags.trim()) newErrors.personalizationTags = 'Personalization tags là bắt buộc';
+    if (!formData.footerContent.trim()) newErrors.footerContent = 'Footer là bắt buộc';
+    if (!formData.callToAction.trim()) newErrors.callToAction = 'Call to action là bắt buộc';
+    if (!formData.language.trim()) newErrors.language = 'Ngôn ngữ là bắt buộc';
+    if (!formData.recipientType.trim()) newErrors.recipientType = 'Loại người nhận là bắt buộc';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handlePreview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      setPreviewData(formData);
+      setPreviewVisible(true);
+    }
   };
 
   const handleUpdate = async () => {
@@ -91,7 +134,6 @@ const UpdateEmailTemplate: React.FC<UpdateEmailTemplateProps> = ({ templateId, o
 
   const handlePreviewCancel = () => {
     setPreviewVisible(false);
-    // Không reset form, giữ nguyên giá trị đã nhập
   };
 
   return (
@@ -104,42 +146,211 @@ const UpdateEmailTemplate: React.FC<UpdateEmailTemplateProps> = ({ templateId, o
       destroyOnClose
     >
       {fetching ? <Spin /> : (
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handlePreview}
-          initialValues={templateData || {}} // nếu có state thì set initialValues
-        >
-          <Form.Item name="templateName" label="Tên Template" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item name="subjectLine" label="Tiêu Đề" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item name="bodyContent" label="Nội Dung" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input.TextArea rows={8} /> </Form.Item>
-          <Form.Item name="senderName" label="Tên Người Gửi" rules={[{ required: true, message: 'Bắt buộc' }]}> 
-            <Select>
-              {SENDER_OPTIONS.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="category" label="Danh Mục" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item name="preHeaderText" label="Pre-header Text" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item name="personalizationTags" label="Personalization Tags" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item name="footerContent" label="Footer" rules={[{ required: true, message: 'Bắt buộc' }]}> 
-            <Select>
-              {FOOTER_OPTIONS.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="callToAction" label="Call To Action" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item name="language" label="Ngôn Ngữ" rules={[{ required: true, message: 'Bắt buộc' }]}> 
-            <Select>
-              {LANGUAGE_OPTIONS.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="recipientType" label="Loại Người Nhận" rules={[{ required: true, message: 'Bắt buộc' }]}> <Input /> </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              Xem trước & Cập nhật
-            </Button>
-          </Form.Item>
-        </Form>
+        <form onSubmit={handlePreview} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4">
+            {/* Tên Template */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tên Template <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.templateName}
+                onChange={(e) => handleInputChange('templateName', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.templateName ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập tên template"
+              />
+              {errors.templateName && <p className="text-red-500 text-sm mt-1">{errors.templateName}</p>}
+            </div>
+
+            {/* Tiêu Đề */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tiêu Đề <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.subjectLine}
+                onChange={(e) => handleInputChange('subjectLine', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.subjectLine ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập tiêu đề email"
+              />
+              {errors.subjectLine && <p className="text-red-500 text-sm mt-1">{errors.subjectLine}</p>}
+            </div>
+
+            {/* Nội Dung */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nội Dung <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                rows={8}
+                value={formData.bodyContent}
+                onChange={(e) => handleInputChange('bodyContent', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.bodyContent ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập nội dung email"
+              />
+              {errors.bodyContent && <p className="text-red-500 text-sm mt-1">{errors.bodyContent}</p>}
+            </div>
+
+            {/* Tên Người Gửi */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tên Người Gửi <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.senderName}
+                onChange={(e) => handleInputChange('senderName', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.senderName ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Chọn tên người gửi</option>
+                {SENDER_OPTIONS.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              {errors.senderName && <p className="text-red-500 text-sm mt-1">{errors.senderName}</p>}
+            </div>
+
+            {/* Danh Mục */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Danh Mục <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.category}
+                onChange={(e) => handleInputChange('category', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.category ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập danh mục"
+              />
+              {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+            </div>
+
+            {/* Pre-header Text */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Pre-header Text <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.preHeaderText}
+                onChange={(e) => handleInputChange('preHeaderText', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.preHeaderText ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập pre-header text"
+              />
+              {errors.preHeaderText && <p className="text-red-500 text-sm mt-1">{errors.preHeaderText}</p>}
+            </div>
+
+            {/* Personalization Tags */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Personalization Tags <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.personalizationTags}
+                onChange={(e) => handleInputChange('personalizationTags', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.personalizationTags ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập personalization tags"
+              />
+              {errors.personalizationTags && <p className="text-red-500 text-sm mt-1">{errors.personalizationTags}</p>}
+            </div>
+
+            {/* Footer */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Footer <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.footerContent}
+                onChange={(e) => handleInputChange('footerContent', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.footerContent ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Chọn footer</option>
+                {FOOTER_OPTIONS.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              {errors.footerContent && <p className="text-red-500 text-sm mt-1">{errors.footerContent}</p>}
+            </div>
+
+            {/* Call To Action */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Call To Action <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.callToAction}
+                onChange={(e) => handleInputChange('callToAction', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.callToAction ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập call to action"
+              />
+              {errors.callToAction && <p className="text-red-500 text-sm mt-1">{errors.callToAction}</p>}
+            </div>
+
+            {/* Ngôn Ngữ */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ngôn Ngữ <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.language}
+                onChange={(e) => handleInputChange('language', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.language ? 'border-red-500' : 'border-gray-300'
+                }`}
+              >
+                <option value="">Chọn ngôn ngữ</option>
+                {LANGUAGE_OPTIONS.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+              {errors.language && <p className="text-red-500 text-sm mt-1">{errors.language}</p>}
+            </div>
+
+            {/* Loại Người Nhận */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Loại Người Nhận <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.recipientType}
+                onChange={(e) => handleInputChange('recipientType', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.recipientType ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="Nhập loại người nhận"
+              />
+              {errors.recipientType && <p className="text-red-500 text-sm mt-1">{errors.recipientType}</p>}
+            </div>
+          </div>
+
+          <Button type="primary" htmlType="submit" loading={loading} block size="large" className="mt-6">
+            Xem trước & Cập nhật
+          </Button>
+        </form>
       )}
+
       <Modal
         open={previewVisible}
         title="Xem trước Email Template"
