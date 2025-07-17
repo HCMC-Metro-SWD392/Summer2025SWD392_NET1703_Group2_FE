@@ -22,6 +22,7 @@ export interface GetPromotionDTO {
     description?: string | null;
     startDate: Date; // Required, non-nullable
     endDate: Date; // Required, non-nullable
+    isActive: boolean;
 }
 
 export interface UpdatePromotionDTO {

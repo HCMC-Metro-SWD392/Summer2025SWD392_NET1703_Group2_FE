@@ -35,6 +35,12 @@ import { StationApi } from '../../../../api/station/StationApi';
 
 const { Title } = Typography;
 
+const statusMap = {
+  0: { text: "Hoạt động bình thường", color: "text-green-500" }, // Normal
+  1: { text: "Bị lỗi", color: "text-red-500" },                  // Faulty
+  2: { text: "Bị chậm", color: "text-yellow-500" },              // Delayed
+};
+
 const MetroLineDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -167,6 +173,11 @@ const MetroLineDetails: React.FC = () => {
 
       <Card title="Thông Tin Tuyến">
         <Descriptions bordered>
+          <Descriptions.Item label="Trạng Thái Hoạt Động" span={3}>
+            <span className={statusMap[metroLine.status]?.color || "text-gray-500"}>
+              {statusMap[metroLine.status]?.text || "Không xác định"}
+            </span>
+          </Descriptions.Item>
           <Descriptions.Item label="Số Tuyến" span={3}>
             Tuyến {metroLine.metroLineNumber}
           </Descriptions.Item>
@@ -195,14 +206,7 @@ const MetroLineDetails: React.FC = () => {
             <Tag color="blue">
               Tổng số: {metroLine.metroLineStations.length} trạm
             </Tag>
-            {/* <Button type="primary" onClick={() => {
-              setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
-              setSelectedStationId(null);
-              setDistanceFromStart(0);
-              setAddStationVisible(true);
-            }}>
-              Thêm Trạm Vào Tuyến
-            </Button> */}
+
           </Space>
         }
       >
