@@ -3,12 +3,13 @@ import { Form, Input, Button, message, Typography } from 'antd';
 import logoMetro from '../../../../assets/logo.png';
 import backgroundHcmCity from '../../../../assets/backgroundhcmcity.png';
 import { changePassword } from '../../../../../api/auth/auth';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
 const ResetPasswordForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Lấy email từ query param
   const location = useLocation();
@@ -30,7 +31,11 @@ const ResetPasswordForm: React.FC = () => {
       };
       const response = await changePassword(payload);
       if (response?.isSuccess) {
-        message.success('Đổi mật khẩu thành công!');
+        message.success('Đổi mật khẩu thành công! Đang chuyển hướng đến trang đăng nhập...');
+        // Delay 2 giây để user có thể đọc message, sau đó chuyển hướng
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         message.error(response?.message || 'Đổi mật khẩu thất bại.');
       }

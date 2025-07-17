@@ -12,14 +12,25 @@ const EmailForm: React.FC = () => {
   const onFinish = async (values: { email: string }) => {
     setLoading(true);
     try {
+      console.log('[DEBUG] Sending reset password email to:', values.email);
       const response = await resetPassword(values.email);
+      console.log('[DEBUG] Reset password response:', response);
+      
       if (response?.isSuccess) {
         message.success('Vui lòng check mail để đổi mật khẩu');
+        console.log('[DEBUG] Email sent successfully');
       } else {
-        message.error('Email không đúng, vui lòng thử lại.');
+        console.log('[DEBUG] Email sending failed:', response?.message);
+        message.error(response?.message || 'Email không đúng, vui lòng thử lại.');
       }
-    } catch (error) {
-      message.error('Đã xảy ra lỗi. Vui lòng thử lại.');
+    } catch (error: any) {
+      console.error('[DEBUG] Error sending reset email:', error);
+      console.error('[DEBUG] Error details:', {
+        status: error?.response?.status,
+        data: error?.response?.data,
+        message: error?.message
+      });
+      message.error(error?.response?.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
