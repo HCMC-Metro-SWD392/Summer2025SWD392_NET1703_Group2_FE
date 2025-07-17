@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../../../settings/axiosInstance';
 import { NewsStatus } from './CreateNews';
 import ViewSpecificNews from './ViewSpecificNews';
+import UpdateNews from './UpdateNews';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -33,9 +34,11 @@ interface NewsListResponse {
 interface FilterParams {
   filterOn: string;
   filterQuery: string;
-  status?: number;
+  status?: number | 'all';
   pageNumber: number;
   pageSize: number;
+  sortBy?: string;
+  sortOrder?: string;
 }
 
 const NewsListPage: React.FC = () => {
@@ -45,14 +48,20 @@ const NewsListPage: React.FC = () => {
   const [filters, setFilters] = useState<FilterParams>({
     filterOn: '',
     filterQuery: '',
-    status: undefined,
+    status: 'all',
     pageNumber: 1,
     pageSize: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
   });
   
   // State for View News Modal
   const [viewModalVisible, setViewModalVisible] = useState(false);
   const [selectedNewsId, setSelectedNewsId] = useState<string | null>(null);
+  
+  // State for Update News Modal
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [selectedUpdateNewsId, setSelectedUpdateNewsId] = useState<string | null>(null);
   
   const navigate = useNavigate();
 
@@ -66,6 +75,7 @@ const NewsListPage: React.FC = () => {
       const params: any = {
         pageNumber: filters.pageNumber,
         pageSize: filters.pageSize,
+        isMyNews: true, // Chỉ lấy news của staff hiện tại
       };
 
       if (filters.filterOn && filters.filterQuery) {
@@ -73,8 +83,15 @@ const NewsListPage: React.FC = () => {
         params.filterQuery = filters.filterQuery;
       }
 
-      if (filters.status !== undefined && filters.status !== null) {
+      if (filters.status !== 'all' && filters.status !== undefined && filters.status !== null) {
         params.status = filters.status;
+      }
+
+      if (filters.sortBy) {
+        params.sortBy = filters.sortBy;
+      }
+      if (filters.sortOrder) {
+        params.sortOrder = filters.sortOrder;
       }
 
       const response = await axiosInstance.get<NewsListResponse>('/api/News/get-all-news-for-staff', {
@@ -82,11 +99,19 @@ const NewsListPage: React.FC = () => {
       });
       
       if (response.data?.isSuccess) {
-        setNewsData(response.data.result || []);
-        setTotal(response.data.result?.length || 0); // API might need to return total count separately
-        if (response.data.message) {
-          console.log(response.data.message);
+        let newsItems = response.data.result || [];
+        
+        // Sort locally if needed (in case API doesn't support sorting)
+        if (filters.sortBy === 'createdAt' && filters.sortOrder === 'desc') {
+          newsItems = newsItems.sort((a, b) => {
+            const dateA = new Date(a.createdAt).getTime();
+            const dateB = new Date(b.createdAt).getTime();
+            return dateB - dateA; // Descending order (newest first)
+          });
         }
+        
+        setNewsData(newsItems);
+        setTotal(newsItems.length);
       } else {
         message.error(response.data?.message || 'Không thể tải danh sách tin tức');
         setNewsData([]);
@@ -140,9 +165,11 @@ const NewsListPage: React.FC = () => {
     setFilters({
       filterOn: '',
       filterQuery: '',
-      status: undefined,
+      status: 'all',
       pageNumber: 1,
       pageSize: 10,
+      sortBy: 'createdAt',
+      sortOrder: 'desc',
     });
   };
 
@@ -158,54 +185,63 @@ const NewsListPage: React.FC = () => {
     setSelectedNewsId(null);
   };
 
+  const handleUpdateNews = (newsId: string) => {
+    console.log('[DEBUG] Opening news update modal for ID:', newsId);
+    setSelectedUpdateNewsId(newsId);
+    setUpdateModalVisible(true);
+  };
+
+  const handleCloseUpdateModal = () => {
+    console.log('[DEBUG] Closing news update modal');
+    setUpdateModalVisible(false);
+    setSelectedUpdateNewsId(null);
+  };
+
+  const handleUpdateSuccess = () => {
+    fetchNewsList();
+  };
+
   const columns = [
     {
       title: 'Tiêu đề',
       dataIndex: 'title',
       key: 'title',
       ellipsis: true,
-      width: 200,
+      width: '30%',
     },
     {
       title: 'Danh mục',
       dataIndex: 'category',
       key: 'category',
-      width: 120,
+      width: '12%',
     },
     {
       title: 'Tóm tắt',
       dataIndex: 'summary',
       key: 'summary',
       ellipsis: true,
-      width: 200,
-      render: (text: string) => text || '-',
-    },
-    {
-      title: 'Người tạo',
-      dataIndex: 'staffName',
-      key: 'staffName',
-      width: 120,
+      width: '25%',
       render: (text: string) => text || '-',
     },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
-      width: 130,
+      width: '12%',
       render: (status: NewsStatus) => getStatusTag(status),
     },
     {
       title: 'Ngày tạo',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 120,
+      width: '11%',
       render: (date: string) => formatDate(date),
     },
     {
       title: 'Ngày cập nhật',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      width: 120,
+      width: '11%',
       render: (date: string) => {
         if (!date || date === '0001-01-01T00:00:00') return '-';
         return formatDate(date);
@@ -214,8 +250,7 @@ const NewsListPage: React.FC = () => {
     {
       title: 'Hành động',
       key: 'actions',
-      width: 160,
-      fixed: 'right' as const,
+      width: '15%',
       render: (record: NewsItem) => (
         <Space size="small">
           <Button
@@ -230,9 +265,7 @@ const NewsListPage: React.FC = () => {
             icon={<EditOutlined />}
             size="small"
             title="Chỉnh sửa"
-            onClick={() => {
-              message.info(`Chỉnh sửa tin tức: ${record.title}`);
-            }}
+            onClick={() => handleUpdateNews(record.id)}
           />
           <Button
             type="text"
@@ -252,7 +285,7 @@ const NewsListPage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <Title level={3} className="mb-0">Danh Sách Tin Tức</Title>
+        <Title level={3} className="mb-0">Tin Tức Của Tôi</Title>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -295,8 +328,8 @@ const NewsListPage: React.FC = () => {
               value={filters.status}
               onChange={(value) => handleFilterChange('status', value)}
               style={{ width: '100%' }}
-              allowClear
             >
+              <Option value="all">Tất cả</Option>
               <Option value={NewsStatus.Pending}>Đang chờ duyệt</Option>
               <Option value={NewsStatus.Published}>Đã xuất bản</Option>
               <Option value={NewsStatus.Rejected}>Đã từ chối</Option>
@@ -339,7 +372,6 @@ const NewsListPage: React.FC = () => {
           dataSource={newsData}
           rowKey="id"
           loading={loading}
-          scroll={{ x: 1200 }}
           pagination={{
             current: filters.pageNumber,
             pageSize: filters.pageSize,
@@ -347,7 +379,7 @@ const NewsListPage: React.FC = () => {
             showSizeChanger: false, // Controlled by our custom select
             showQuickJumper: true,
             showTotal: (total, range) => 
-              `${range[0]}-${range[1]} trong tổng số ${total} tin tức`,
+              `${range[0]}-${range[1]} trong tổng số ${total} tin tức của bạn`,
             onChange: (page, pageSize) => {
               setFilters(prev => ({
                 ...prev,
@@ -364,6 +396,14 @@ const NewsListPage: React.FC = () => {
         newsId={selectedNewsId}
         visible={viewModalVisible}
         onClose={handleCloseViewModal}
+      />
+
+      {/* Update News Modal */}
+      <UpdateNews
+        newsId={selectedUpdateNewsId}
+        visible={updateModalVisible}
+        onClose={handleCloseUpdateModal}
+        onUpdateSuccess={handleUpdateSuccess}
       />
     </div>
   );
