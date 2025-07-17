@@ -223,9 +223,7 @@ const NewsListPage: React.FC = () => {
             icon={<EyeOutlined />}
             size="small"
             title="Xem chi tiết"
-            onClick={() => {
-              message.info(`Xem chi tiết tin tức: ${record.title}`);
-            }}
+            onClick={() => handleViewNews(record.id)}
           />
           <Button
             type="text"
@@ -360,6 +358,13 @@ const NewsListPage: React.FC = () => {
           }}
         />
       </div>
+
+      {/* View News Modal */}
+      <ViewSpecificNews
+        newsId={selectedNewsId}
+        visible={viewModalVisible}
+        onClose={handleCloseViewModal}
+      />
     </div>
   );
 };

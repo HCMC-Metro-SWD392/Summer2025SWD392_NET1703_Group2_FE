@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Typography, Spin, message, Image, Tag, Row, Col, Divider } from 'antd';
-import { CalendarOutlined, UserOutlined, TagOutlined, FileTextOutlined } from '@ant-design/icons';
+import { Modal, Typography, Spin, message, Image, Tag, Row, Col, Divider, Button } from 'antd';
+import { CalendarOutlined, UserOutlined, TagOutlined, FileTextOutlined, CloseOutlined } from '@ant-design/icons';
 import axiosInstance from '../../../../../settings/axiosInstance';
 import { NewsStatus } from './CreateNews';
 
@@ -115,7 +115,16 @@ const ViewSpecificNews: React.FC<ViewSpecificNewsProps> = ({
       title="Chi Tiết Tin Tức"
       open={visible}
       onCancel={handleClose}
-      footer={null}
+      footer={[
+        <Button
+          key="close"
+          type="primary"
+          icon={<CloseOutlined />}
+          onClick={handleClose}
+        >
+          Đóng
+        </Button>
+      ]}
       width={800}
       style={{ top: 20 }}
     >
@@ -187,17 +196,16 @@ const ViewSpecificNews: React.FC<ViewSpecificNewsProps> = ({
           </div>
 
           {/* Footer Info */}
-          <Divider />
-          <div className="text-sm text-gray-500 flex flex-wrap gap-4">
-            <span>
-              <strong>ID:</strong> {newsDetail.id}
-            </span>
-            {newsDetail.updatedAt && newsDetail.updatedAt !== '0001-01-01T00:00:00' && (
-              <span>
-                <strong>Cập nhật lần cuối:</strong> {formatDateTime(newsDetail.updatedAt)}
-              </span>
-            )}
-          </div>
+          {newsDetail.updatedAt && newsDetail.updatedAt !== '0001-01-01T00:00:00' && (
+            <>
+              <Divider />
+              <div className="text-sm text-gray-500">
+                <span>
+                  <strong>Cập nhật lần cuối:</strong> {formatDateTime(newsDetail.updatedAt)}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <div className="text-center py-12">
