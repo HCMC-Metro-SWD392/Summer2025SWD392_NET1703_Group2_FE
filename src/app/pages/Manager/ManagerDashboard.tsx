@@ -12,8 +12,12 @@ import { Navigate } from 'react-router-dom';
 import axiosInstance from '../../../settings/axiosInstance';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { Typography } from 'antd';
 
 dayjs.extend(relativeTime);
+
+const { Title, Text } = Typography;
 
 const ManagerDashboard: React.FC = () => {
   if (!checkUserRole(['MANAGER'])) {
@@ -27,29 +31,6 @@ const ManagerDashboard: React.FC = () => {
     total: 0,
   });
 
-  const recentActivities = [
-    {
-      key: '1',
-      user: 'John Doe',
-      action: 'Tạo đơn hàng mới',
-      time: '2 giờ trước',
-      status: 'success',
-    },
-    {
-      key: '2',
-      user: 'Jane Smith',
-      action: 'Cập nhật kho',
-      time: '3 giờ trước',
-      status: 'processing',
-    },
-    {
-      key: '3',
-      user: 'Mike Johnson',
-      action: 'Hủy đơn hàng',
-      time: '5 giờ trước',
-      status: 'error',
-    },
-  ];
 
   const fetchRecentTicketSales = async (page = 1, pageSize = 3) => {
     const dateTo = dayjs();
@@ -138,7 +119,7 @@ const ManagerDashboard: React.FC = () => {
     },
   ];
 
-  const columns = [
+  const activityColumns = [
     {
       title: 'Người dùng',
       dataIndex: 'user',
@@ -173,10 +154,10 @@ const ManagerDashboard: React.FC = () => {
   return (
     <div className="w-full h-full p-2 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl font-bold">Bảng điều khiển</h1>
       </div>
 
-      {/* Statistics Cards */}
+      
+      {/* --- Recent Ticket Sales Table --- */}
       <div className="mb-6">
         <Card title="Giao dịch vé gần đây" className="h-full">
           <Table
@@ -198,10 +179,10 @@ const ManagerDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Recent Ticket Sales */}
+      {/* --- Monthly Goals --- */}
       <div className="mb-6">
         <Row gutter={[16, 16]}>
-          <Col xs={24} lg={12}>
+          <Col xs={24} lg={24}>
             <Card title="Mục tiêu hàng tháng" className="h-full">
               <div className="space-y-6">
                 <div>
@@ -225,47 +206,8 @@ const ManagerDashboard: React.FC = () => {
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={12}>
-            <Card title="Giao dịch vé gần đây" className="h-full">
-              <Table
-                dataSource={recentTicketSales}
-                columns={ticketColumns}
-                pagination={{
-                  current: ticketPagination.current,
-                  pageSize: ticketPagination.pageSize,
-                  total: ticketPagination.total,
-                  showSizeChanger: true,
-                  showTotal: (total) => `Tổng số ${total} giao dịch`,
-                  responsive: true,
-                }}
-                onChange={handleTicketTableChange}
-                scroll={{ x: 'max-content' }}
-                className="w-full"
-                size="middle"
-              />
-            </Card>
-          </Col>
         </Row>
       </div>
-
-      {/* Recent Activities */}
-      {/* <div className="mb-6">
-        <Card title="Hoạt động gần đây" className="w-full">
-          <Table
-            dataSource={recentActivities}
-            columns={columns}
-            pagination={{
-              pageSize: 5,
-              showSizeChanger: true,
-              showTotal: (total) => `Tổng số ${total} hoạt động`,
-              responsive: true,
-            }}
-            scroll={{ x: 'max-content' }}
-            className="w-full"
-            size="middle"
-          />
-        </Card>
-      </div> */}
     </div>
   );
 };

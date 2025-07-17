@@ -93,7 +93,6 @@ import {
         ],
       },
       {
-
         key: 'ticket-transaction-management',
         icon: <IdcardOutlined />,
         label: 'Quản Lý Giao Dịch Vé',
@@ -112,7 +111,6 @@ import {
           {
             key: '/admin/log-activity',
             label: 'Hoạt động',
-
           },
         ],
       },
@@ -121,6 +119,10 @@ import {
         icon: <SettingOutlined />,
         label: 'Quản Lý Email',
         children: [
+          {
+            key: '/admin/create-email-template',
+            label: 'Tạo Email Template',
+          },
           {
             key: '/admin/email-template',
             label: 'Danh Sách Email Template',

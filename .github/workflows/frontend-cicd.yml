@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Frontend CI/CD (No Artifact)
 
 on:
   push:
@@ -11,8 +11,8 @@ env:
   EC2_USER: ${{ secrets.EC2_USER }}
 
 jobs:
-  build:
-    name: Build React App
+  build-and-deploy:
+    name: Build and Deploy React App
     runs-on: ubuntu-latest
     environment: Ticket_Metro
 
@@ -38,28 +38,6 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Zip dist folder and .env
-        run: |
-          zip -r dist.zip dist .env
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-dist
-          path: dist.zip
-
-  deploy:
-    name: Deploy to EC2
-    needs: build
-    runs-on: ubuntu-latest
-    environment: Ticket_Metro
-
-    steps:
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -67,8 +45,9 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "${{ env.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-      - name: Upload dist.zip to EC2 and deploy
+      - name: Zip and upload to EC2
         run: |
+          zip -r dist.zip dist .env
           scp dist.zip ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/home/${{ env.EC2_USER }}/
           ssh ${{ env.EC2_USER }}@${{ env.EC2_HOST }} "
             rm -rf ~/frontend_temp &&
