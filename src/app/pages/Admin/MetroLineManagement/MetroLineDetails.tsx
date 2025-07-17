@@ -142,7 +142,7 @@ const MetroLineDetails: React.FC = () => {
           >
             Sửa
           </Button>
-          <Button
+          {/* <Button
             danger
             onClick={() => {
               confirm({
@@ -169,7 +169,7 @@ const MetroLineDetails: React.FC = () => {
             }}
           >
             Xóa
-          </Button>
+          </Button> */}
         </Space>
       ),
     },
