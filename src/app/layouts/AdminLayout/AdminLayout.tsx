@@ -63,6 +63,10 @@ import {
             key: '/admin/create-metro-line',
             label: 'Tạo Tuyến Metro',
           },
+          {
+            key: '/admin/add-metro-line-station',
+            label: 'Thêm Trạm Vào Tuyến Metro',
+          },
         ],
       },
       {
