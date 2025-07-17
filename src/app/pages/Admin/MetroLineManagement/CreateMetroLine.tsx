@@ -14,6 +14,7 @@ import {
   Popconfirm,
   Row,
   Col,
+  TimePicker,
 } from 'antd';
 import { DeleteOutlined, PlusOutlined, ArrowUpOutlined, ArrowDownOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -22,6 +23,7 @@ import { StationApi } from '../../../../api/station/StationApi';
 import { MetroLineStationApi } from '../../../../api/metroLine/MetroLineStationApi';
 import type { CreateMetroLineDTO, CreateMetroLineStationDTO } from '../../../../api/metroLine/MetroLineInterface';
 import type { GetStationDTO } from '../../../../api/station/StationInterface';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -134,15 +136,18 @@ const CreateMetroLine: React.FC = () => {
       const startStation = metroLineStations[0];
       const endStation = metroLineStations[1];
       const metroLineData: CreateMetroLineDTO = {
-        metroLineNumber: values.metroLineNumber,
         metroName: values.metroName,
         startStationId: startStation.stationId,
         endStationId: endStation.stationId,
+        startTime: values.startTime.format('HH:mm:ss'),
+        endTime: values.endTime.format('HH:mm:ss'),
       };
 
       const response = await MetroLineApi.createMetroLine(metroLineData);
+      console.log('MetroLine creation response:', response);
 
       if (response.isSuccess && response.result) {
+        console.log('About to create stations...');
         // Create metro line stations for both stations
         const metroLineId = response.result.id;
         
@@ -174,6 +179,7 @@ const CreateMetroLine: React.FC = () => {
           navigate('/admin/metro-line');
         }
       } else {
+        console.log('MetroLine creation failed or response invalid');
         message.error(response.message || 'Không thể tạo tuyến Metro');
       }
     } catch (error) {
@@ -248,27 +254,31 @@ const CreateMetroLine: React.FC = () => {
           initialValues={{ metroName: '' }}
         >
           <Row gutter={24}>
-            <Col span={12}>
-              <Form.Item
-                name="metroLineNumber"
-                label="Số Tuyến"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập số tuyến' },
-                  { type: 'string', min: 1, message: 'Số tuyến không được để trống' }
-                ]}
-              >
-                <Input
-                  style={{ width: '100%' }}
-                  placeholder="Nhập số tuyến"
-                />
-              </Form.Item>
-            </Col>
+            
             <Col span={12}>
               <Form.Item
                 name="metroName"
                 label="Tên Tuyến"
               >
-                <Input placeholder="Nhập tên tuyến (không bắt buộc)" />
+                <Input placeholder="Nhập tên tuyến" />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="startTime"
+                label="Giờ bắt đầu"
+                rules={[{ required: true, message: 'Vui lòng chọn giờ bắt đầu' }]}
+              >
+                <TimePicker format="HH:mm" style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item
+                name="endTime"
+                label="Giờ kết thúc"
+                rules={[{ required: true, message: 'Vui lòng chọn giờ kết thúc' }]}
+              >
+                <TimePicker format="HH:mm" style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>

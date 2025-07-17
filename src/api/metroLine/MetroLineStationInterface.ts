@@ -13,3 +13,9 @@ export interface GetMetroLineStationDTO {
     stationOrder: number;
     station: GetStationDTO;
 }
+
+export interface UpdateMetroLineStationDTO {
+    metroLineStationId : string;
+    distanceFromStart: number;
+    stationOrder: number;
+}

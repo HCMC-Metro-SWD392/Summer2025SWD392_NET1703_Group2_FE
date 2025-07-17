@@ -35,6 +35,12 @@ const defaultIcons = [
   "/stations/icon_t12.png",
 ];
 
+const statusMap = {
+  0: { text: "Hoạt động bình thường", color: "text-green-500" }, // Normal
+  1: { text: "Bị lỗi", color: "text-red-500" },                  // Faulty
+  2: { text: "Bị chậm", color: "text-yellow-500" },              // Delayed
+};
+
 export default function Header() {
   const navigate = useNavigate();
   const storedUserInfo = localStorage.getItem("userInfo");
@@ -66,15 +72,7 @@ export default function Header() {
         </a>
 
         <div className="flex gap-3">
-          {/* <div className="flex items-center gap-2 bg-gray-200 rounded-md px-3 py-2">
-            <div className="w-4 h-4 border-4 border-green-500 rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full" />
-            </div>
-            <div className="text-sm leading-tight">
-              <div className="text-gray-600">Service Information</div>
-              <div className="text-blue-800 font-semibold">Normal service</div>
-            </div>
-          </div> */}
+
 
           <Button
             type="default"
@@ -108,14 +106,6 @@ export default function Header() {
             </>
           )}
 
-          {/* <TicketServiceMenu/>
-
-          <UserHeaderMenu userInfo={{
-            id: "12345",
-            fullName: "Nguyen Van A",
-            email: "nguyenvana@example.com"
-          }} /> */}
-
         </div>
       </header>
 
@@ -137,6 +127,7 @@ export default function Header() {
               .map((line, idx) => {
                 const color = defaultColors[idx % defaultColors.length];
                 const icon = defaultIcons[idx % defaultIcons.length];
+                const statusInfo = statusMap[line.status] || { text: "Không xác định", color: "text-gray-500" };
                 return (
                   <div
                     key={line.id}
@@ -152,8 +143,8 @@ export default function Header() {
                       <img src={icon} alt={line.metroName || `Tuyến Số ${line.metroLineNumber}`} className="w-8 h-8" />
                     </div>
                     <div className="font-bold text-blue-700 text-base mb-1 text-center w-full">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</div>
-                    <div className="text-green-500 text-2xl mb-1" aria-label="Trạng thái hoạt động">●</div>
-                    <div className="text-gray-900 text-sm">Normal service</div>
+                    <div className={`${statusInfo.color} text-2xl mb-1`} aria-label="Trạng thái hoạt động">●</div>
+                    <div className="text-gray-900 text-sm text-center">{statusInfo.text}</div>
                   </div>
                 );
               })
