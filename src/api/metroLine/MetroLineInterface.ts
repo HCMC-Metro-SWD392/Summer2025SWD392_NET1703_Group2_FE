@@ -58,3 +58,8 @@ export interface MetroLineStation extends GetMetroLineStationDTO {
     createdAt: string;          
     updatedAt: string;          
 }
+
+export interface UpdateMetroLineStationDTO {
+    distanceFromStart: number;
+    stationOrder: number;
+}
