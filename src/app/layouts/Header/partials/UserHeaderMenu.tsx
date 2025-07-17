@@ -3,6 +3,7 @@ import { Avatar, Button, Dropdown, Menu, Space, Typography } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../../../api/auth/auth";
+import { getUserInfo } from "../../../../api/auth/tokenUtils";
 import type { UserInfo } from "../../../../types/types";
 
 
@@ -10,10 +11,25 @@ const { Text } = Typography;
 
 const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
   const navigate = useNavigate();
+  const tokenUserInfo = getUserInfo();
+  const userRole = tokenUserInfo?.role?.toUpperCase?.() || '';
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const getAccountInfoPath = () => {
+    switch (userRole) {
+      case 'ADMIN':
+        return '/admin/accountInfo';
+      case 'MANAGER':
+        return '/manager/accountInfo';
+      case 'STAFF':
+        return '/staff/accountInfo';
+      default:
+        return '/accountInfo';
+    }
   };
 
   const menu = (
@@ -23,7 +39,7 @@ const UserHeaderMenu: React.FC<{ userInfo: UserInfo }> = ({ userInfo }) => {
           key: "profile",
           icon: <ProfileOutlined />,
           label: "Hồ sơ cá nhân",
-          onClick: () => navigate("/accountInfor"),
+          onClick: () => navigate(getAccountInfoPath()),
         },
         {
           key: "change-password",

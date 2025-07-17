@@ -95,7 +95,7 @@ export default function MainRoutes() {
             <Route path="mySubmittedRequest" element={<MySubmittedRequests />}/>
             <Route path="submit-success" element={<SubmitSuccess />}/>
           </Route>
-          <Route path="/accountInfor" element={<AccountInfo />} />
+          <Route path="/accountInfo" element={<AccountInfo />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
           <Route path="/metro-line" element={<AllMetroLine />} />
@@ -113,6 +113,7 @@ export default function MainRoutes() {
 
         <Route element={<ManagerLayout/>}>
         <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager/accountInfo" element={<AccountInfo />} />
         <Route path="/manager/staffs" element={<StaffList />} />
         <Route path="/manager/staffs/:id" element={<StaffDetails />} />
         <Route path="/manager/staffs/:id/edit" element={<EditStaff />} />
@@ -132,6 +133,7 @@ export default function MainRoutes() {
 
       <Route element={<AdminLayout/>}>
         <Route path="/admin" element={<AdminMain />} />
+        <Route path="/admin/accountInfo" element={<AccountInfo />} />
         <Route path="/admin/fare-rule" element={<FareRule />} />
         <Route path="/admin/station/:id" element={<StationDetails />} />
         <Route path="/admin/station" element={<StationList />} />
@@ -152,9 +154,12 @@ export default function MainRoutes() {
         <Route path="/admin/email-management/update/:id" element={<UpdateEmailTemplateWrapper />} />
       </Route>
 
-      <Route path="/staff" element={<Staff />} />
-
+      <Route element={<Staff />}>
+        <Route path="/staff" element={<Staff />} />
+        <Route path="/staff/accountInfo" element={<AccountInfo />} />
         <Route path="/staff/case-approval" element={<CaseApproval />} />
+      </Route>
+
         
       </Routes>
 

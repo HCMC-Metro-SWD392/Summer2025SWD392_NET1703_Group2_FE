@@ -10,29 +10,62 @@ import { getUserInfo } from '../../../../../api/auth/tokenUtils';
 
 const { Title, Text } = Typography;
 
-const AccountInfo: React.FC = () => {
+const CustomerInfo: React.FC = () => {
     const navigate = useNavigate();
     const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    const customerId = user.id;
+    const userId = user.id;
     const [customerData, setCustomerData] = useState<UserInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const userInfo = getUserInfo();
-    const role = userInfo?.role?.toUpperCase?.() || '';
+
+    // Get current user role from token
+    const currentUser = getUserInfo();
+    const userRole = currentUser?.role?.toUpperCase() || '';
+
+    const getRoleDisplayName = (role: string) => {
+        switch (role?.toUpperCase()) {
+            case 'CUSTOMER': return 'Khách hàng';
+            case 'STAFF': return 'Nhân viên';
+            case 'MANAGER': return 'Quản lý';
+            case 'ADMIN': return 'Quản trị viên';
+            default: return 'Người dùng';
+        }
+    };
+
+    const getRoleColor = (role: string) => {
+        switch (role?.toUpperCase()) {
+            case 'CUSTOMER': return '#1890ff';
+            case 'STAFF': return '#52c41a';
+            case 'MANAGER': return '#faad14';
+            case 'ADMIN': return '#f5222d';
+            default: return '#666';
+        }
+    };
 
     useEffect(() => {
-        if (!customerId) {
-            setError('No customer ID found. Please log in.');
+        if (!userId) {
+            setError('No user ID found. Please log in.');
             setLoading(false);
             return;
         }
         setLoading(true);
         setError(null);
 
-        // Log customerId để kiểm tra
-        console.log('customerId:', customerId);
+        console.log('User ID:', userId, 'Role:', userRole);
 
-        axiosInstance.get(`/api/Customer/user/${customerId}`)
+        // Determine API endpoint based on user role
+        let apiEndpoint = '';
+        if (userRole === 'CUSTOMER' || userRole === 'ADMIN') {
+            // Customer và Admin dùng Customer endpoint
+            apiEndpoint = `/api/Customer/user/${userId}`;
+        } else {
+            // Staff và Manager dùng User endpoint chung
+            apiEndpoint = `/api/User/${userId}`;
+        }
+
+        console.log('Fetching from endpoint:', apiEndpoint);
+
+        axiosInstance.get(apiEndpoint)
             .then(res => {
                 console.log('API response:', res.data);
                 if (res.data && res.data.result) {
@@ -42,15 +75,19 @@ const AccountInfo: React.FC = () => {
                 }
             })
             .catch(err => {
-                console.error('Error fetching customer data:', err);
-                setError('Failed to fetch customer data. Please try again later.');
+                console.error('Error fetching user data:', err);
+                if (err.response?.status === 404) {
+                    setError('User not found or not authorized to access this information.');
+                } else {
+                    setError('Failed to fetch user data. Please try again later.');
+                }
             })
             .finally(() => setLoading(false));
-    }, [customerId]);
+    }, [userId, userRole]);
 
     if (loading) {
         return (
-            <div className="flex min-h-screen justify-center items-center">
+            <div className="flex justify-center items-center py-8">
                 <Spin size="large" />
             </div>
         );
@@ -58,7 +95,7 @@ const AccountInfo: React.FC = () => {
 
     if (error) {
         return (
-            <div className="flex min-h-screen justify-center items-center">
+            <div className="flex justify-center items-center py-8">
                 <Alert message={error} type="error" showIcon />
             </div>
         );
@@ -66,34 +103,32 @@ const AccountInfo: React.FC = () => {
 
     if (!customerData) {
         return (
-            <div className="flex min-h-screen justify-center items-center">
+            <div className="flex justify-center items-center py-8">
                 <Alert message="Không tìm thấy thông tin khách hàng." type="info" showIcon />
             </div>
         );
     }
 
     return (
-        <div className="flex min-h-screen justify-center items-start pt-16 pb-8">
-            <div style={{ width: '100%', maxWidth: 800, display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{ background: '#f0f0f0', border: 'none', borderRadius: 6, padding: '6px 16px', cursor: 'pointer', fontWeight: 500 }}
-                >
-                    ← Quay lại
-                </button>
-            </div>
+        <div className="flex justify-center items-start">
             <Card className={styles['customer-info-card']}>
-                {role === 'CUSTOMER' && (
-                    <div className={styles['customer-header']}>
-                        <Avatar
-                            size={64}
-                            icon={<UserOutlined />}
-                        />
-                        <Title level={3} style={{ margin: '12px 0' }}>
-                            {customerData.fullName}
-                        </Title>
-                    </div>
-                )}
+                <div className={styles['customer-header']}>
+                    <Avatar
+                        size={64}
+                        src={customerData.avatar}
+                        icon={<UserOutlined />}
+                    />
+                    <Title level={3} style={{ margin: '12px 0' }}>
+                        {customerData.fullName || 'Chưa cập nhật'}
+                    </Title>
+                    <Text style={{ 
+                        color: getRoleColor(userRole),
+                        fontWeight: 'bold',
+                        fontSize: '14px'
+                    }}>
+                        {getRoleDisplayName(userRole)}
+                    </Text>
+                </div>
 
                 <Divider style={{ margin: '12px 0' }} />
 
@@ -128,11 +163,13 @@ const AccountInfo: React.FC = () => {
                             {customerData.sex === 'Male' ? <ManOutlined /> : <WomanOutlined />} <Text strong>Giới tính:</Text> {customerData.sex === 'Male' ? 'Nam' : customerData.sex === 'Female' ? 'Nữ' : customerData.sex}
                         </div>
                     </Col>
-                    <Col span={24}>
-                        <div className={styles['info-item']}>
-                            <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Thông thường' : 'Học sinh/Sinh viên'}
-                        </div>
-                    </Col>
+                    {userRole === 'CUSTOMER' && (
+                        <Col span={24}>
+                            <div className={styles['info-item']}>
+                                <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Thông thường' : 'Học sinh/Sinh viên'}
+                            </div>
+                        </Col>
+                    )}
                 </Row>
 
                 <div style={{ textAlign: 'center' }}>
@@ -140,7 +177,16 @@ const AccountInfo: React.FC = () => {
                         // Force re-fetch data after update
                         setLoading(true);
                         setError(null);
-                        axiosInstance.get(`/api/Customer/user/${customerId}`)
+                        
+                        // Use same logic as main fetch
+                        let apiEndpoint = '';
+                        if (userRole === 'CUSTOMER' || userRole === 'ADMIN') {
+                            apiEndpoint = `/api/Customer/user/${userId}`;
+                        } else {
+                            apiEndpoint = `/api/User/${userId}`;
+                        }
+                        
+                        axiosInstance.get(apiEndpoint)
                             .then(res => {
                                 if (res.data && res.data.result) {
                                     setCustomerData(res.data.result);
@@ -158,4 +204,4 @@ const AccountInfo: React.FC = () => {
     );
 };
 
-export default AccountInfo;
+export default CustomerInfo;

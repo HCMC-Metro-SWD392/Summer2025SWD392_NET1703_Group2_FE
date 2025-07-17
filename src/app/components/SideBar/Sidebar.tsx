@@ -15,6 +15,7 @@ interface SidebarProps {
   onMenuSelect: (key: string) => void;
   onLogout?: () => void;
   theme?: 'light' | 'dark';
+  selectedKeys?: string[];
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -26,6 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onMenuSelect,
   onLogout,
   theme,
+  selectedKeys,
 }) => {
   return (
     <>
@@ -73,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <Menu
           theme={theme}
           mode="inline"
-          defaultSelectedKeys={['1']}
+          selectedKeys={selectedKeys || ['1']}
           items={menuItems}
           onClick={({ key }) => onMenuSelect(key)}
         />

@@ -9,6 +9,7 @@ import {
     UserOutlined,
     IdcardOutlined,
     FileTextOutlined,
+    CrownOutlined,
   } from '@ant-design/icons';
   import { Layout, Menu } from 'antd';
   import React, { useEffect } from 'react';
@@ -127,7 +128,7 @@ import {
         ],
       },
       {
-        key: '/accountInfor',
+        key: '/admin/accountInfo',
         icon: <UserOutlined />,
         label: 'Quản lý tài khoản',
       },
@@ -157,6 +158,8 @@ import {
   
       return findLabel(menuItems, location.pathname) || 'Dashboard';
     };
+  
+
   
     return (
       <Layout className="min-h-screen h-screen">
@@ -197,9 +200,13 @@ import {
         <Layout className="flex flex-col h-full">
           <Header className="bg-[#001529] px-4 md:px-6 shadow-sm">
             <div className="flex items-center justify-between h-full">
-              <h2 className="text-lg font-semibold text-white truncate">
-                {getCurrentMenuLabel()}
-              </h2>
+              <div className="flex items-center gap-3">
+                <CrownOutlined className="text-yellow-400 text-lg" />
+                <h2 className="text-lg font-semibold text-white truncate">
+                  {getCurrentMenuLabel()}
+                </h2>
+                <span className="hidden md:inline text-blue-300 text-sm">| Admin System</span>
+              </div>
               <div className="flex items-center gap-4">
                 <span className="text-white font-medium hidden sm:inline">{userInfo?.name || 'Admin'}</span>
                 <img
