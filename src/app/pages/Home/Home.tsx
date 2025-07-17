@@ -7,6 +7,7 @@ import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
 import metroMap from '../../assets/Metro Map.png';
 import type { GetMetroLineDTO } from "../../../api/metroLine/MetroLineInterface";
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import NewsListCustomer from './partials/News/NewsListCustomer';
 
 const { Title, Text } = Typography;
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
@@ -84,27 +85,7 @@ export default function Home() {
   const now = time.toLocaleTimeString();
   const today = time.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
 
-  // Hardcoded news data (replace with API later)
-  const newsList = [
-    {
-      id: 1,
-      title: 'Khánh thành tuyến Metro số 1 vào cuối năm 2025',
-      date: '15/07/2025',
-      description: 'Tuyến Metro số 1 (Bến Thành – Suối Tiên) dự kiến sẽ được khánh thành và đưa vào vận hành vào cuối năm 2025, góp phần giảm ùn tắc giao thông cho TP.HCM.'
-    },
-    {
-      id: 2,
-      title: 'Ưu đãi vé tháng cho học sinh, sinh viên',
-      date: '10/07/2025',
-      description: 'Học sinh, sinh viên sẽ được giảm giá vé tháng lên đến 50% khi sử dụng dịch vụ Metro TP.HCM.'
-    },
-    {
-      id: 3,
-      title: 'Tăng cường an ninh tại các nhà ga Metro',
-      date: '05/07/2025',
-      description: 'Lực lượng an ninh sẽ được tăng cường tại các nhà ga Metro nhằm đảm bảo an toàn cho hành khách.'
-    },
-  ];
+  // Removed mock news data - now using API
 
   // State to toggle Metro Map visibility
   const [showMap, setShowMap] = useState(false);
@@ -197,18 +178,7 @@ export default function Home() {
 
       {/* News Section */}
       <div className="max-w-7xl mx-auto px-4 pb-12">
-        <h2 className="text-blue-700 font-bold text-3xl mb-6">Tin tức</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {newsList.map(news => (
-            <div key={news.id} className="bg-white rounded-xl shadow-md p-5 flex flex-col h-full">
-              <div className="text-xs text-gray-400 mb-2">{news.date}</div>
-              <div className="font-bold text-lg text-blue-800 mb-2">{news.title}</div>
-              <div className="text-gray-700 flex-1">{news.description}</div>
-              {/* <a href="#" className="text-blue-500 mt-3 hover:underline">Xem chi tiết</a> */}
-            </div>
-          ))}
-        </div>
-        {/* TODO: Replace newsList with API data in the future */}
+        <NewsListCustomer />
       </div>
 
       {/* FAQ Section */}
