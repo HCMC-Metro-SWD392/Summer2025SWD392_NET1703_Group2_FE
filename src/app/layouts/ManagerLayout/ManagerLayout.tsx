@@ -34,13 +34,18 @@ const ManagerLayout: React.FC = () => {
 
   const menuItems = [
     {
+      key: '/manager/accountInfo',
+      icon: <UserOutlined />,
+      label: 'Quản lý tài khoản',
+    },
+    {
       key: '/manager',
       icon: <DashboardOutlined />,
       label: 'Bảng Điều Khiển',
     },
     {
       key: 'staffs',
-      icon: <UserOutlined />,
+      icon: <TeamOutlined />,
       label: 'Quản Lý Nhân Viên',
       children: [
         {
@@ -79,11 +84,6 @@ const ManagerLayout: React.FC = () => {
           label: 'Giao dịch vé',
         },
       ],
-    },
-    {
-      key: '/manager/accountInfo',
-      icon: <UserOutlined />,
-      label: 'Quản lý tài khoản',
     },
   ];
 

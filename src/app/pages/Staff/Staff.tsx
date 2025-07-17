@@ -14,6 +14,8 @@ import {
     QrcodeOutlined,
     CheckCircleOutlined,
     ToolOutlined,
+    EditOutlined,
+    UnorderedListOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Badge, Avatar, Dropdown, Typography, Menu } from 'antd';
@@ -88,17 +90,21 @@ const Staff: React.FC = () => {
     );
 
     const menuItems: MenuProps['items'] = [
+        { key: 'account', icon: <UserOutlined />, label: 'Quản lý tài khoản' },
         { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
         { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
         { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
         { key: '4', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
+        {
+            key: 'news-management',
+            icon: <EditOutlined />,
+            label: 'Quản lý tin tức',
+            children: [
+                { key: 'create-news', icon: <EditOutlined />, label: 'Tạo tin tức' },
+                { key: 'news-list', icon: <UnorderedListOutlined />, label: 'Danh sách tin tức' },
+            ]
+        },
         { key: '5', icon: <LogoutOutlined />, label: 'Đăng xuất' },
-        { key: 'account', icon: <UserOutlined />, label: 'Quản lý tài khoản' },
-        // { key: '4', icon: <BarChartOutlined />, label: 'Charts' },
-        // { key: '5', icon: <CloudOutlined />, label: 'Cloud' },
-        // { key: '6', icon: <AppstoreOutlined />, label: 'Apps' },
-        // { key: '7', icon: <TeamOutlined />, label: 'Team' },
-        // { key: '8', icon: <ShopOutlined />, label: 'Shop' },
     ];
 
     const renderContent = () => {
@@ -130,6 +136,12 @@ const Staff: React.FC = () => {
         if (location.pathname === '/staff/case-approval') {
             return 'Phê Duyệt Đơn';
         }
+        if (location.pathname === '/staff/create-news') {
+            return 'Tạo Tin Tức';
+        }
+        if (location.pathname === '/staff/news-list') {
+            return 'Danh Sách Tin Tức';
+        }
         
         // Handle main staff page
         const menuLabels: { [key: string]: string } = {
@@ -138,6 +150,8 @@ const Staff: React.FC = () => {
             '3': 'Quản Lý Đơn',
             '4': 'Lịch Làm Việc',
             'account': 'Quản Lý Tài Khoản',
+            'create-news': 'Tạo Tin Tức',
+            'news-list': 'Danh Sách Tin Tức',
         };
         return menuLabels[selectedKey] || 'Staff Dashboard';
     };
@@ -149,6 +163,15 @@ const Staff: React.FC = () => {
     const getCurrentSelectedKey = () => {
         if (location.pathname === '/staff/accountInfo') {
             return 'account';
+        }
+        if (location.pathname === '/staff/case-approval') {
+            return '3';
+        }
+        if (location.pathname === '/staff/create-news') {
+            return 'create-news';
+        }
+        if (location.pathname === '/staff/news-list') {
+            return 'news-list';
         }
         return selectedKey;
     };
@@ -174,6 +197,12 @@ const Staff: React.FC = () => {
                         handleLogout();
                     } else if (key === 'account') {
                         navigate('/staff/accountInfo');
+                    } else if (key === 'create-news') {
+                        navigate('/staff/create-news');
+                    } else if (key === 'news-list') {
+                        navigate('/staff/news-list');
+                    } else if (key === '3') {
+                        navigate('/staff/case-approval');
                     } else {
                         setSelectedKey(key);
                         // Navigate back to main staff page if we're on a nested route

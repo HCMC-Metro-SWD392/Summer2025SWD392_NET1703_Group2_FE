@@ -59,6 +59,8 @@ import ScrollToTop from "../components/ScrollToTop";
 import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
 import UpdateEmailTemplate from "../pages/Admin/EmailManagement/UpdateEmailTemplate";
 import EmailTemplatetList from "../pages/Admin/EmailManagement/EmailTemplatetList";
+import CreateNews from "../pages/Staff/partials/News/CreateNews";
+import NewsListPage from "../pages/Staff/partials/News/NewsListPage";
 import { useParams, useNavigate } from "react-router-dom";
 import React from "react";
 const UpdateEmailTemplateWrapper = () => {
@@ -158,6 +160,8 @@ export default function MainRoutes() {
         <Route path="/staff" element={<Staff />} />
         <Route path="/staff/accountInfo" element={<AccountInfo />} />
         <Route path="/staff/case-approval" element={<CaseApproval />} />
+        <Route path="/staff/create-news" element={<CreateNews />} />
+        <Route path="/staff/news-list" element={<NewsListPage />} />
       </Route>
 
         

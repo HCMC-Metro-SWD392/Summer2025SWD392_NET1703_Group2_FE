@@ -30,111 +30,111 @@ import {
       logTokenContents();
     }, []);
   
-    const menuItems = [
-      {
-        key: '/admin',
-        icon: <DashboardOutlined />,
-        label: 'Bảng Điều Khiển',
-      },
-      {
-        key: 'station-management',
-        icon: <ApartmentOutlined />,
-        label: 'Quản Lý Trạm',
-        children: [
-          {
-            key: '/admin/station',
-            label: 'Danh Sách Trạm',
-          },
-          {
-            key: '/admin/create-station',
-            label: 'Tạo Trạm',
-          },
-        ],
-      },
-      {
-        key: 'metro-line-management',
-        icon: <CarOutlined />,
-        label: 'Quản Lý Tuyến Metro',
-        children: [
-          {
-            key: '/admin/metro-line',
-            label: 'Danh Sách Tuyến Metro',
-          },
-          {
-            key: '/admin/create-metro-line',
-            label: 'Tạo Tuyến Metro',
-          },
-          {
-            key: '/admin/add-metro-line-station',
-            label: 'Thêm Trạm Vào Tuyến Metro',
-          },
-        ],
-      },
-      {
-        key: 'train-schedule',
-        icon: <ClockCircleOutlined />,
-        label: 'Quản Lý Lịch Trình Tàu',
-        children: [
-          {
-            key: '/admin/train-schedule',
-            label: 'Danh Sách Lịch Trình Tàu',
-          },
-        ],
-      },
-      {
-        key: 'fare-management',
-        icon: <DollarCircleOutlined />,
-        label: 'Quản Lý Giá Vé',
-        children: [
-          {
-            key: '/admin/fare-rule',
-            label: 'Quy Tắc Giá Vé',
-          },
-        ],
-      },
-      {
-        key: 'ticket-transaction-management',
-        icon: <IdcardOutlined />,
-        label: 'Quản Lý Giao Dịch Vé',
-        children: [
-          {
-            key: '/admin/transaction-ticket',
-            label: 'Giao Dịch Vé',
-          },
-        ],
-      },
-      {
-        key: 'log-activity-management',
-        icon: <FileTextOutlined />,
-        label: 'Quản Lý Hoạt Động',
-        children: [
-          {
-            key: '/admin/log-activity',
-            label: 'Hoạt động',
-          },
-        ],
-      },
-      {
-        key: 'email-management',
-        icon: <SettingOutlined />,
-        label: 'Quản Lý Email',
-        children: [
-          {
-            key: '/admin/create-email-template',
-            label: 'Tạo Email Template',
-          },
-          {
-            key: '/admin/email-template',
-            label: 'Danh Sách Email Template',
-          },
-        ],
-      },
-      {
-        key: '/admin/accountInfo',
-        icon: <UserOutlined />,
-        label: 'Quản lý tài khoản',
-      },
-    ];
+      const menuItems = [
+    {
+      key: '/admin/accountInfo',
+      icon: <UserOutlined />,
+      label: 'Quản lý tài khoản',
+    },
+    {
+      key: '/admin',
+      icon: <DashboardOutlined />,
+      label: 'Bảng Điều Khiển',
+    },
+    {
+      key: 'station-management',
+      icon: <ApartmentOutlined />,
+      label: 'Quản Lý Trạm',
+      children: [
+        {
+          key: '/admin/station',
+          label: 'Danh Sách Trạm',
+        },
+        {
+          key: '/admin/create-station',
+          label: 'Tạo Trạm',
+        },
+      ],
+    },
+    {
+      key: 'metro-line-management',
+      icon: <CarOutlined />,
+      label: 'Quản Lý Tuyến Metro',
+      children: [
+        {
+          key: '/admin/metro-line',
+          label: 'Danh Sách Tuyến Metro',
+        },
+        {
+          key: '/admin/create-metro-line',
+          label: 'Tạo Tuyến Metro',
+        },
+        {
+          key: '/admin/add-metro-line-station',
+          label: 'Thêm Trạm Vào Tuyến Metro',
+        },
+      ],
+    },
+    {
+      key: 'train-schedule',
+      icon: <ClockCircleOutlined />,
+      label: 'Quản Lý Lịch Trình Tàu',
+      children: [
+        {
+          key: '/admin/train-schedule',
+          label: 'Danh Sách Lịch Trình Tàu',
+        },
+      ],
+    },
+    {
+      key: 'fare-management',
+      icon: <DollarCircleOutlined />,
+      label: 'Quản Lý Giá Vé',
+      children: [
+        {
+          key: '/admin/fare-rule',
+          label: 'Quy Tắc Giá Vé',
+        },
+      ],
+    },
+    {
+      key: 'ticket-transaction-management',
+      icon: <IdcardOutlined />,
+      label: 'Quản Lý Giao Dịch Vé',
+      children: [
+        {
+          key: '/admin/transaction-ticket',
+          label: 'Giao Dịch Vé',
+        },
+      ],
+    },
+    {
+      key: 'log-activity-management',
+      icon: <FileTextOutlined />,
+      label: 'Quản Lý Hoạt Động',
+      children: [
+        {
+          key: '/admin/log-activity',
+          label: 'Hoạt động',
+        },
+      ],
+    },
+    {
+      key: 'email-management',
+      icon: <SettingOutlined />,
+      label: 'Quản Lý Email',
+      children: [
+        {
+          key: '/admin/create-email-template',
+          label: 'Tạo Email Template',
+        },
+        {
+          key: '/admin/email-template',
+          label: 'Danh Sách Email Template',
+        },
+      ],
+    },
+  ];
   
     const handleMenuClick = ({ key }: { key: string }) => {
       navigate(key);
