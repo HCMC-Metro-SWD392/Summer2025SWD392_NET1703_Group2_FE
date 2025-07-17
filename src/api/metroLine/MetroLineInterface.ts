@@ -1,10 +1,11 @@
 import type { GetStationDTO } from '../station/StationInterface';
 
 export interface CreateMetroLineDTO {
-    metroLineNumber: string;   
     metroName?: string;        
     startStationId: string;     
-    endStationId: string;       
+    endStationId: string;
+    startTime: string;
+    endTime: string;
 }
 
 export interface CreateMetroLineStationDTO {
@@ -28,6 +29,7 @@ export interface GetMetroLineDTO {
     startStation?: GetStationDTO; 
     endStation?: GetStationDTO;   
     metroLineStations: GetMetroLineStationDTO[]; 
+    status: MetroLineStatus;
 }
 
 export interface ResponseDTO<T = any> {
@@ -37,7 +39,11 @@ export interface ResponseDTO<T = any> {
     result?: T;
 }
 
-export type MetroLineStatus = 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE';
+export enum MetroLineStatus {
+    Normal = 0, // hoạt động bình thường
+    Faulty = 1, // bị lỗi
+    Delayed = 2, // bị chậm
+}
 
 export type MetroLineStationStatus = 'OPERATIONAL' | 'CLOSED' | 'MAINTENANCE';
 

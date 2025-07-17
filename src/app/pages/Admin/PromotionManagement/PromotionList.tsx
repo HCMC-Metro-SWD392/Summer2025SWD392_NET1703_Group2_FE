@@ -41,8 +41,9 @@ const PromotionList: React.FC = () => {
         filterOn: filterQuery ? 'code' : undefined,
         filterQuery: filterQuery ? filterQuery.toUpperCase() : undefined,
         sortBy: params.sortBy || 'createdAt',
-        isAscending: params.sortBy ? params.isAscending : false
-      });
+        isAscending: params.sortBy ? params.isAscending : false,
+        isActive: true,
+      } as any);
 
       if (response.isSuccess && response.result) {
         setPromotions(response.result);
