@@ -4,6 +4,7 @@ import { CalendarOutlined, UserOutlined, TagOutlined, FileTextOutlined, CloseOut
 import axiosInstance from '../../../../../settings/axiosInstance';
 import { NewsStatus } from './CreateNews';
 
+
 const { Title, Paragraph, Text } = Typography;
 
 interface NewsDetail {
@@ -110,6 +111,8 @@ const ViewSpecificNews: React.FC<ViewSpecificNewsProps> = ({
     onClose();
   };
 
+
+
   return (
     <Modal
       title="Chi Tiết Tin Tức"
@@ -206,6 +209,8 @@ const ViewSpecificNews: React.FC<ViewSpecificNewsProps> = ({
               </div>
             </>
           )}
+
+
         </div>
       ) : (
         <div className="text-center py-12">

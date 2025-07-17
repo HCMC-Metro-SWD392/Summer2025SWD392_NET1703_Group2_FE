@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Table, Button, message, Tag, Space, Input, Select, Card, Row, Col, Tooltip, Avatar } from 'antd';
-import { EyeOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined, UserOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { EyeOutlined, DeleteOutlined, SearchOutlined, ReloadOutlined, UserOutlined, CloseOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../../settings/axiosInstance';
 import { NewsStatus } from '../../Staff/partials/News/CreateNews';
 import ViewSpecificNews from '../../Staff/partials/News/ViewSpecificNews';
-import DeleteNews from './DeleteNews';
 import UpdateNewsStatus from './UpdateNewsStatus';
+import DeleteNews from './DeleteNews';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -72,11 +72,7 @@ const NewsListPage: React.FC = () => {
   
   // State for Update Status Modal
   const [updateStatusModalVisible, setUpdateStatusModalVisible] = useState(false);
-  const [selectedNewsForStatus, setSelectedNewsForStatus] = useState<{
-    id: string;
-    title: string;
-    status: NewsStatus;
-  } | null>(null);
+  const [selectedNewsForStatus, setSelectedNewsForStatus] = useState<string | null>(null);
   
   const navigate = useNavigate();
 
@@ -161,7 +157,7 @@ const NewsListPage: React.FC = () => {
       item.staffName.toLowerCase().includes('unknown')
     );
 
-    console.log(`[DEBUG] Found ${itemsNeedEnrich.length} items needing staff info enrichment`);
+    // console.log(`[DEBUG] Found ${itemsNeedEnrich.length} items needing staff info enrichment`);
 
     // Nếu không có items nào cần enrich, return ngay
     if (itemsNeedEnrich.length === 0) {
@@ -178,12 +174,12 @@ const NewsListPage: React.FC = () => {
       await Promise.all(
         batch.map(async (item) => {
           try {
-            console.log(`[DEBUG] Fetching staff info for news: ${item.id}`);
+            // console.log(`[DEBUG] Fetching staff info for news: ${item.id}`);
             const detailResponse = await axiosInstance.get(`/api/News/get-news-by-id/${item.id}`);
             
             if (detailResponse.data?.isSuccess && detailResponse.data.result?.staffName) {
               enrichedData[item.id] = detailResponse.data.result.staffName;
-              console.log(`[DEBUG] Got staff name for ${item.id}: ${detailResponse.data.result.staffName}`);
+              // console.log(`[DEBUG] Got staff name for ${item.id}: ${detailResponse.data.result.staffName}`);
             }
           } catch (error) {
             console.warn(`[DEBUG] Failed to get staff info for news ${item.id}:`, error);
@@ -203,20 +199,43 @@ const NewsListPage: React.FC = () => {
       return item;
     });
 
-    console.log(`[DEBUG] Successfully enriched ${Object.keys(enrichedData).length} items with staff info`);
+    // console.log(`[DEBUG] Successfully enriched ${Object.keys(enrichedData).length} items with staff info`);
     return enrichedItems;
   };
 
-  const getStatusTag = (status: NewsStatus) => {
+  const getStatusTag = (status: NewsStatus, showIcon: boolean = false) => {
     const statusConfig = {
-      [NewsStatus.Pending]: { color: 'orange', text: 'Đang chờ duyệt' },
-      [NewsStatus.Published]: { color: 'green', text: 'Đã xuất bản' },
-      [NewsStatus.Rejected]: { color: 'red', text: 'Đã từ chối' },
-      [NewsStatus.Updated]: { color: 'blue', text: 'Đã cập nhật' },
+      [NewsStatus.Pending]: { 
+        color: 'orange', 
+        text: 'Đang chờ duyệt',
+        icon: <CloseOutlined />
+      },
+      [NewsStatus.Published]: { 
+        color: 'green', 
+        text: 'Đã xuất bản',
+        icon: <CloseOutlined />
+      },
+      [NewsStatus.Rejected]: { 
+        color: 'red', 
+        text: 'Đã từ chối',
+        icon: <CloseOutlined />
+      },
+      [NewsStatus.Updated]: { 
+        color: 'blue', 
+        text: 'Đã cập nhật',
+        icon: <CloseOutlined />
+      },
     };
     
     const config = statusConfig[status];
-    return <Tag color={config.color}>{config.text}</Tag>;
+    return (
+      <Tag 
+        color={config.color}
+        icon={showIcon ? config.icon : undefined}
+      >
+        {config.text}
+      </Tag>
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -265,12 +284,8 @@ const NewsListPage: React.FC = () => {
     setSelectedNewsId(null);
   };
 
-  const handleUpdateStatus = (newsItem: NewsItem) => {
-    setSelectedNewsForStatus({
-      id: newsItem.id,
-      title: newsItem.title,
-      status: newsItem.status,
-    });
+  const handleUpdateStatus = (newsId: string) => {
+    setSelectedNewsForStatus(newsId);
     setUpdateStatusModalVisible(true);
   };
 
@@ -279,8 +294,22 @@ const NewsListPage: React.FC = () => {
     setSelectedNewsForStatus(null);
   };
 
-  const handleUpdateStatusSuccess = () => {
-    fetchNewsList(); // Reload danh sách tin tức
+  const handleUpdateStatusSuccess = (newsId: string, newStatus: NewsStatus) => {
+    // Cập nhật trạng thái tin tức trong state
+    setNewsData(prevData => 
+      prevData.map(item => 
+        item.id === newsId 
+          ? { 
+              ...item, 
+              status: newStatus,
+              updatedAt: new Date().toISOString() // Cập nhật thời gian
+            }
+          : item
+      )
+    );
+    
+    // Refresh lại danh sách để có dữ liệu mới nhất
+    fetchNewsList();
   };
 
   const handleDeleteNews = (newsId: string, title: string) => {
@@ -388,7 +417,7 @@ const NewsListPage: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       width: '12%',
-      render: (status: any) => getStatusTag(status),
+      render: (status: any) => getStatusTag(status, true),
     },
     {
       title: 'Ngày tạo',
@@ -415,8 +444,19 @@ const NewsListPage: React.FC = () => {
         const canApprove = record.status === NewsStatus.Pending || record.status === NewsStatus.Updated;
         
         return (
-          <Space size="small" direction="vertical">
-            <Space size="small">
+          <Space size="small">
+            {canApprove ? (
+              <Button
+                type="text"
+                icon={<CheckCircleOutlined />}
+                style={{ color: '#52c41a' }}
+                size="small"
+                title="Duyệt tin tức"
+                onClick={() => handleUpdateStatus(record.id)}
+              >
+                Duyệt
+              </Button>
+            ) : (
               <Button
                 type="text"
                 icon={<EyeOutlined />}
@@ -424,30 +464,15 @@ const NewsListPage: React.FC = () => {
                 title="Xem chi tiết"
                 onClick={() => handleViewNews(record.id)}
               />
-              {canApprove && (
-                <Button
-                  type="text"
-                  icon={<CheckOutlined />}
-                  size="small"
-                  title="Duyệt/Từ chối"
-                  style={{ color: '#1890ff' }}
-                  onClick={() => handleUpdateStatus(record)}
-                />
-              )}
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                size="small"
-                title="Xóa"
-                onClick={() => handleDeleteNews(record.id, record.title)}
-              />
-            </Space>
-            {canApprove && (
-              <div style={{ fontSize: 11, color: '#666', textAlign: 'center' }}>
-                Cần duyệt
-              </div>
             )}
+            <Button
+              type="text"
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+              title="Xóa"
+              onClick={() => handleDeleteNews(record.id, record.title)}
+            />
           </Space>
         );
       },
@@ -655,9 +680,7 @@ const NewsListPage: React.FC = () => {
 
       {/* Update Status Modal */}
       <UpdateNewsStatus
-        newsId={selectedNewsForStatus?.id || null}
-        newsTitle={selectedNewsForStatus?.title || ''}
-        currentStatus={selectedNewsForStatus?.status || NewsStatus.Pending}
+        newsId={selectedNewsForStatus}
         visible={updateStatusModalVisible}
         onClose={handleCloseUpdateStatusModal}
         onSuccess={handleUpdateStatusSuccess}
