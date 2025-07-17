@@ -29,6 +29,8 @@ interface TableParams {
   filters?: Record<string, FilterValue | null>;
 }
 
+const TOTAL_FARE_RULES = 20; // Replace with your actual total if needed
+
 const FareRuleManagement: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -226,10 +228,12 @@ const FareRuleManagement: React.FC = () => {
               rowKey="id"
               pagination={{
                 ...tableParams.pagination,
+                total: TOTAL_FARE_RULES,
                 showSizeChanger: true,
                 showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} quy tắc giá vé`,
                 pageSizeOptions: ['10', '20', '50', '100']
               }}
+              onChange={handleTableChange}
               locale={{
                 emptyText: 'Không có dữ liệu',
                 triggerDesc: 'Sắp xếp giảm dần',
