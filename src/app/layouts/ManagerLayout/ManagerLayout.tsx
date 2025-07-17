@@ -11,6 +11,7 @@ import {
   TeamOutlined,
   BarChartOutlined,
   TrophyOutlined,
+  FileTextOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Badge, Avatar, Dropdown, Typography, Space } from 'antd';
 import React, { useEffect } from 'react';
@@ -63,6 +64,17 @@ const ManagerLayout: React.FC = () => {
       ],
     },
     {
+      key: 'news-management',
+      icon: <FileTextOutlined />,
+      label: 'Quản Lý Tin Tức',
+      children: [
+        {
+          key: '/manager/news',
+          label: 'Danh Sách Tin Tức',
+        },
+      ],
+    },
+    {
       key: 'sales-finance',
       icon: <DollarCircleOutlined />,
       label: 'Bán Hàng & Tài Chính',
@@ -110,6 +122,12 @@ const ManagerLayout: React.FC = () => {
           icon: <TeamOutlined />,
           label: 'Quản lý nhân viên',
           onClick: () => navigate('/manager/staffs'),
+        },
+        {
+          key: 'news-management',
+          icon: <FileTextOutlined />,
+          label: 'Quản lý tin tức',
+          onClick: () => navigate('/manager/news'),
         },
         {
           key: 'revenue',
@@ -219,6 +237,12 @@ const ManagerLayout: React.FC = () => {
                   className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-md transition-colors"
                 >
                   Nhân viên
+                </button>
+                <button 
+                  onClick={() => navigate('/manager/news')}
+                  className="px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white text-sm rounded-md transition-colors"
+                >
+                  Tin tức
                 </button>
                 <button 
                   onClick={() => navigate('/manager/promotion')}

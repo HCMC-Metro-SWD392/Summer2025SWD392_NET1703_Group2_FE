@@ -41,7 +41,7 @@ interface FilterParams {
   sortOrder?: string;
 }
 
-const NewsListPage: React.FC = () => {
+const NewsListPageForStaff: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [newsData, setNewsData] = useState<NewsItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -174,25 +174,21 @@ const NewsListPage: React.FC = () => {
   };
 
   const handleViewNews = (newsId: string) => {
-    console.log('[DEBUG] Opening news detail modal for ID:', newsId);
     setSelectedNewsId(newsId);
     setViewModalVisible(true);
   };
 
   const handleCloseViewModal = () => {
-    console.log('[DEBUG] Closing news detail modal');
     setViewModalVisible(false);
     setSelectedNewsId(null);
   };
 
   const handleUpdateNews = (newsId: string) => {
-    console.log('[DEBUG] Opening news update modal for ID:', newsId);
     setSelectedUpdateNewsId(newsId);
     setUpdateModalVisible(true);
   };
 
   const handleCloseUpdateModal = () => {
-    console.log('[DEBUG] Closing news update modal');
     setUpdateModalVisible(false);
     setSelectedUpdateNewsId(null);
   };
@@ -228,7 +224,7 @@ const NewsListPage: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       width: '12%',
-      render: (status: NewsStatus) => getStatusTag(status),
+      render: (status: any) => getStatusTag(status),
     },
     {
       title: 'Ngày tạo',
@@ -267,25 +263,17 @@ const NewsListPage: React.FC = () => {
             title="Chỉnh sửa"
             onClick={() => handleUpdateNews(record.id)}
           />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            size="small"
-            title="Xóa"
-            onClick={() => {
-              message.info(`Xóa tin tức: ${record.title}`);
-            }}
-          />
         </Space>
       ),
-    },
+    }
   ];
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <Title level={3} className="mb-0">Tin Tức Của Tôi</Title>
+        <Title level={3} className="mb-0">
+          Tin Tức Của Tôi
+        </Title>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -409,4 +397,4 @@ const NewsListPage: React.FC = () => {
   );
 };
 
-export default NewsListPage; 
+export default NewsListPageForStaff; 
