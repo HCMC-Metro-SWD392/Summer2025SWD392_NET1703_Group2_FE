@@ -37,6 +37,7 @@ import type { SelectProps } from "antd";
 import dayjs from "dayjs";
 import axios from "axios";
 import axiosInstance from "../../../../../settings/axiosInstance";
+import { checkUserType } from "../../../../../api/auth/auth";
 
 const BuyRouteTicket: React.FC = () => {
   const [allStations, setAllStations] = useState<Station[]>([]);
@@ -172,6 +173,32 @@ const BuyRouteTicket: React.FC = () => {
     }
   };
 
+  const checkExistTicketRange = async (startStationId: string | undefined, endStationId: string | undefined) => {
+  if (!startStationId || !endStationId) return;
+
+  try {
+    const res = await axiosInstance.get("/api/Ticket/is-exist-ticket-range", {
+      params: {
+        startStaionId: startStationId,
+        endStationId: endStationId,
+      },
+    });
+
+    return res.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data;
+      if (responseData?.message) {
+        message.warning(responseData.message);
+      } else {
+        message.error("Lỗi khi kiểm tra vé.");
+      }
+    } else {
+      message.error("Lỗi không xác định.");
+    }
+  }
+};
+
   useEffect(() => {
     const fetchPrice = async () => {
       if (fromStation && toStation) {
@@ -215,6 +242,13 @@ const BuyRouteTicket: React.FC = () => {
         setTicketRouteId(null);
       }
     };
+
+
+
+    if (checkUserType("Student") && ticketType === "monthly") {
+      message.warning("Bạn đang là học sinh/sinh viên nên có thể chọn loại vé tháng dành cho học sinh/sinh viên để nhận ưu đãi.");
+    }
+    checkExistTicketRange(fromStation?.id, toStation?.id);
     fetchPrice();
   }, [fromStation, toStation, ticketType]);
 
@@ -344,7 +378,7 @@ const BuyRouteTicket: React.FC = () => {
                     className={`relative cursor-pointer rounded-2xl border p-4 flex items-center gap-3 transition-all hover:shadow-lg ${isSelected
                       ? "border-blue-600 bg-blue-50 shadow-lg"
                       : "border-gray-300 bg-white"
-                      }`}
+                      } ${item.name === "student" && !checkUserType("Student") ? "pointer-events-none opacity-50 hover:shadow-none" : "" }`} 
                   >
                     <div className="text-blue-600 text-2xl">
                       <TicketIcon />
@@ -384,7 +418,7 @@ const BuyRouteTicket: React.FC = () => {
             </div>
 
 
-            {ticketType !== "monthly" && ticketType !== "student" && (
+          
               <div className="mt-4" ref={ticketPromotion}>
                 <div className="mb-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
@@ -394,7 +428,7 @@ const BuyRouteTicket: React.FC = () => {
                       value={promotionInput}
                       onChange={(e) => setPromotionInput(e.target.value)}
                       className="flex-1"
-                      disabled={isPromoApplied}
+                      disabled={isPromoApplied || ticketType === "monthly" || ticketType === "student"}
                       allowClear
                     />
                     {!isPromoApplied ? (
@@ -404,6 +438,7 @@ const BuyRouteTicket: React.FC = () => {
                           handlePromotionCheck(promotionInput, false);
                         }}
                         type="primary"
+                        disabled={ticketType === "monthly" || ticketType === "student"}
                       >
                         Áp dụng
                       </Button>
@@ -425,7 +460,6 @@ const BuyRouteTicket: React.FC = () => {
 
                 </div>
               </div>
-            )}
 
             <Divider className="!my-4" />
 

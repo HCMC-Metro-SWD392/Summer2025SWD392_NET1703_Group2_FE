@@ -35,6 +35,7 @@ const AdjustTicket: React.FC = () => {
 
   const [stationInfo, setStationInfo] = useState<{ name: string; id: string } | null>(null);
   const [shiftTime, setShiftTime] = useState<{ start: string; end: string } | null>(null);
+  const [isShiftOver, setIsShiftOver] = useState(false);
   const [countdownText, setCountdownText] = useState<string | null>(null);
   const [countdownType, setCountdownType] = useState<'before' | 'working' | null>(null);
   const intervalRef = useRef<number | undefined>(undefined);
@@ -61,6 +62,7 @@ const AdjustTicket: React.FC = () => {
           setShiftTime(null);
           setCountdownText(null);
           setCountdownType(null);
+          setIsShiftOver(false);
           return;
         }
 
@@ -76,12 +78,15 @@ const AdjustTicket: React.FC = () => {
           if (now.isBefore(start)) {
             setCountdownText(formatTimeLeft(start.diff(now, 'second')));
             setCountdownType('before');
+            setIsShiftOver(false);
           } else if (now.isBefore(end)) {
             setCountdownText(formatTimeLeft(end.diff(now, 'second')));
             setCountdownType('working');
+            setIsShiftOver(false);
           } else {
             setCountdownText(null);
             setCountdownType(null);
+            setIsShiftOver(true);
             clearInterval(intervalRef.current);
           }
         };
@@ -219,27 +224,36 @@ const AdjustTicket: React.FC = () => {
                   </p>
                 )}
               </div>
-
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Nhập mã số vé"
-                  value={serialNumber}
-                  onChange={(e) => setSerialNumber(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-1"
-                />
-                <Button
-                  type="primary"
-                  icon={<SearchOutlined />}
-                  onClick={handleSerialSearch}
-                  loading={loading}
-                >
-                  Tìm kiếm
-                </Button>
-                <Button icon={<QrcodeOutlined />} onClick={handleQRScan}>
-                  Quét mã QR
-                </Button>
-              </div>
+              {countdownType === 'working' && !isShiftOver ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nhập mã số vé"
+                    value={serialNumber}
+                    onChange={(e) => setSerialNumber(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="primary"
+                    icon={<SearchOutlined />}
+                    onClick={handleSerialSearch}
+                    loading={loading}
+                  >
+                    Tìm kiếm
+                  </Button>
+                  <Button icon={<QrcodeOutlined />} onClick={handleQRScan}>
+                    Quét mã QR
+                  </Button>
+                </div>
+              ) : isShiftOver ? (
+                <div className="text-center text-red-500 py-4">
+                  🕒 Ca làm việc hôm nay đã kết thúc.
+                </div>
+              ) : (
+                <div className="text-center text-gray-500 py-4">
+                  🕒 Vui lòng đợi đến giờ làm để bắt đầu quét vé.
+                </div>
+              )}
 
               {selectedTicket && (
                 <div className="border rounded-lg p-4 bg-gray-50">

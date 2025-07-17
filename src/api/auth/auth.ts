@@ -102,6 +102,42 @@ export const checkUserRole = (allowedRoles: string | string[]): boolean => {
   }
 };
 
+export const checkUserType = (allowedRoles: string | string[]): boolean => {
+  const token = localStorage.getItem("accessToken");
+
+  if (!token) {
+    // message.error("Không tìm thấy token.");
+    removeTokens();
+    removeUserInfo();
+    window.location.href = "/login";
+    return false;
+  }
+
+  try {
+    const decoded: any = jwtDecode(token);
+    const role = decoded["CustomerType"];
+
+    if (!role) {
+      // message.error("Không tìm thấy role trong token.");
+      return false;
+    }
+
+    if (Array.isArray(allowedRoles)) {
+      if (allowedRoles.includes(role)) return true;
+    } else {
+      if (role === allowedRoles) return true;
+    }
+
+    // message.error("Bạn không có quyền truy cập trang này.");
+    return false;
+
+  } catch (error) {
+    // console.error("Lỗi giải mã token:", error);
+    // message.error("Token không hợp lệ.");
+    return false;
+  }
+};
+
 export const changePassword = async (data: {
   currentPassword: string;
   newPassword: string;

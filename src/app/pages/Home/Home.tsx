@@ -7,6 +7,8 @@ import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
 import metroMap from '../../assets/Metro Map.png';
 import type { GetMetroLineDTO } from "../../../api/metroLine/MetroLineInterface";
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { checkUserRole } from "../../../api/auth/auth";
+import { Navigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 const API_KEY = import.meta.env.VITE_OPENWEATHER_KEY;
@@ -25,6 +27,18 @@ export default function Home() {
   const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]); // Array of metro line objects
   const [currentMetroIndex, setCurrentMetroIndex] = useState(0);
   const [metroLinesLoading, setMetroLinesLoading] = useState(true);
+
+  if (checkUserRole(["STAFF"])) {
+        return <Navigate to="/staff" replace />;
+  }
+
+  if (checkUserRole(["MANAGER"])) {
+        return <Navigate to="/manager" replace />;
+  }
+
+  if (checkUserRole(["ADMIN"])) {
+        return <Navigate to="/admin" replace />;
+  }
 
   // Personalization: get username from localStorage
   const [username, setUsername] = useState<string | null>(null);

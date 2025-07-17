@@ -3,7 +3,13 @@ import { Modal, Typography, Spin, message, Radio, Tag } from 'antd';
 import QRScanner from './QRScanner';
 import axiosInstance from '../../../settings/axiosInstance';
 import dayjs from 'dayjs';
-import { CheckCircleOutlined, ClockCircleOutlined, CloseCircleOutlined, HomeOutlined, HourglassOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  CloseCircleOutlined,
+  HomeOutlined,
+  HourglassOutlined,
+} from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
@@ -16,6 +22,7 @@ const TicketProcessingQR: React.FC = () => {
   const [countdownText, setCountdownText] = useState<string | null>(null);
   const [countdownType, setCountdownType] = useState<'before' | 'working' | null>(null);
   const [loadingSchedule, setLoadingSchedule] = useState(true);
+  const [isShiftOver, setIsShiftOver] = useState(false);
 
   const [processType, setProcessType] = useState<'checkin' | 'checkout'>('checkin');
   const processTypeRef = useRef<'checkin' | 'checkout'>('checkin');
@@ -24,17 +31,20 @@ const TicketProcessingQR: React.FC = () => {
   const intervalRef = useRef<number | undefined>(undefined);
 
   const formatTimeLeft = (seconds: number): string => {
-    const h = Math.floor(seconds / 3600)
-      .toString()
-      .padStart(2, '0');
-    const m = Math.floor((seconds % 3600) / 60)
-      .toString()
-      .padStart(2, '0');
-    const s = Math.floor(seconds % 60)
-      .toString()
-      .padStart(2, '0');
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = Math.floor(seconds % 60).toString().padStart(2, '0');
     return `${h}:${m}:${s}`;
   };
+
+  useEffect(() => {
+    if (isModalVisible) {
+      const timer = setTimeout(() => {
+        setIsModalVisible(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isModalVisible]);
 
   useEffect(() => {
     const fetchTodaySchedule = async () => {
@@ -51,6 +61,7 @@ const TicketProcessingQR: React.FC = () => {
           setShiftTime(null);
           setCountdownText(null);
           setCountdownType(null);
+          setIsShiftOver(false);
           return;
         }
 
@@ -67,13 +78,16 @@ const TicketProcessingQR: React.FC = () => {
             const diff = start.diff(now, 'second');
             setCountdownText(formatTimeLeft(diff));
             setCountdownType('before');
+            setIsShiftOver(false);
           } else if (now.isAfter(start) && now.isBefore(end)) {
             const diff = end.diff(now, 'second');
             setCountdownText(formatTimeLeft(diff));
             setCountdownType('working');
+            setIsShiftOver(false);
           } else {
             setCountdownText(null);
             setCountdownType(null);
+            setIsShiftOver(true); // ✅ Ca đã kết thúc
             window.clearInterval(intervalRef.current);
           }
         };
@@ -172,35 +186,36 @@ const TicketProcessingQR: React.FC = () => {
           </div>
         )}
 
-        
-
-        {countdownType === 'working' ? (
-            <>
+        {/* MAIN QR PROCESSING LOGIC */}
+        {countdownType === 'working' && !isShiftOver ? (
+          <>
             <div>
-          <label className="block font-medium mb-1">Chọn loại xử lý:</label>
-          <Radio.Group
-            value={processType}
-            onChange={(e) => handleProcessTypeChange(e.target.value)}
-            className="w-full"
-            disabled={countdownType !== 'working'}
-          >
-            <Radio.Button value="checkin">Check-in</Radio.Button>
-            <Radio.Button value="checkout">Check-out</Radio.Button>
-          </Radio.Group>
-        </div>
-
-        <div className="border rounded-xl p-4 bg-gray-100">
-          <QRScanner onScanSuccess={handleScanSuccess} scannerRef={scannerRef} />
-        </div>
-            </>
-          ) : (
-            <div className="text-center text-gray-500 py-4">
-              🕒 Vui lòng đợi đến giờ làm để bắt đầu quét vé.
+              <label className="block font-medium mb-1">Chọn loại xử lý:</label>
+              <Radio.Group
+                value={processType}
+                onChange={(e) => handleProcessTypeChange(e.target.value)}
+                className="w-full"
+              >
+                <Radio.Button value="checkin">Check-in</Radio.Button>
+                <Radio.Button value="checkout">Check-out</Radio.Button>
+              </Radio.Group>
             </div>
-          )}
 
-        
+            <div className="border rounded-xl p-4 bg-gray-100">
+              <QRScanner onScanSuccess={handleScanSuccess} scannerRef={scannerRef} />
+            </div>
+          </>
+        ) : isShiftOver ? (
+          <div className="text-center text-red-500 py-4">
+            🕒 Ca làm việc hôm nay đã kết thúc.
+          </div>
+        ) : (
+          <div className="text-center text-gray-500 py-4">
+            🕒 Vui lòng đợi đến giờ làm để bắt đầu quét vé.
+          </div>
+        )}
 
+        {/* MODAL KẾT QUẢ */}
         <Modal
           title="Kết quả xử lý vé"
           open={isModalVisible}
@@ -208,6 +223,8 @@ const TicketProcessingQR: React.FC = () => {
           onCancel={handleOk}
           okText="OK"
           cancelText="Đóng"
+          footer={null}
+          centered
         >
           <Paragraph>{processResult}</Paragraph>
         </Modal>
