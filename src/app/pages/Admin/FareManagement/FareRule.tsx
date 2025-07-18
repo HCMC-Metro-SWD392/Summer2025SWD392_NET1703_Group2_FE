@@ -230,7 +230,7 @@ const FareRuleManagement: React.FC = () => {
                 ...tableParams.pagination,
                 total: TOTAL_FARE_RULES,
                 showSizeChanger: true,
-                showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} quy tắc giá vé`,
+                // showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} quy tắc giá vé`,
                 pageSizeOptions: ['10', '20', '50', '100']
               }}
               onChange={handleTableChange}
