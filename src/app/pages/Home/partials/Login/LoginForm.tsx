@@ -15,6 +15,7 @@ import logoMetro from "../../../../assets/logo.png";
 import backgroundHcmCity from "../../../../assets/backgroundhcmcity.png";
 import type { LoginByGooglePayload, LoginPayload } from "../../../../../types/types";
 import { login, LoginByGoogle } from "../../../../../api/auth/auth";
+import { startSignalR } from "../../../../../settings/signalrConnection";
 
 const { Title } = Typography;
 
@@ -34,6 +35,7 @@ const LoginForm: React.FC = () => {
       const data = await login(values);
       message.success("Đăng nhập thành công!");
       const token = localStorage.getItem("accessToken");
+      await startSignalR();
 
       if (!token) {
         message.error("Không tìm thấy token.");
