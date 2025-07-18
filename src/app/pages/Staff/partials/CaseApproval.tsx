@@ -82,7 +82,7 @@ const CaseApproval: React.FC = () => {
       const res = await axiosInstance.get(`/api/FormRequest/get-all-form-requests`, {
         params: {
           sortBy: 'createdAt',
-          isAcsending: true,
+          isAcsending: false,
           pageNumber: 1,
           pageSize: 100,
           formStatus: status,

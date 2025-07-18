@@ -17,16 +17,19 @@ const AccountInfo: React.FC = () => {
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
     const [updateLoading, setUpdateLoading] = useState(false);
     const [form] = Form.useForm();
+    const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = user.id;
 
     // Get current user info from token
     const currentUser = getUserInfo();
+    console.log('Current User Info:', currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]);
 
     useEffect(() => {
         fetchUserData();
     }, []);
 
     const fetchUserData = async () => {
-        if (!currentUser?.id) {
+        if (!userId) {
             setError('No user ID found. Please log in.');
             setLoading(false);
             return;
@@ -37,7 +40,7 @@ const AccountInfo: React.FC = () => {
 
         try {
             // Use general user endpoint for all roles
-            const apiEndpoint = `/api/User/${currentUser.id}`;
+            const apiEndpoint = `/api/User/${userId}`;
             console.log('Fetching user data from:', apiEndpoint);
             
             const response = await axiosInstance.get(apiEndpoint);
@@ -74,7 +77,7 @@ const AccountInfo: React.FC = () => {
     };
 
     const handleUpdateSubmit = async (values: any) => {
-        if (!currentUser?.id) {
+        if (!userId) {
             message.error('User ID not found');
             return;
         }
@@ -96,7 +99,7 @@ const AccountInfo: React.FC = () => {
             };
 
             // Use general user update endpoint
-            const updateUrl = `/api/User/${currentUser.id}`;
+            const updateUrl = `/api/User/${userId}`;
             const response = await axiosInstance.put(updateUrl, payload);
 
             if (response.data.isSuccess) {
@@ -106,8 +109,8 @@ const AccountInfo: React.FC = () => {
                 fetchUserData(); // Refresh data
                 
                 // Update localStorage with new info
-                const updatedUserInfo = { ...currentUser, ...payload };
-                localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                // const updatedUserInfo = { ...currentUser, ...payload };
+                // localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
             } else {
                 message.error(response.data.message || 'Cập nhật thất bại');
             }
@@ -119,19 +122,20 @@ const AccountInfo: React.FC = () => {
         }
     };
 
-    const getCustomerTypeDisplayName = (customerType: number) => {
-        switch (customerType) {
-            case 0: return 'Khách hàng thường';
-            case 1: return 'Học sinh/Sinh viên';
-            default: return 'Khách hàng thường';
+    const getCustomerTypeDisplayName = (staffType: string) => {
+        switch (staffType) {
+            case "STAFF": return 'Nhân viên';
+            case "MANAGER": return 'Quản lý';
+            case "ADMIN": return 'Quản trị viên';
+            default: return 'Nhân viên';
         }
     };
 
-    const getCustomerTypeColor = (customerType: number) => {
-        switch (customerType) {
-            case 0: return '#1890ff'; // Blue for regular
-            case 1: return '#faad14'; // Gold for student
-            case 2: return '#52c41a'; // Green for business
+    const getCustomerTypeColor = (staffType: string) => {
+        switch (staffType) {
+            case "STAFF": return '#1890ff'; // Blue for regular
+            case "MANAGER": return '#faad14'; // Gold for student
+            case "ADMIN": return '#52c41a'; // Green for business
             default: return '#1890ff';
         }
     };
@@ -173,11 +177,11 @@ const AccountInfo: React.FC = () => {
                         {userInfo.fullName || 'Chưa cập nhật'}
                     </Title>
                     <Text style={{ 
-                        color: getCustomerTypeColor(userInfo.customerType),
+                        color: getCustomerTypeColor(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]),
                         fontWeight: 'bold',
                         fontSize: '14px'
                     }}>
-                        <CrownOutlined /> {getCustomerTypeDisplayName(userInfo.customerType)}
+                        <CrownOutlined /> {getCustomerTypeDisplayName(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"])}
                     </Text>
                 </div>
 
@@ -256,10 +260,10 @@ const AccountInfo: React.FC = () => {
                         <div className={styles['info-item']}>
                             <CrownOutlined className={styles['info-icon']} />
                             <div>
-                                <Text type="secondary">Loại khách hàng</Text>
+                                <Text type="secondary">Chức vụ</Text>
                                 <br />
-                                <Text strong style={{ color: getCustomerTypeColor(userInfo.customerType) }}>
-                                    {getCustomerTypeDisplayName(userInfo.customerType)}
+                                <Text strong style={{ color: getCustomerTypeColor(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]) }}>
+                                    {getCustomerTypeDisplayName(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"])}
                                 </Text>
                             </div>
                         </div>
@@ -312,7 +316,7 @@ const AccountInfo: React.FC = () => {
                                 name="email" 
                                 rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}
                             >
-                                <Input placeholder="Nhập email" />
+                                <Input placeholder="Nhập email" disabled/>
                             </Form.Item>
                         </Col>
                     </Row>

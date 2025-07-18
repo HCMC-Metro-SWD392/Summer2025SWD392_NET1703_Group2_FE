@@ -101,7 +101,7 @@ export const PromotionApi = {
 
     deletePromotion: async (promotionId: string): Promise<ResponseDTO> => {
         try {
-            const response: AxiosResponse<ResponseDTO> = await axiosInstance.delete(
+            const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
                 `${PROMOTION_ENDPOINTS.DELETE}/${promotionId}`
             );
             return response.data;

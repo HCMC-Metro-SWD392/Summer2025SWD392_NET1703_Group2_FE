@@ -155,7 +155,7 @@ const UpdateProfileButton: React.FC<UpdateProfileButtonProps> = ({ onUpdate }) =
             <Input placeholder="Nhập họ và tên" />
           </Form.Item>
           <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}> 
-            <Input placeholder="Nhập email" />
+            <Input placeholder="Nhập email" disabled/>
           </Form.Item>
           <Form.Item label="Số điện thoại" name="phoneNumber"> 
             <Input placeholder="Nhập số điện thoại" />

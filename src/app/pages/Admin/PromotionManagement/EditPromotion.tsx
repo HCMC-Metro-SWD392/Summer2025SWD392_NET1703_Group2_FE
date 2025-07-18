@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, DatePicker, Select, InputNumber, message, Spin } from 'antd';
+import { Form, Input, Button, Card, DatePicker, Select, InputNumber, message, Spin, Popconfirm } from 'antd';
 import { SaveOutlined, RollbackOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -108,6 +108,25 @@ const EditPromotion: React.FC = () => {
     } catch (error) {
       message.error('Failed to update promotion');
       console.error('Error updating promotion:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onDelete = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      const response = await PromotionApi.deletePromotion(id);
+      if (response.isSuccess) {
+        message.success('Xóa khuyến mãi thành công');
+        navigate('/manager/promotion');
+      } else {
+        message.error(response.message || 'Xóa khuyến mãi thất bại');
+      }
+    } catch (error) {
+      message.error('Xóa khuyến mãi thất bại');
+      console.error('Error deleting promotion:', error);
     } finally {
       setLoading(false);
     }
@@ -240,6 +259,17 @@ const EditPromotion: React.FC = () => {
             >
               Hủy
             </Button>
+            <Popconfirm
+              title="Bạn có chắc muốn xóa khuyến mãi này?"
+              onConfirm={onDelete}
+              okText="Xóa"
+              cancelText="Hủy"
+              disabled={loading}
+            >
+              <Button danger loading={loading}>
+                Xóa
+              </Button>
+            </Popconfirm>
             <Button
               type="primary"
               htmlType="submit"
