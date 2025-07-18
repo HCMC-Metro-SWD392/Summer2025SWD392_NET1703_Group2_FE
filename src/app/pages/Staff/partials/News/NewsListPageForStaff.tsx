@@ -81,6 +81,7 @@ const NewsListPageForStaff: React.FC = () => {
       if (filters.filterOn && filters.filterQuery) {
         params.filterOn = filters.filterOn;
         params.filterQuery = filters.filterQuery;
+        console.log('[DEBUG] Search params:', { filterOn: params.filterOn, filterQuery: params.filterQuery });
       }
 
       if (filters.status !== 'all' && filters.status !== undefined && filters.status !== null) {
@@ -94,6 +95,7 @@ const NewsListPageForStaff: React.FC = () => {
         params.sortOrder = filters.sortOrder;
       }
 
+      console.log('[DEBUG] API call params:', params);
       const response = await axiosInstance.get<NewsListResponse>('/api/News/get-all-news-for-staff', {
         params
       });
@@ -155,7 +157,11 @@ const NewsListPageForStaff: React.FC = () => {
 
   const handleSearch = (value: string) => {
     if (filters.filterOn) {
-      handleFilterChange('filterQuery', value);
+      setFilters(prev => ({
+        ...prev,
+        filterQuery: value,
+        pageNumber: 1, // Reset to first page when searching
+      }));
     } else {
       message.warning('Vui lòng chọn trường để tìm kiếm');
     }
@@ -304,10 +310,22 @@ const NewsListPageForStaff: React.FC = () => {
             <Search
               placeholder="Nhập từ khóa tìm kiếm"
               value={filters.filterQuery}
-              onChange={(e) => handleFilterChange('filterQuery', e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setFilters(prev => ({
+                  ...prev,
+                  filterQuery: value,
+                  pageNumber: 1,
+                }));
+                // Nếu clear search (empty value), tự động search
+                if (value === '') {
+                  // Auto search when clearing
+                }
+              }}
               onSearch={handleSearch}
               disabled={!filters.filterOn}
               allowClear
+              enterButton
             />
           </Col>
           <Col xs={24} sm={8} md={4}>
@@ -360,6 +378,11 @@ const NewsListPageForStaff: React.FC = () => {
           dataSource={newsData}
           rowKey="id"
           loading={loading}
+          locale={{
+            emptyText: newsData.length === 0 && (filters.filterQuery || filters.status !== 'all') 
+              ? 'Không tìm thấy tin tức phù hợp với điều kiện tìm kiếm' 
+              : 'Bạn chưa có tin tức nào'
+          }}
           pagination={{
             current: filters.pageNumber,
             pageSize: filters.pageSize,

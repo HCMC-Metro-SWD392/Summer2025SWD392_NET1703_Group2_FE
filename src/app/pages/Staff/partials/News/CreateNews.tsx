@@ -193,10 +193,10 @@ const CreateNews: React.FC = () => {
       <Title level={3} className="mb-6 text-center">Tạo Tin Tức Mới</Title>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Title */}
+        {/* Tiêu đề */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Title <span className="text-red-500">*</span>
+            Tiêu đề <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -208,22 +208,12 @@ const CreateNews: React.FC = () => {
             placeholder="Nhập tiêu đề tin tức"
           />
           {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="title-empty"
-              checked={formData.title === ''}
-              onChange={(e) => handleInputChange('title', e.target.checked ? '' : 'Sample Title')}
-              className="mr-2"
-            />
-            <label htmlFor="title-empty" className="text-sm text-gray-600">Send empty value</label>
-          </div>
         </div>
 
-        {/* Content */}
+        {/* Nội dung */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Content <span className="text-red-500">*</span>
+            Nội dung <span className="text-red-500">*</span>
           </label>
           <textarea
             rows={6}
@@ -235,22 +225,12 @@ const CreateNews: React.FC = () => {
             placeholder="Nhập nội dung tin tức"
           />
           {errors.content && <p className="text-red-500 text-sm mt-1">{errors.content}</p>}
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="content-empty"
-              checked={formData.content === ''}
-              onChange={(e) => handleInputChange('content', e.target.checked ? '' : 'Sample Content')}
-              className="mr-2"
-            />
-            <label htmlFor="content-empty" className="text-sm text-gray-600">Send empty value</label>
-          </div>
         </div>
 
-        {/* Summary */}
+        {/* Tóm tắt */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Summary
+            Tóm tắt
           </label>
           <textarea
             rows={3}
@@ -259,22 +239,12 @@ const CreateNews: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Nhập tóm tắt tin tức"
           />
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="summary-empty"
-              checked={formData.summary === ''}
-              onChange={(e) => handleInputChange('summary', e.target.checked ? '' : 'Sample Summary')}
-              className="mr-2"
-            />
-            <label htmlFor="summary-empty" className="text-sm text-gray-600">Send empty value</label>
-          </div>
         </div>
 
-        {/* ImageUrl */}
+        {/* URL hình ảnh */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            ImageUrl
+            URL hình ảnh
           </label>
           <input
             type="url"
@@ -283,22 +253,12 @@ const CreateNews: React.FC = () => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Nhập URL hình ảnh"
           />
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="imageurl-empty"
-              checked={formData.imageUrl === ''}
-              onChange={(e) => handleInputChange('imageUrl', e.target.checked ? '' : 'https://example.com/image.jpg')}
-              className="mr-2"
-            />
-            <label htmlFor="imageurl-empty" className="text-sm text-gray-600">Send empty value</label>
-          </div>
         </div>
 
-        {/* Category */}
+        {/* Danh mục */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Category <span className="text-red-500">*</span>
+            Danh mục <span className="text-red-500">*</span>
           </label>
           <select
             value={formData.category}
@@ -316,16 +276,6 @@ const CreateNews: React.FC = () => {
             <option value="An toàn">An toàn</option>
           </select>
           {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
-          <div className="flex items-center mt-2">
-            <input
-              type="checkbox"
-              id="category-empty"
-              checked={formData.category === ''}
-              onChange={(e) => handleInputChange('category', e.target.checked ? '' : 'Thông báo')}
-              className="mr-2"
-            />
-            <label htmlFor="category-empty" className="text-sm text-gray-600">Send empty value</label>
-          </div>
         </div>
 
         {/* Status Info */}

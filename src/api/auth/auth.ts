@@ -70,10 +70,7 @@ export const checkUserRole = (allowedRoles: string | string[]): boolean => {
   const token = localStorage.getItem("accessToken");
 
   if (!token) {
-    // message.error("Không tìm thấy token.");
-    removeTokens();
-    removeUserInfo();
-    window.location.href = "/login";
+    
     return false;
   }
 
