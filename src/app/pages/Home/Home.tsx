@@ -194,7 +194,7 @@ export default function Home() {
             items={[
               {
                 key: '1',
-                label: <span className="text-lg font-medium">Lịch hoạt động tuyến Metro L1</span>,
+                label: <span className="text-lg font-medium">Lịch hoạt động tuyến Metro </span>,
                 children: (
                   <div className="text-base text-gray-700 pl-2 pt-2">
                     Tuyến Metro số 1 (Bến Thành – Suối Tiên) hoạt động từ <b>5:00 sáng đến 23:00 tối</b> mỗi ngày. Tần suất tàu chạy dự kiến từ 5-10 phút/chuyến vào giờ cao điểm và 10-15 phút/chuyến vào giờ bình thường.
@@ -203,10 +203,10 @@ export default function Home() {
               },
               {
                 key: '2',
-                label: <span className="text-lg font-medium">Giá vé đi tàu ?</span>,
+                label: <span className="text-lg font-medium">Giá vé đi tàu cho học sinh/sinh viênviên ?</span>,
                 children: (
                   <div className="text-base text-gray-700 pl-2 pt-2">
-                    Giá vé dự kiến dao động từ <b>8.000đ đến 15.000đ/lượt</b> tùy theo cự ly di chuyển. Ngoài ra, có các loại vé ngày, vé tháng và ưu đãi cho học sinh, sinh viên, người cao tuổi.
+                    Giao vé tàu cho sẽ được ưu đãi đối với học sinh/sinh viên đã đăng ký và được phê duyệt sẽ được giảm giá lên đến <b>50%</b>
                   </div>
                 ),
               },
