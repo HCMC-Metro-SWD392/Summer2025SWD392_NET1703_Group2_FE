@@ -42,6 +42,14 @@ const CustomerInfo: React.FC = () => {
         }
     };
 
+    const getCustomerTypeDisplayName = (customerType: number) => {
+        switch (customerType) {
+            case 0: return 'Khách hàng thường';
+            case 1: return 'Học sinh/Sinh viên';
+            default: return 'Khách hàng thường';
+        }
+    };
+
     useEffect(() => {
         if (!userId) {
             setError('No user ID found. Please log in.');
@@ -163,13 +171,11 @@ const CustomerInfo: React.FC = () => {
                             {customerData.sex === 'Male' ? <ManOutlined /> : <WomanOutlined />} <Text strong>Giới tính:</Text> {customerData.sex === 'Male' ? 'Nam' : customerData.sex === 'Female' ? 'Nữ' : customerData.sex}
                         </div>
                     </Col>
-                    {userRole === 'CUSTOMER' && (
-                        <Col span={24}>
-                            <div className={styles['info-item']}>
-                                <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Thông thường' : 'Học sinh/Sinh viên'}
-                            </div>
-                        </Col>
-                    )}
+                    <Col span={24}>
+                        <div className={styles['info-item']}>
+                            <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Khách hàng thường' : customerData.customerType === 1 ? 'Học sinh/Sinh viên' : 'Khách hàng thường'}
+                        </div>
+                    </Col>
                 </Row>
 
                 <div style={{ textAlign: 'center' }}>

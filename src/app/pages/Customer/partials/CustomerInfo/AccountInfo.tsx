@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Row, Col, Avatar, Divider, Spin, Alert, Button, Modal, Form, Input, DatePicker, Select, message } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, CalendarOutlined, EditOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, CalendarOutlined, EditOutlined, CrownOutlined } from '@ant-design/icons';
 import styles from './CustomerInfo.module.css';
 import axiosInstance from '../../../../../settings/axiosInstance';
 import type { UserInfo } from '../../../../../types/types';
@@ -17,16 +17,19 @@ const AccountInfo: React.FC = () => {
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
     const [updateLoading, setUpdateLoading] = useState(false);
     const [form] = Form.useForm();
+    const user: UserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userId = user.id;
 
     // Get current user info from token
     const currentUser = getUserInfo();
+    console.log('Current User Info:', currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]);
 
     useEffect(() => {
         fetchUserData();
     }, []);
 
     const fetchUserData = async () => {
-        if (!currentUser?.id) {
+        if (!userId) {
             setError('No user ID found. Please log in.');
             setLoading(false);
             return;
@@ -37,7 +40,7 @@ const AccountInfo: React.FC = () => {
 
         try {
             // Use general user endpoint for all roles
-            const apiEndpoint = `/api/User/${currentUser.id}`;
+            const apiEndpoint = `/api/User/${userId}`;
             console.log('Fetching user data from:', apiEndpoint);
             
             const response = await axiosInstance.get(apiEndpoint);
@@ -74,7 +77,7 @@ const AccountInfo: React.FC = () => {
     };
 
     const handleUpdateSubmit = async (values: any) => {
-        if (!currentUser?.id) {
+        if (!userId) {
             message.error('User ID not found');
             return;
         }
@@ -96,7 +99,7 @@ const AccountInfo: React.FC = () => {
             };
 
             // Use general user update endpoint
-            const updateUrl = `/api/User/${currentUser.id}`;
+            const updateUrl = `/api/User/${userId}`;
             const response = await axiosInstance.put(updateUrl, payload);
 
             if (response.data.isSuccess) {
@@ -106,8 +109,8 @@ const AccountInfo: React.FC = () => {
                 fetchUserData(); // Refresh data
                 
                 // Update localStorage with new info
-                const updatedUserInfo = { ...currentUser, ...payload };
-                localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+                // const updatedUserInfo = { ...currentUser, ...payload };
+                // localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
             } else {
                 message.error(response.data.message || 'Cập nhật thất bại');
             }
@@ -119,23 +122,21 @@ const AccountInfo: React.FC = () => {
         }
     };
 
-    const getRoleDisplayName = (role: string) => {
-        switch (role?.toUpperCase()) {
-            case 'CUSTOMER': return 'Khách hàng';
-            case 'STAFF': return 'Nhân viên';
-            case 'MANAGER': return 'Quản lý';
-            case 'ADMIN': return 'Quản trị viên';
-            default: return 'Người dùng';
+    const getCustomerTypeDisplayName = (staffType: string) => {
+        switch (staffType) {
+            case "STAFF": return 'Nhân viên';
+            case "MANAGER": return 'Quản lý';
+            case "ADMIN": return 'Quản trị viên';
+            default: return 'Nhân viên';
         }
     };
 
-    const getRoleColor = (role: string) => {
-        switch (role?.toUpperCase()) {
-            case 'CUSTOMER': return '#1890ff';
-            case 'STAFF': return '#52c41a';
-            case 'MANAGER': return '#faad14';
-            case 'ADMIN': return '#f5222d';
-            default: return '#666';
+    const getCustomerTypeColor = (staffType: string) => {
+        switch (staffType) {
+            case "STAFF": return '#1890ff'; // Blue for regular
+            case "MANAGER": return '#faad14'; // Gold for student
+            case "ADMIN": return '#52c41a'; // Green for business
+            default: return '#1890ff';
         }
     };
 
@@ -176,11 +177,11 @@ const AccountInfo: React.FC = () => {
                         {userInfo.fullName || 'Chưa cập nhật'}
                     </Title>
                     <Text style={{ 
-                        color: getRoleColor(currentUser?.role || ''),
+                        color: getCustomerTypeColor(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]),
                         fontWeight: 'bold',
                         fontSize: '14px'
                     }}>
-                        {getRoleDisplayName(currentUser?.role || '')}
+                        <CrownOutlined /> {getCustomerTypeDisplayName(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"])}
                     </Text>
                 </div>
 
@@ -255,6 +256,18 @@ const AccountInfo: React.FC = () => {
                             </div>
                         </div>
                     </Col>
+                    <Col xs={24} sm={12}>
+                        <div className={styles['info-item']}>
+                            <CrownOutlined className={styles['info-icon']} />
+                            <div>
+                                <Text type="secondary">Chức vụ</Text>
+                                <br />
+                                <Text strong style={{ color: getCustomerTypeColor(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]) }}>
+                                    {getCustomerTypeDisplayName(currentUser["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"])}
+                                </Text>
+                            </div>
+                        </div>
+                    </Col>
                 </Row>
 
                 <Divider style={{ margin: '16px 0' }} />
@@ -303,7 +316,7 @@ const AccountInfo: React.FC = () => {
                                 name="email" 
                                 rules={[{ required: true, type: 'email', message: 'Vui lòng nhập email hợp lệ' }]}
                             >
-                                <Input placeholder="Nhập email" />
+                                <Input placeholder="Nhập email" disabled/>
                             </Form.Item>
                         </Col>
                     </Row>
