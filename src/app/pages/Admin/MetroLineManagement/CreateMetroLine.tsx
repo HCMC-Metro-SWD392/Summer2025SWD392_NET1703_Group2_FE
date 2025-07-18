@@ -44,6 +44,7 @@ const CreateMetroLine: React.FC = () => {
   const [metroLineStations, setMetroLineStations] = useState<MetroLineStationForm[]>([]);
   const [selectedStation, setSelectedStation] = useState<string | null>(null);
   const [endStationOrder, setEndStationOrder] = useState<number>(2); // Default order for end station
+  const [totalStations, setTotalStations] = useState<number>(2); // Default to 2
 
   useEffect(() => {
     fetchStations();
@@ -73,8 +74,8 @@ const CreateMetroLine: React.FC = () => {
       return;
     }
 
-    if (metroLineStations.length >= 2) {
-      message.warning('Chỉ có thể thêm tối đa 2 trạm cho tuyến Metro');
+    if (metroLineStations.length >= totalStations) {
+      message.warning(`Chỉ có thể thêm tối đa ${totalStations} trạm cho tuyến Metro`);
       return;
     }
 
@@ -126,15 +127,39 @@ const CreateMetroLine: React.FC = () => {
   };
 
   const handleSubmit = async (values: any) => {
-    if (metroLineStations.length !== 2) {
-      message.error('Tuyến Metro phải có đúng 2 trạm');
+    if (metroLineStations.length !== totalStations) {
+      message.error(`Tuyến Metro phải có đúng ${totalStations} trạm`);
+      return;
+    }
+
+    // Validation: distances must be unique and strictly increasing
+    const distances = metroLineStations.map(s => s.distanceFromStart);
+    const restDistances = distances.slice(1); // Ignore the first station (always 0)
+
+    // Check for duplicates
+    const hasDuplicates = new Set(restDistances).size !== restDistances.length;
+    if (hasDuplicates) {
+      message.error('Khoảng cách từ trạm đầu của các trạm phải khác nhau');
+      return;
+    }
+
+    // Check for strictly increasing
+    let isStrictlyIncreasing = true;
+    for (let i = 1; i < distances.length; i++) {
+      if (distances[i] <= distances[i - 1]) {
+        isStrictlyIncreasing = false;
+        break;
+      }
+    }
+    if (!isStrictlyIncreasing) {
+      message.error('Khoảng cách từ trạm đầu phải tăng dần theo thứ tự trạm');
       return;
     }
 
     try {
       setLoading(true);
       const startStation = metroLineStations[0];
-      const endStation = metroLineStations[1];
+      const endStation = metroLineStations[metroLineStations.length - 1];
       const metroLineData: CreateMetroLineDTO = {
         metroName: values.metroName,
         startStationId: startStation.stationId,
@@ -148,36 +173,26 @@ const CreateMetroLine: React.FC = () => {
 
       if (response.isSuccess && response.result) {
         console.log('About to create stations...');
-        // Create metro line stations for both stations
         const metroLineId = response.result.id;
-        
-        // Create first station (order 1)
-        const firstStationData: CreateMetroLineStationDTO = {
-          metroLineId: metroLineId,
-          stationId: startStation.stationId,
-          distanceFromStart: 0, // Starting point
-          stationOder: 1,
-        };
-
-        // Create second station (user-defined order)
-        const secondStationData: CreateMetroLineStationDTO = {
-          metroLineId: metroLineId,
-          stationId: endStation.stationId,
-          distanceFromStart: endStation.distanceFromStart,
-          stationOder: endStationOrder,
-        };
-
-        // Create both metro line stations
-        const firstStationResponse = await MetroLineStationApi.createMetroLineStation(firstStationData);
-        const secondStationResponse = await MetroLineStationApi.createMetroLineStation(secondStationData);
-
-        if (firstStationResponse.isSuccess && secondStationResponse.isSuccess) {
-          message.success('Tạo tuyến Metro và thêm trạm thành công');
-          navigate('/admin/metro-line');
-        } else {
-          message.warning('Tạo tuyến Metro thành công nhưng có lỗi khi thêm trạm');
-          navigate('/admin/metro-line');
+        // Create all metro line stations
+        for (let i = 0; i < metroLineStations.length; i++) {
+          const station = metroLineStations[i];
+          const stationData: CreateMetroLineStationDTO = {
+            metroLineId: metroLineId,
+            stationId: station.stationId,
+            distanceFromStart: i === 0 ? 0 : station.distanceFromStart,
+            stationOder: i + 1,
+          };
+          const stationResponse = await MetroLineStationApi.createMetroLineStation(stationData);
+          if (!stationResponse.isSuccess) {
+            message.warning('Tạo tuyến Metro thành công nhưng có lỗi khi thêm trạm');
+            navigate('/admin/metro-line');
+            setLoading(false);
+            return;
+          }
         }
+        message.success('Tạo tuyến Metro và thêm trạm thành công');
+        navigate('/admin/metro-line');
       } else {
         console.log('MetroLine creation failed or response invalid');
         message.error(response.message || 'Không thể tạo tuyến Metro');
@@ -201,6 +216,27 @@ const CreateMetroLine: React.FC = () => {
       title: 'Tên Trạm',
       dataIndex: 'stationName',
       key: 'stationName',
+    },
+    {
+      title: 'Khoảng cách từ trạm đầu (km)',
+      key: 'distanceFromStart',
+      render: (_, record, idx) =>
+        idx === 0 ? (
+          <span>0</span>
+        ) : (
+          <InputNumber
+            min={0.1}
+            step={0.1}
+            value={record.distanceFromStart}
+            onChange={value => {
+              if (value !== null) {
+                const updatedStations = [...metroLineStations];
+                updatedStations[idx].distanceFromStart = value;
+                setMetroLineStations(updatedStations);
+              }
+            }}
+          />
+        ),
     },
     {
       title: 'Thao Tác',
@@ -283,8 +319,25 @@ const CreateMetroLine: React.FC = () => {
             </Col>
           </Row>
 
+          <Form.Item
+            label="Số lượng trạm trên tuyến Metro"
+            style={{ maxWidth: 300 }}
+          >
+            <InputNumber
+              min={2}
+              max={100}
+              value={totalStations}
+              onChange={value => {
+                setTotalStations(value || 2);
+                if ((value || 2) < metroLineStations.length) {
+                  setMetroLineStations(metroLineStations.slice(0, value || 2));
+                }
+              }}
+            />
+          </Form.Item>
+
           <Card
-            title="Danh Sách Trạm (Tối đa 2 trạm)"
+            title={`Danh Sách Trạm (Tối đa ${totalStations} trạm)`}
             extra={
               <Space>
                 <Select
@@ -293,7 +346,7 @@ const CreateMetroLine: React.FC = () => {
                   value={selectedStation}
                   onChange={setSelectedStation}
                   allowClear
-                  disabled={metroLineStations.length >= 2}
+                  disabled={metroLineStations.length >= totalStations}
                 >
                   {stations
                     .filter(station => !metroLineStations.some(ms => ms.stationId === station.id))
@@ -307,31 +360,24 @@ const CreateMetroLine: React.FC = () => {
                   type="primary"
                   icon={<PlusOutlined />}
                   onClick={handleAddStation}
-                  disabled={!selectedStation || metroLineStations.length >= 2}
+                  disabled={!selectedStation || metroLineStations.length >= totalStations}
                 >
                   Thêm Trạm
                 </Button>
               </Space>
             }
           >
-            {metroLineStations.length === 2 && (
+            {metroLineStations.length === totalStations && (
               <div style={{ marginBottom: 16 }}>
                 <b>Trạm bắt đầu:</b> {metroLineStations[0].stationName} (Thứ tự: 1 )<br />
-                <b>Trạm kết thúc:</b> {metroLineStations[1].stationName} (Thứ tự: 
-                  <InputNumber
-                    min={2}
-                    value={endStationOrder}
-                    onChange={value => setEndStationOrder(value || 2)}
-                    style={{ width: 80, marginLeft: 8 }}
-                  />
-                  )
+                <b>Trạm kết thúc:</b> {metroLineStations[metroLineStations.length - 1].stationName} (Thứ tự: {totalStations})
               </div>
             )}
             <Table
               columns={columns}
               dataSource={metroLineStations.map((station, idx) => ({
                 ...station,
-                stationOrder: idx === 0 ? 1 : endStationOrder
+                stationOrder: idx + 1
               }))}
               rowKey="id"
               pagination={false}
@@ -342,33 +388,6 @@ const CreateMetroLine: React.FC = () => {
             />
           </Card>
 
-          {metroLineStations.length === 2 && (
-            <Card title="Cấu hình khoảng cách" style={{ marginTop: 16 }}>
-              <Row gutter={24}>
-                <Col span={12}>
-                  <Form.Item
-                    label={`Khoảng cách từ ${metroLineStations[0]?.stationName} đến ${metroLineStations[1]?.stationName} (km)`}
-                  >
-                    <InputNumber
-                      min={0.1}
-                      step={0.1}
-                      style={{ width: '100%' }}
-                      placeholder="Nhập khoảng cách"
-                      defaultValue={1}
-                      onChange={(value) => {
-                        if (value !== null) {
-                          const updatedStations = [...metroLineStations];
-                          updatedStations[1].distanceFromStart = value;
-                          setMetroLineStations(updatedStations);
-                        }
-                      }}
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Card>
-          )}
-
           <Form.Item style={{ marginTop: 24, textAlign: 'right' }}>
             <Space>
               <Button onClick={() => navigate('/admin/metro-line')}>
@@ -378,7 +397,7 @@ const CreateMetroLine: React.FC = () => {
                 type="primary" 
                 htmlType="submit" 
                 loading={loading}
-                disabled={metroLineStations.length !== 2}
+                disabled={metroLineStations.length !== totalStations}
               >
                 Tạo Tuyến Metro
               </Button>

@@ -48,8 +48,8 @@ export const PromotionApi = {
 
     updatePromotion: async (data: UpdatePromotionDTO): Promise<ResponseDTO> => {
         try {
-            const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
-                PROMOTION_ENDPOINTS.UPDATE,
+            const response: AxiosResponse<ResponseDTO> = await axiosInstance.patch(
+                `/api/Promotion/update-promotion/${data.id}`,
                 data
             );
             return response.data;

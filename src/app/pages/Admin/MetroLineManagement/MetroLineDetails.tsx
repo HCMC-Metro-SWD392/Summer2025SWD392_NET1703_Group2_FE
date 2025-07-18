@@ -26,6 +26,7 @@ import {
   EnvironmentOutlined,
   SwapOutlined,
   NumberOutlined,
+  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { MetroLineApi } from '../../../../api/metroLine/MetroLineApi';
 import { MetroLineStationApi } from '../../../../api/metroLine/MetroLineStationApi';
@@ -34,6 +35,7 @@ import type { GetStationDTO } from '../../../../api/station/StationInterface';
 import { StationApi } from '../../../../api/station/StationApi';
 
 const { Title } = Typography;
+const { confirm } = Modal;
 
 const statusMap = {
   0: { text: "Hoạt động bình thường", color: "text-green-500" }, // Normal
@@ -46,11 +48,11 @@ const MetroLineDetails: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [metroLine, setMetroLine] = useState<GetMetroLineDTO | null>(null);
-  const [addStationVisible, setAddStationVisible] = useState(false);
-  const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
-  const [distanceFromStart, setDistanceFromStart] = useState<number>(0);
-  const [stationOrder, setStationOrder] = useState<number>(1);
   const [stations, setStations] = useState<GetStationDTO[]>([]);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingStation, setEditingStation] = useState<GetMetroLineStationDTO | null>(null);
+  const [editDistance, setEditDistance] = useState<number>(0);
+  const [editOrder, setEditOrder] = useState<number>(1);
 
   useEffect(() => {
     if (id) {
@@ -59,13 +61,12 @@ const MetroLineDetails: React.FC = () => {
     }
   }, [id]);
 
-
   const fetchStations = async () => {
-      const response = await StationApi.getAllStations();
-      if (response.isSuccess && response.result) {
-        setStations(response.result);
-      }
-    };
+    const response = await StationApi.getAllStations();
+    if (response.isSuccess && response.result) {
+      setStations(response.result);
+    }
+  };
 
   const fetchMetroLineDetails = async () => {
     if (!id) return;
@@ -123,6 +124,54 @@ const MetroLineDetails: React.FC = () => {
       key: 'distanceFromStart',
       align: 'right',
       render: (distance: number) => distance.toFixed(1),
+    },
+    {
+      title: 'Hành Động',
+      key: 'action',
+      align: 'center',
+      render: (_, record) => (
+        <Space>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => {
+              setEditingStation(record);
+              setEditDistance(record.distanceFromStart);
+              setEditOrder(record.stationOrder);
+              setEditModalVisible(true);
+            }}
+          >
+            Sửa
+          </Button>
+          {/* <Button
+            danger
+            onClick={() => {
+              confirm({
+                title: 'Bạn có chắc muốn xóa trạm này khỏi tuyến?',
+                icon: <ExclamationCircleOutlined />,
+                okText: 'Xóa',
+                okType: 'danger',
+                cancelText: 'Hủy',
+                onOk: async () => {
+                  setLoading(true);
+                  try {
+                    const res = await MetroLineApi.removeMetroLineStation(record.id);
+                    if (res.isSuccess) {
+                      message.success('Xóa trạm thành công');
+                      fetchMetroLineDetails();
+                    } else {
+                      message.error(res.message || 'Không thể xóa trạm');
+                    }
+                  } finally {
+                    setLoading(false);
+                  }
+                },
+              });
+            }}
+          >
+            Xóa
+          </Button> */}
+        </Space>
+      ),
     },
   ];
 
@@ -206,7 +255,6 @@ const MetroLineDetails: React.FC = () => {
             <Tag color="blue">
               Tổng số: {metroLine.metroLineStations.length} trạm
             </Tag>
-
           </Space>
         }
       >
@@ -223,81 +271,48 @@ const MetroLineDetails: React.FC = () => {
       </Card>
 
       <Modal
-        title="Thêm Trạm Vào Tuyến"
-        visible={addStationVisible}
-        onCancel={() => {
-          setAddStationVisible(false);
-          setSelectedStationId(null);
-          setDistanceFromStart(0);
-          setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
-        }}
+        title="Cập Nhật Trạm Tuyến Metro"
+        visible={editModalVisible}
+        onCancel={() => setEditModalVisible(false)}
         onOk={async () => {
-          if (!selectedStationId || !metroLine) {
-            message.error('Vui lòng chọn trạm');
-            return; 
-          }
-          // Call API to add station
+          if (!editingStation) return;
+          setLoading(true);
           try {
-            setLoading(true);
-            const res = await MetroLineStationApi.createMetroLineStation({
-              metroLineId: metroLine.id,
-              stationId: selectedStationId,
-              distanceFromStart,
-              stationOder: stationOrder,
+            const res = await MetroLineApi.updateMetroLineStation(editingStation.id, {
+              distanceFromStart: editDistance,
+              stationOrder: editOrder,
             });
             if (res.isSuccess) {
-              message.success('Thêm trạm thành công');
-              setAddStationVisible(false);
-              setSelectedStationId(null);
-              setDistanceFromStart(0);
-              setStationOrder((metroLine?.metroLineStations.length || 0) + 1);
-              fetchMetroLineDetails(); // Refresh details
+              message.success('Cập nhật trạm thành công');
+              setEditModalVisible(false);
+              setEditingStation(null);
+              fetchMetroLineDetails();
             } else {
-              message.error(res.message || 'Không thể thêm trạm');
+              message.error(res.message || 'Không thể cập nhật trạm');
             }
           } finally {
             setLoading(false);
           }
         }}
-        okText="Thêm"
+        okText="Cập nhật"
         cancelText="Hủy"
       >
         <Form layout="vertical">
-          <Form.Item label="Chọn Trạm">
-            <Select
-              showSearch
-              placeholder="Chọn trạm"
-              value={selectedStationId}
-              onChange={setSelectedStationId}
-              style={{ width: '100%' }}
-              filterOption={(input, option) =>
-                ((option?.children as unknown) as string).toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {stations
-                .filter(station => !metroLine?.metroLineStations.some(ms => ms.station.id === station.id))
-                .map(station => (
-                  <Select.Option key={station.id} value={station.id}>
-                    {station.name}
-                  </Select.Option>
-                ))}
-            </Select>
-          </Form.Item>
           <Form.Item label="Khoảng Cách (km)">
             <InputNumber
               min={0}
               step={0.1}
-              value={distanceFromStart}
-              onChange={value => setDistanceFromStart(value ?? 0)}
+              value={editDistance}
+              onChange={value => setEditDistance(value ?? 0)}
               style={{ width: '100%' }}
             />
           </Form.Item>
           <Form.Item label="Thứ Tự">
             <InputNumber
               min={1}
-              max={(metroLine?.metroLineStations.length || 0) + 1}
-              value={stationOrder}
-              onChange={value => setStationOrder(value ?? 1)}
+              max={(metroLine?.metroLineStations.length || 0)}
+              value={editOrder}
+              onChange={value => setEditOrder(value ?? 1)}
               style={{ width: '100%' }}
             />
           </Form.Item>
