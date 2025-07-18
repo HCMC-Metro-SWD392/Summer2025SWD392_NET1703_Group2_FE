@@ -75,7 +75,7 @@ const AccountInfo: React.FC = () => {
 
     const handleUpdateSubmit = async (values: any) => {
         if (!currentUser?.id) {
-            Alert.error({ message: 'User ID not found' });
+            message.error('User ID not found');
             return;
         }
 
@@ -100,7 +100,8 @@ const AccountInfo: React.FC = () => {
             const response = await axiosInstance.put(updateUrl, payload);
 
             if (response.data.isSuccess) {
-                Alert.success({ message: 'Cập nhật thông tin thành công!' });
+                console.log('Profile updated successfully:', response.data);
+                message.success('Cập nhật thông tin thành công!');
                 setUpdateModalVisible(false);
                 fetchUserData(); // Refresh data
                 
@@ -108,11 +109,11 @@ const AccountInfo: React.FC = () => {
                 const updatedUserInfo = { ...currentUser, ...payload };
                 localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
             } else {
-                Alert.error({ message: response.data.message || 'Cập nhật thất bại' });
+                message.error(response.data.message || 'Cập nhật thất bại');
             }
         } catch (err: any) {
             console.error('Error updating profile:', err);
-            Alert.error({ message: 'Có lỗi xảy ra khi cập nhật thông tin' });
+            message.error('Có lỗi xảy ra khi cập nhật thông tin');
         } finally {
             setUpdateLoading(false);
         }
@@ -168,7 +169,7 @@ const AccountInfo: React.FC = () => {
                 <div className={styles['customer-header']}>
                     <Avatar
                         size={64}
-                        src={userInfo.avatarUrl}
+                        src={userInfo.avatar}
                         icon={<UserOutlined />}
                     />
                     <Title level={3} style={{ margin: '12px 0' }}>
