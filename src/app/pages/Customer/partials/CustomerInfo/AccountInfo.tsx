@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Row, Col, Avatar, Divider, Spin, Alert, Button, Modal, Form, Input, DatePicker, Select, message } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, CalendarOutlined, EditOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, IdcardOutlined, ManOutlined, WomanOutlined, CalendarOutlined, EditOutlined, CrownOutlined } from '@ant-design/icons';
 import styles from './CustomerInfo.module.css';
 import axiosInstance from '../../../../../settings/axiosInstance';
 import type { UserInfo } from '../../../../../types/types';
@@ -75,7 +75,7 @@ const AccountInfo: React.FC = () => {
 
     const handleUpdateSubmit = async (values: any) => {
         if (!currentUser?.id) {
-            Alert.error({ message: 'User ID not found' });
+            message.error('User ID not found');
             return;
         }
 
@@ -100,7 +100,7 @@ const AccountInfo: React.FC = () => {
             const response = await axiosInstance.put(updateUrl, payload);
 
             if (response.data.isSuccess) {
-                Alert.success({ message: 'Cập nhật thông tin thành công!' });
+                message.success('Cập nhật thông tin thành công!');
                 setUpdateModalVisible(false);
                 fetchUserData(); // Refresh data
                 
@@ -108,33 +108,30 @@ const AccountInfo: React.FC = () => {
                 const updatedUserInfo = { ...currentUser, ...payload };
                 localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
             } else {
-                Alert.error({ message: response.data.message || 'Cập nhật thất bại' });
+                message.error(response.data.message || 'Cập nhật thất bại');
             }
         } catch (err: any) {
             console.error('Error updating profile:', err);
-            Alert.error({ message: 'Có lỗi xảy ra khi cập nhật thông tin' });
+            message.error('Có lỗi xảy ra khi cập nhật thông tin');
         } finally {
             setUpdateLoading(false);
         }
     };
 
-    const getRoleDisplayName = (role: string) => {
-        switch (role?.toUpperCase()) {
-            case 'CUSTOMER': return 'Khách hàng';
-            case 'STAFF': return 'Nhân viên';
-            case 'MANAGER': return 'Quản lý';
-            case 'ADMIN': return 'Quản trị viên';
-            default: return 'Người dùng';
+    const getCustomerTypeDisplayName = (customerType: number) => {
+        switch (customerType) {
+            case 0: return 'Khách hàng thường';
+            case 1: return 'Học sinh/Sinh viên';
+            default: return 'Khách hàng thường';
         }
     };
 
-    const getRoleColor = (role: string) => {
-        switch (role?.toUpperCase()) {
-            case 'CUSTOMER': return '#1890ff';
-            case 'STAFF': return '#52c41a';
-            case 'MANAGER': return '#faad14';
-            case 'ADMIN': return '#f5222d';
-            default: return '#666';
+    const getCustomerTypeColor = (customerType: number) => {
+        switch (customerType) {
+            case 0: return '#1890ff'; // Blue for regular
+            case 1: return '#faad14'; // Gold for student
+            case 2: return '#52c41a'; // Green for business
+            default: return '#1890ff';
         }
     };
 
@@ -168,18 +165,18 @@ const AccountInfo: React.FC = () => {
                 <div className={styles['customer-header']}>
                     <Avatar
                         size={64}
-                        src={userInfo.avatarUrl}
+                        src={userInfo.avatar}
                         icon={<UserOutlined />}
                     />
                     <Title level={3} style={{ margin: '12px 0' }}>
                         {userInfo.fullName || 'Chưa cập nhật'}
                     </Title>
                     <Text style={{ 
-                        color: getRoleColor(currentUser?.role || ''),
+                        color: getCustomerTypeColor(userInfo.customerType),
                         fontWeight: 'bold',
                         fontSize: '14px'
                     }}>
-                        {getRoleDisplayName(currentUser?.role || '')}
+                        <CrownOutlined /> {getCustomerTypeDisplayName(userInfo.customerType)}
                     </Text>
                 </div>
 
@@ -250,6 +247,18 @@ const AccountInfo: React.FC = () => {
                                 <Text strong>
                                     {userInfo.sex === 'Male' ? 'Nam' : 
                                      userInfo.sex === 'Female' ? 'Nữ' : 'Chưa cập nhật'}
+                                </Text>
+                            </div>
+                        </div>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                        <div className={styles['info-item']}>
+                            <CrownOutlined className={styles['info-icon']} />
+                            <div>
+                                <Text type="secondary">Loại khách hàng</Text>
+                                <br />
+                                <Text strong style={{ color: getCustomerTypeColor(userInfo.customerType) }}>
+                                    {getCustomerTypeDisplayName(userInfo.customerType)}
                                 </Text>
                             </div>
                         </div>

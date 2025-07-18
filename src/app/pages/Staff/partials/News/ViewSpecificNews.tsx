@@ -18,6 +18,7 @@ interface NewsDetail {
   createdAt: string;
   updatedAt: string;
   status: NewsStatus;
+  rejectionReason?: string; // Lý do từ chối
 }
 
 interface NewsDetailResponse {
@@ -62,6 +63,11 @@ const ViewSpecificNews: React.FC<ViewSpecificNewsProps> = ({
       if (response.data?.isSuccess && response.data.result) {
         setNewsDetail(response.data.result);
         console.log('[DEBUG] News detail loaded successfully:', response.data.result);
+        
+        // Debug rejection reason if status is Rejected
+        if (response.data.result.status === NewsStatus.Rejected) {
+          console.log('[DEBUG] Rejection reason:', response.data.result.rejectionReason);
+        }
       } else {
         message.error(response.data?.message || 'Không thể tải chi tiết tin tức');
         console.log('[DEBUG] Failed to load news detail:', response.data);
@@ -158,6 +164,16 @@ const ViewSpecificNews: React.FC<ViewSpecificNewsProps> = ({
             <div className="mb-4">
               <strong>Trạng thái:</strong> {getStatusTag(newsDetail.status)}
             </div>
+            
+            {/* Rejection Reason Section - Only show if status is Rejected */}
+            {newsDetail.status === NewsStatus.Rejected && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <Text strong className="text-red-600 block mb-2">Lý do từ chối:</Text>
+                <Text className="text-red-700">
+                  {newsDetail.rejectionReason || 'Không có lý do cụ thể được cung cấp'}
+                </Text>
+              </div>
+            )}
           </div>
 
           <Divider />
