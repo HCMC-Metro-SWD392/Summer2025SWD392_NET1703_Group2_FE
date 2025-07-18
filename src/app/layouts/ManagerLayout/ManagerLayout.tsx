@@ -210,47 +210,10 @@ const ManagerLayout: React.FC = () => {
               <h2 className="text-lg font-semibold text-white truncate">
                 {getCurrentMenuLabel()}
               </h2>
-              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-green-800 rounded-full">
-                <BarChartOutlined className="text-green-200" />
-                <Text className="text-green-100 text-sm">Quản lý hệ thống</Text>
-              </div>
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Notifications */}
-              {/* <Badge count={5} size="small">
-                <button className="text-white hover:text-green-200 transition-colors">
-                  <BellOutlined className="text-lg" />
-                </button>
-              </Badge> */}
-              
-              {/* Quick Actions */}
-              <div className="hidden lg:flex items-center gap-2">
-                <button 
-                  onClick={() => navigate('/manager/revenue')}
-                  className="px-3 py-1 bg-green-800 hover:bg-green-600 text-white text-sm rounded-md transition-colors"
-                >
-                  Doanh thu
-                </button>
-                <button 
-                  onClick={() => navigate('/manager/staffs')}
-                  className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-md transition-colors"
-                >
-                  Nhân viên
-                </button>
-                <button 
-                  onClick={() => navigate('/manager/news')}
-                  className="px-3 py-1 bg-orange-600 hover:bg-orange-500 text-white text-sm rounded-md transition-colors"
-                >
-                  Tin tức
-                </button>
-                <button 
-                  onClick={() => navigate('/manager/promotion')}
-                  className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-md transition-colors"
-                >
-                  Khuyến mãi
-                </button>
-              </div>
+
               
               {/* User Info */}
               <Dropdown overlay={managerHeaderMenu} trigger={['click']} placement="bottomRight">

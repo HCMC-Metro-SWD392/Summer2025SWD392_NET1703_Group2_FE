@@ -156,7 +156,76 @@ const ManagerDashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       </div>
 
-      
+      {/* Statistics Cards */}
+      <div className="mb-6">
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Tổng số khách hàng"
+                value={1128}
+                prefix={<UserOutlined />}
+                valueStyle={{ color: '#3f8600' }}
+              />
+              <div className="mt-2">
+                <span className="text-green-500">
+                  <RiseOutlined /> 12%
+                </span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Tổng số vé đã bán"
+                value={93}
+                prefix={<ShoppingCartOutlined />}
+                valueStyle={{ color: '#1890ff' }}
+              />
+              <div className="mt-2">
+                <span className="text-green-500">
+                  <RiseOutlined /> 8%
+                </span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Doanh thu"
+                value={11280}
+                prefix={<DollarOutlined />}
+                valueStyle={{ color: '#cf1322' }}
+              />
+              <div className="mt-2">
+                <span className="text-red-500">
+                  <FallOutlined /> 3%
+                </span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <Statistic
+                title="Tỷ lệ chuyển đổi"
+                value={68}
+                suffix="%"
+                valueStyle={{ color: '#722ed1' }}
+              />
+              <div className="mt-2">
+                <span className="text-green-500">
+                  <RiseOutlined /> 5%
+                </span>
+                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </div>
+
       {/* --- Recent Ticket Sales Table --- */}
       <div className="mb-6">
         <Card title="Giao dịch vé gần đây" className="h-full">
@@ -179,35 +248,6 @@ const ManagerDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* --- Monthly Goals --- */}
-      <div className="mb-6">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={24}>
-            <Card title="Mục tiêu hàng tháng" className="h-full">
-              <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Mục tiêu doanh số</span>
-                  </div>
-                  <Progress percent={75} status="active" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Sự hài lòng của khách hàng</span>
-                  </div>
-                  <Progress percent={90} status="active" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Người dùng mới</span>
-                  </div>
-                  <Progress percent={60} status="active" />
-                </div>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </div>
     </div>
   );
 };

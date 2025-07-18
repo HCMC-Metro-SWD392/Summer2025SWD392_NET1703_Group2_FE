@@ -10,6 +10,7 @@ import {
     IdcardOutlined,
     FileTextOutlined,
     CrownOutlined,
+    MailOutlined,
   } from '@ant-design/icons';
   import { Layout, Menu } from 'antd';
   import React, { useEffect } from 'react';
@@ -121,7 +122,7 @@ import {
     },
     {
       key: 'email-management',
-      icon: <SettingOutlined />,
+      icon: <MailOutlined />,
       label: 'Quản Lý Email',
       children: [
         {
@@ -131,6 +132,25 @@ import {
         {
           key: '/admin/email-template',
           label: 'Danh Sách Email Template',
+        },
+      ],
+    },
+    {
+      key: 'role-management',
+      icon: <SettingOutlined />,
+      label: 'Quản Lý Cấp Bậc',
+      children: [
+        {
+          key: '/admin/managerList',
+          label: 'Danh Sách Manager',
+        },
+        {
+          key: '/admin/adminList',
+          label: 'Danh Sách Admin',
+        },
+        {
+          key: '/admin/set-role',
+          label: 'Điều Chỉnh Cấp Bậc',
         },
       ],
     },

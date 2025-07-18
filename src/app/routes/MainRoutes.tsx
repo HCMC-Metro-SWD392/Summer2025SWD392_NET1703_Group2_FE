@@ -62,6 +62,11 @@ import EmailTemplatetList from "../pages/Admin/EmailManagement/EmailTemplatetLis
 import CreateNews from "../pages/Staff/partials/News/CreateNews";
 import NewsListPageForStaff from "../pages/Staff/partials/News/NewsListPageForStaff";
 import NewsListPage from "../pages/Manager/NewsManagerment/NewsListPage";
+import SetRole from "../pages/Admin/RoleCreation/SetRole";
+import ManagerList from "../pages/Admin/RoleCreation/ManagerList";
+import AdminList from "../pages/Admin/RoleCreation/AdminList";
+
+
 import { useParams, useNavigate } from "react-router-dom";
 import React from "react";
 const UpdateEmailTemplateWrapper = () => {
@@ -156,6 +161,9 @@ export default function MainRoutes() {
         <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
         <Route path="/admin/email-template" element={<EmailTemplatetList />} />
         <Route path="/admin/email-management/update/:id" element={<UpdateEmailTemplateWrapper />} />
+        <Route path="/admin/set-role" element={<SetRole />} />
+        <Route path="/admin/managerList" element={<ManagerList />} />
+        <Route path="/admin/adminList" element={<AdminList />} />
       </Route>
 
       <Route element={<Staff />}>
