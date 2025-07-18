@@ -30,10 +30,12 @@ export const MetroLineStationApi = {
         }
     },
 
-    getStationByMetroLineId: async (metroLineId: string): Promise<ResponseDTO<GetMetroLineStationDTO[]>> => {
+    getStationByMetroLineId: async (metroLineId: string, isActive: boolean = true): Promise<ResponseDTO<GetMetroLineStationDTO[]>> => {
         try {
+            const params: any = { isActive };
             const response: AxiosResponse<ResponseDTO<GetMetroLineStationDTO[]>> = await axiosInstance.get(
-                METRO_LINE_STATION_ENDPOINTS.GET_BY_METRO_LINE_ID(metroLineId)
+                METRO_LINE_STATION_ENDPOINTS.GET_BY_METRO_LINE_ID(metroLineId),
+                { params }
             );
             return response.data;
         } catch (error: any) {

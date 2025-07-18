@@ -56,13 +56,13 @@ const AddMetroLineStation: React.FC = () => {
 
   const handleMetroLineChange = async (metroLineId: string) => {
     form.setFieldsValue({ metroLineId });
-    const response = await MetroLineApi.getMetroLineById(metroLineId);
+    const response = await MetroLineStationApi.getStationByMetroLineId(metroLineId, true);
     if (response.isSuccess && response.result) {
-      const distances = response.result.metroLineStations.map((s: any) => s.distanceFromStart);
-      setUsedDistances(distances);
-      setMetroLineStations(response.result.metroLineStations);
-      setUsedStationIds(response.result.metroLineStations.map((s: any) => s.station.id));
-      setUsedOrders(response.result.metroLineStations.map((s: any) => s.stationOrder));
+      const stations = response.result;
+      setMetroLineStations(stations);
+      setUsedDistances(stations.map((s: any) => s.distanceFromStart));
+      setUsedStationIds(stations.map((s: any) => s.station.id));
+      setUsedOrders(stations.map((s: any) => s.stationOrder));
     } else {
       setUsedDistances([]);
       setMetroLineStations([]);
