@@ -54,6 +54,8 @@ const STATION_STATUS_CONFIG: Record<StationStatus, StatusConfig> = {
   }
 };
 
+const TOTAL_STATIONS = 101;
+
 const StationList: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -231,6 +233,7 @@ const StationList: React.FC = () => {
           pagination={{
             pageSize: pageSize,
             current: page,
+            total: TOTAL_STATIONS,
             onChange: (p, ps) => {
               setPage(p);
               setPageSize(ps);

@@ -100,6 +100,7 @@ const AccountInfo: React.FC = () => {
             const response = await axiosInstance.put(updateUrl, payload);
 
             if (response.data.isSuccess) {
+                console.log('Profile updated successfully:', response.data);
                 message.success('Cập nhật thông tin thành công!');
                 setUpdateModalVisible(false);
                 fetchUserData(); // Refresh data

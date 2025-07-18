@@ -25,6 +25,8 @@ const MetroLineList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]);
   const [isActiveFilter, setIsActiveFilter] = useState<boolean | null>(null);
+  const [pageSize, setPageSize] = useState(10);
+  const [current, setCurrent] = useState(1);
 
   const fetchMetroLines = async (isActive?: boolean | null) => {
     try {
@@ -142,8 +144,13 @@ const MetroLineList: React.FC = () => {
             dataSource={metroLines}
             rowKey="id"
             pagination={{
-              pageSize: 10,
+              current,
+              pageSize,
               showSizeChanger: true,
+              onChange: (page, newPageSize) => {
+                setCurrent(page);
+                setPageSize(newPageSize);
+              },
               showTotal: (total) => `Tổng số ${total} tuyến`,
               locale: {
                 items_per_page: 'tuyến / trang',
