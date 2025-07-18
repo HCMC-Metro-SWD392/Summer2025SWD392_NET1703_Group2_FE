@@ -29,6 +29,10 @@ import { checkUserRole, logout } from '../../../api/auth/auth';
 import { Navigate, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import StaffWorkSchedule from './partials/StaffWorkSchedule';
 import { getUserInfo } from '../../../api/auth/tokenUtils';
+import CreateNews from './partials/News/CreateNews';
+import NewsListPageForStaff from './partials/News/NewsListPageForStaff';
+import AccountInfo from '../Customer/partials/CustomerInfo/AccountInfo';
+import CustomerInfo from '../Customer/partials/CustomerInfo/CustomerInfo';
 
 const { Content, Header } = Layout;
 const { Text } = Typography;
@@ -49,52 +53,52 @@ const Staff: React.FC = () => {
         await logout();
     };
 
-    const staffHeaderMenu = (
-        <Menu
-            items={[
-                {
-                    key: 'profile',
-                    icon: <UserOutlined />,
-                    label: 'Hồ sơ cá nhân',
-                    onClick: () => navigate('/staff/accountInfo'),
-                },
-                {
-                    key: 'qr-scanner',
-                    icon: <QrcodeOutlined />,
-                    label: 'Quét QR vé',
-                    onClick: () => setSelectedKey('1'),
-                },
-                {
-                    key: 'ticket-adjustment',
-                    icon: <ToolOutlined />,
-                    label: 'Điều chỉnh vé',
-                    onClick: () => setSelectedKey('2'),
-                },
-                {
-                    key: 'case-approval',
-                    icon: <CheckCircleOutlined />,
-                    label: 'Phê duyệt đơn',
-                    onClick: () => setSelectedKey('3'),
-                },
-                {
-                    type: 'divider',
-                },
-                {
-                    key: 'logout',
-                    icon: <LogoutOutlined />,
-                    label: 'Đăng xuất',
-                    onClick: handleLogout,
-                },
-            ]}
-        />
-    );
+    // const staffHeaderMenu = (
+    //     <Menu
+    //         items={[
+    //             {
+    //                 key: 'profile',
+    //                 icon: <UserOutlined />,
+    //                 label: 'Hồ sơ cá nhân',
+    //                 onClick: () => navigate('/staff/accountInfo'),
+    //             },
+    //             {
+    //                 key: 'qr-scanner',
+    //                 icon: <QrcodeOutlined />,
+    //                 label: 'Quét QR vé',
+    //                 onClick: () => setSelectedKey('1'),
+    //             },
+    //             {
+    //                 key: 'ticket-adjustment',
+    //                 icon: <ToolOutlined />,
+    //                 label: 'Điều chỉnh vé',
+    //                 onClick: () => setSelectedKey('2'),
+    //             },
+    //             {
+    //                 key: 'case-approval',
+    //                 icon: <CheckCircleOutlined />,
+    //                 label: 'Phê duyệt đơn',
+    //                 onClick: () => setSelectedKey('3'),
+    //             },
+    //             {
+    //                 type: 'divider',
+    //             },
+    //             {
+    //                 key: 'logout',
+    //                 icon: <LogoutOutlined />,
+    //                 label: 'Đăng xuất',
+    //                 onClick: handleLogout,
+    //             },
+    //         ]}
+    //     />
+    // );
 
     const menuItems: MenuProps['items'] = [
-        { key: 'account', icon: <UserOutlined />, label: 'Quản lý tài khoản' },
-        { key: '1', icon: <AppstoreOutlined />, label: 'Quét QR' },
-        { key: '2', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
-        { key: '3', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
-        { key: '4', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
+        { key: '1', icon: <CalendarOutlined />, label: 'Lịch làm việc' },
+        { key: '2', icon: <UserOutlined />, label: 'Quản lý tài khoản' },
+        { key: '3', icon: <AppstoreOutlined />, label: 'Quét QR' },
+        { key: '4', icon: <VideoCameraOutlined />, label: 'Thay đổi trạng thái vé' },
+        { key: '5', icon: <FileTextOutlined />, label: 'Quản lý đơn' },
         {
             key: 'news-management',
             icon: <EditOutlined />,
@@ -104,77 +108,81 @@ const Staff: React.FC = () => {
                 { key: 'news-list', icon: <UnorderedListOutlined />, label: 'Danh sách tin tức' },
             ]
         },
-        { key: '5', icon: <LogoutOutlined />, label: 'Đăng xuất' },
+        { key: '6', icon: <LogoutOutlined />, label: 'Đăng xuất' },
     ];
 
     const renderContent = () => {
         switch (selectedKey) {
             case '1':
-                return <TicketProcessingQR />;
-            case '2':
-                return <AdjustTicket />;
-            case '3':
-                return <CaseApproval />;
-            case '4':
                 return <StaffWorkSchedule />;
+            case '2':
+                return <AccountInfo />;
+            case '3':
+                return <TicketProcessingQR /> ;
+            case '4':
+                return <AdjustTicket />;
             case '5':
+                return <CaseApproval />;
+            case '6':
                 logout();
                 navigate('/login');
                 return null;
-            case 'account':
-                return <div>Quản lý tài khoản - Vui lòng sử dụng menu bên trái để truy cập</div>;
+            case 'create-news':
+                return <CreateNews />;
+            case 'news-list':
+                return <NewsListPageForStaff />;
             default:
                 return <div>Nội dung cho menu {selectedKey}</div>;
         }
     };
 
-    const getCurrentMenuLabel = () => {
-        // Handle nested routes
-        if (location.pathname === '/staff/accountInfo') {
-            return 'Quản Lý Tài Khoản';
-        }
-        if (location.pathname === '/staff/case-approval') {
-            return 'Phê Duyệt Đơn';
-        }
-        if (location.pathname === '/staff/create-news') {
-            return 'Tạo Tin Tức';
-        }
-        if (location.pathname === '/staff/news-list') {
-            return 'Danh Sách Tin Tức';
-        }
+    // const getCurrentMenuLabel = () => {
+    //     // Handle nested routes
+    //     if (location.pathname === '/staff/accountInfo') {
+    //         return 'Quản Lý Tài Khoản';
+    //     }
+    //     if (location.pathname === '/staff/case-approval') {
+    //         return 'Phê Duyệt Đơn';
+    //     }
+    //     if (location.pathname === '/staff/create-news') {
+    //         return 'Tạo Tin Tức';
+    //     }
+    //     if (location.pathname === '/staff/news-list') {
+    //         return 'Danh Sách Tin Tức';
+    //     }
         
-        // Handle main staff page
-        const menuLabels: { [key: string]: string } = {
-            '1': 'Quét QR Vé',
-            '2': 'Thay Đổi Trạng Thái Vé',
-            '3': 'Quản Lý Đơn',
-            '4': 'Lịch Làm Việc',
-            'account': 'Quản Lý Tài Khoản',
-            'create-news': 'Tạo Tin Tức',
-            'news-list': 'Danh Sách Tin Tức',
-        };
-        return menuLabels[selectedKey] || 'Staff Dashboard';
-    };
+    //     // Handle main staff page
+    //     const menuLabels: { [key: string]: string } = {
+    //         '1': 'Quét QR Vé',
+    //         '2': 'Thay Đổi Trạng Thái Vé',
+    //         '3': 'Quản Lý Đơn',
+    //         '4': 'Lịch Làm Việc',
+    //         'account': 'Quản Lý Tài Khoản',
+    //         'create-news': 'Tạo Tin Tức',
+    //         'news-list': 'Danh Sách Tin Tức',
+    //     };
+    //     return menuLabels[selectedKey] || 'Staff Dashboard';
+    // };
 
     // Check if we're on a nested route
     const isNestedRoute = location.pathname !== '/staff';
 
     // Get the correct selected key based on current path
-    const getCurrentSelectedKey = () => {
-        if (location.pathname === '/staff/accountInfo') {
-            return 'account';
-        }
-        if (location.pathname === '/staff/case-approval') {
-            return '3';
-        }
-        if (location.pathname === '/staff/create-news') {
-            return 'create-news';
-        }
-        if (location.pathname === '/staff/news-list') {
-            return 'news-list';
-        }
-        return selectedKey;
-    };
+    // const getCurrentSelectedKey = () => {
+    //     if (location.pathname === '/staff/accountInfo') {
+    //         return 'account';
+    //     }
+    //     if (location.pathname === '/staff/case-approval') {
+    //         return '3';
+    //     }
+    //     if (location.pathname === '/staff/create-news') {
+    //         return 'create-news';
+    //     }
+    //     if (location.pathname === '/staff/news-list') {
+    //         return 'news-list';
+    //     }
+    //     return selectedKey;
+    // };
 
     const renderMainContent = () => {
         if (isNestedRoute) {
@@ -191,25 +199,25 @@ const Staff: React.FC = () => {
                 setCollapsed={setCollapsed}
                 setBroken={setBroken}
                 menuItems={menuItems}
-                selectedKeys={[getCurrentSelectedKey()]}
+                selectedKeys={[selectedKey]}
                 onMenuSelect={(key) => {
-                    if (key === 'logout') {
-                        handleLogout();
-                    } else if (key === 'account') {
-                        navigate('/staff/accountInfo');
-                    } else if (key === 'create-news') {
-                        navigate('/staff/create-news');
-                    } else if (key === 'news-list') {
-                        navigate('/staff/news-list');
-                    } else if (key === '3') {
-                        navigate('/staff/case-approval');
-                    } else {
+                    // if (key === 'logout') {
+                    //     handleLogout();
+                    // } else if (key === 'account') {
+                    //     navigate('/staff/accountInfo');
+                    // } else if (key === 'create-news') {
+                    //     navigate('/staff/create-news');
+                    // } else if (key === 'news-list') {
+                    //     navigate('/staff/news-list');
+                    // } else if (key === '3') {
+                    //     navigate('/staff/case-approval');
+                    // } else {
                         setSelectedKey(key);
                         // Navigate back to main staff page if we're on a nested route
                         if (isNestedRoute) {
                             navigate('/staff');
                         }
-                    }
+                    // }
                 }}
                 theme='dark'
             />
@@ -220,23 +228,21 @@ const Staff: React.FC = () => {
                         <div className="flex items-center gap-4">
                             <QrcodeOutlined className="text-yellow-300 text-xl" />
                             <h2 className="text-lg font-semibold text-white truncate">
-                                {getCurrentMenuLabel()}
+                                {/* {getCurrentMenuLabel()} */}
                             </h2>
-                            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-orange-700 rounded-full">
+                            {/* <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-orange-700 rounded-full">
                                 <ToolOutlined className="text-orange-200" />
                                 <Text className="text-orange-100 text-sm">Hệ thống nhân viên</Text>
-                            </div>
+                            </div> */}
                         </div>
                         
-                        <div className="flex items-center gap-4">
-                            {/* Notifications */}
+                        {/* <div className="flex items-center gap-4">
                             <Badge count={2} size="small">
                                 <button className="text-white hover:text-orange-200 transition-colors">
                                     <BellOutlined className="text-lg" />
                                 </button>
                             </Badge>
                             
-                            {/* Quick Actions */}
                             <div className="hidden lg:flex items-center gap-2">
                                 <button 
                                     onClick={() => setSelectedKey('1')}
@@ -258,7 +264,6 @@ const Staff: React.FC = () => {
                                 </button>
                             </div>
                             
-                            {/* User Info */}
                             <Dropdown overlay={staffHeaderMenu} trigger={['click']} placement="bottomRight">
                                 <div className="flex items-center gap-2 cursor-pointer hover:bg-orange-700 px-2 py-1 rounded-md transition-colors">
                                     <Avatar 
@@ -276,7 +281,7 @@ const Staff: React.FC = () => {
                                     </div>
                                 </div>
                             </Dropdown>
-                        </div>
+                        </div> */}
                     </div>
                 </Header>
 
