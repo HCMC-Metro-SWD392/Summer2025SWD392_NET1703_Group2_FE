@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getWeather } from "../../../api/home/homeApi";
-import { Card, Row, Col, Typography, Space, Statistic, Spin, Collapse } from "antd";
-import { ClockCircleOutlined, EnvironmentOutlined, CarOutlined, TeamOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Typography, Collapse } from "antd";
+import { EnvironmentOutlined } from "@ant-design/icons";
 import backgroundHcmCity from "../../assets/backgroundhcmcity.png";
 import { MetroLineApi } from "../../../api/metroLine/MetroLineApi";
 import metroMap from '../../assets/Metro Map.png';
@@ -17,7 +17,7 @@ const CITY_NAME = "Ho Chi Minh";
 
 export default function Home() {
   const [time, setTime] = useState(new Date());
-  const [temperature, setTemperature] = useState(null);
+  const [temperature, setTemperature] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     metroLines: 0,
@@ -26,8 +26,6 @@ export default function Home() {
 
   // New state for fetched metro lines
   const [metroLines, setMetroLines] = useState<GetMetroLineDTO[]>([]); // Array of metro line objects
-  const [currentMetroIndex, setCurrentMetroIndex] = useState(0);
-  const [metroLinesLoading, setMetroLinesLoading] = useState(true);
 
   if (checkUserRole(["STAFF"])) {
         return <Navigate to="/staff" replace />;
@@ -47,11 +45,7 @@ export default function Home() {
     setUsername(localStorage.getItem('username'));
   }, []);
 
-  const handleNextMetro = () => {
-    if (metroLines.length > 0) {
-      setCurrentMetroIndex((prev) => (prev + 1) % metroLines.length);
-    }
-  };
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -64,9 +58,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [metroLinesRes] = await Promise.all([
-          MetroLineApi.getAllMetroLines(),
-        ]);
+        const metroLinesRes = await MetroLineApi.getAllMetroLines();
 
         setStats({
           metroLines: metroLinesRes.result?.length || 0,
@@ -79,7 +71,6 @@ export default function Home() {
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
-        setMetroLinesLoading(false);
       }
     };
 
@@ -98,8 +89,6 @@ export default function Home() {
 
   const now = time.toLocaleTimeString();
   const today = time.toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
-
-  // Removed mock news data - now using API
 
   // State to toggle Metro Map visibility
   const [showMap, setShowMap] = useState(false);
@@ -147,19 +136,18 @@ export default function Home() {
             <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
               <h2 className="text-blue-700 font-bold text-3xl mb-4">Bản đồ HCMC Metro</h2>
               <div className="w-full max-w-2xl h-auto border border-blue-200 rounded overflow-hidden bg-gray-50">
-                {/* Types for zoomIn, zoomOut, resetTransform are () => void */}
                 <TransformWrapper
                   initialScale={1}
                   minScale={0.7}
                   maxScale={3}
                   doubleClick={{ disabled: true }}
                 >
-                  {({ zoomIn, zoomOut, resetTransform }: { zoomIn: () => void; zoomOut: () => void; resetTransform: () => void }) => (
+                  {({ zoomIn, zoomOut, resetTransform }) => (
                     <>
                       <div className="flex gap-2 mb-2 justify-end">
-                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomIn} aria-label="Phóng to">+</button>
-                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={zoomOut} aria-label="Thu nhỏ">-</button>
-                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={resetTransform} aria-label="Đặt lại">Reset</button>
+                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={() => zoomIn()} aria-label="Phóng to">+</button>
+                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={() => zoomOut()} aria-label="Thu nhỏ">-</button>
+                        <button className="px-2 py-1 bg-blue-100 rounded hover:bg-blue-200" onClick={() => resetTransform()} aria-label="Đặt lại">Reset</button>
                       </div>
                       <TransformComponent>
                         <img
@@ -173,18 +161,6 @@ export default function Home() {
                   )}
                 </TransformWrapper>
               </div>
-              {/* Legend for highlighting lines (static for now) */}
-              {/* <div className="flex flex-wrap gap-4 mt-4 justify-center">
-                {metroLines.map((line, idx) => {
-                  const color = defaultColors[idx % defaultColors.length];
-                  return (
-                    <div key={line.id} className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full inline-block" style={{ background: color }}></span>
-                      <span className="text-gray-700 text-sm">{line.metroName || `Tuyến Số ${line.metroLineNumber}`}</span>
-                    </div>
-                  );
-                })}
-              </div> */}
             </div>
           </div>
         )}
@@ -220,7 +196,7 @@ export default function Home() {
                 label: <span className="text-lg font-medium">Giá vé đi tàu cho học sinh/sinh viênviên ?</span>,
                 children: (
                   <div className="text-base text-gray-700 pl-2 pt-2">
-                    Giao vé tàu cho sẽ được ưu đãi đối với học sinh/sinh viên đã đăng ký và được phê duyệt sẽ được giảm giá lên đến <b>50%</b>
+                    Giao vé tàu cho sẽ được ưu đãi đối với học sinh/sinh viên đã đăng ký và được phê duyệt sẽ được giảm giá lên đến <b>50%.</b>
                   </div>
                 ),
               },
