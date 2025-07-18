@@ -11,6 +11,14 @@ export enum TrainScheduleStatus {
 
 export interface CreateTrainScheduleDTO {
     metroLineId: string;
+    travelTimeBetweenStationsInSeconds: number;
+    dwellTimeAtStationInSeconds: number;
+    peakHourMorningStart: string; // 'HH:mm:ss'
+    peakHourMorningEnd: string;   // 'HH:mm:ss'
+    peakHourEveningStart: string; // 'HH:mm:ss'
+    peakHourEveningEnd: string;   // 'HH:mm:ss'
+    peakHourHeadwayInSeconds: number;
+    offPeakHourHeadwayInSeconds: number;
 }
 
 export interface GetTrainScheduleDTO {
