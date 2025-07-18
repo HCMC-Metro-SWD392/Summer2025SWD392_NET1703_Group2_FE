@@ -177,7 +177,7 @@ const BuyRouteTicket: React.FC = () => {
   if (!startStationId || !endStationId) return;
 
   try {
-    const res = await axiosInstance.get("/api/Ticket/is-exist-ticket-range", {
+    const res = await axiosInstance.get("/api/Ticket/check-exist-ticket-range", {
       params: {
         startStaionId: startStationId,
         endStationId: endStationId,
