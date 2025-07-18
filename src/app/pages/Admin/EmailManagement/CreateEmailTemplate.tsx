@@ -1,158 +1,270 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Form, Input, Button, message, Typography, Modal, Descriptions, Select } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Select, Modal, message, Typography } from 'antd';
 import axiosInstance from '../../../../settings/axiosInstance';
+import { useNavigate } from 'react-router-dom';
 
-const { Title } = Typography;
+const { Option } = Select;
+const { TextArea } = Input;
+const { Title, Paragraph } = Typography;
 
-const FOOTER_OPTIONS = [
-  "© 2025 Metro HCMC. Tất cả quyền được bảo lưu. Email: support@metrohcmc.xyz | Hotline: 1900-6060",
-  "© 2025 Metro HCMC. All rights reserved. Email: support@metrohcmc.xyz | Hotline: 1900-6060"
+// Footer thực tế lấy từ UpdateEmailTemplate và Footer trang web
+const footerOptions = [
+  {
+    label: '© 2025 Metro HCMC. Tất cả quyền được bảo lưu. Email: support@metrohcmc.xyz | Hotline: 1900-6060',
+    value: '© 2025 Metro HCMC. Tất cả quyền được bảo lưu. Email: support@metrohcmc.xyz | Hotline: 1900-6060',
+  },
+  {
+    label: '© 2025 Metro HCMC. All rights reserved. Email: support@metrohcmc.xyz | Hotline: 1900-6060',
+    value: '© 2025 Metro HCMC. All rights reserved. Email: support@metrohcmc.xyz | Hotline: 1900-6060',
+  },
+  {
+    label: 'Depot Long Bình, Phường Long Bình, Thành phố Thủ Đức, TP.HCM',
+    value: 'Depot Long Bình, Phường Long Bình, Thành phố Thủ Đức, TP.HCM',
+  },
+  {
+    label: 'Điện thoại: 02873003885',
+    value: 'Điện thoại: 02873003885',
+  },
+  {
+    label: 'Mã số thuế: 0315818455',
+    value: 'Mã số thuế: 0315818455',
+  },
+  {
+    label: 'Theo Quyết định số 5368 ngày 15/11/2023 của UBND Thành phố Hồ Chí Minh',
+    value: 'Theo Quyết định số 5368 ngày 15/11/2023 của UBND Thành phố Hồ Chí Minh',
+  },
 ];
-const SENDER_OPTIONS = [
-  "Metro HCMC",
-  "Metro HCMC Team"
+
+// Ngôn ngữ tiếng Việt
+const languageOptions = [
+  { label: 'Tiếng Việt', value: 'Vietnamese' },
+  { label: 'Tiếng Anh', value: 'English' },
 ];
-const LANGUAGE_OPTIONS = [
-  "Vietnamese",
-  "English"
+
+// Bộ data mẫu cho template thông báo mua vé thành công
+export const sampleTicketSuccessTemplate = {
+  templateName: 'Thông báo mua vé thành công',
+  subjectLine: 'Bạn đã mua vé thành công!',
+  bodyContent: `
+    <div style="font-family: Arial, sans-serif; color: #222;">
+      <h2 style="color: #00529b;">Cảm ơn bạn đã mua vé Metro HCMC!</h2>
+      <p>Xin chào <b>{customerName}</b>,</p>
+      <p>Bạn đã mua vé thành công cho tuyến <b>{routeName}</b> từ <b>{fromStation}</b> đến <b>{toStation}</b>.</p>
+      <ul>
+        <li><b>Mã vé:</b> {ticketCode}</li>
+        <li><b>Thời gian sử dụng:</b> {validTime}</li>
+        <li><b>Giá vé:</b> {ticketPrice} VNĐ</li>
+      </ul>
+      <p>Vui lòng xuất trình mã QR khi lên tàu.</p>
+      <p>Chúc bạn có một chuyến đi an toàn và thuận lợi!</p>
+    </div>
+  `,
+  senderName: 'Metro HCMC',
+  category: 'Thông báo',
+  preHeaderText: 'Bạn đã mua vé thành công trên hệ thống Metro HCMC',
+  personalizationTags: '{customerName}, {routeName}, {fromStation}, {toStation}, {ticketCode}, {validTime}, {ticketPrice}',
+  footerContent: '© 2025 Metro HCMC. Tất cả quyền được bảo lưu. Email: support@metrohcmc.xyz | Hotline: 1900-6060',
+  callToAction: 'Xem vé của bạn',
+  language: 'Vietnamese',
+  recipientType: 'Customer',
+};
+
+const recipientTypeOptions = [
+  { label: 'Customer', value: 'Customer' },
+  { label: 'Staff', value: 'Staff' },
+  { label: 'Manager', value: 'Manager' },
+  { label: 'Admin', value: 'Admin' },
 ];
-const LOCAL_KEY = 'admin_create_email_template_form';
+const senderNameOptions = [
+  { label: 'Metro HCMC', value: 'Metro HCMC' },
+  { label: 'Support', value: 'Support' },
+  { label: 'Admin', value: 'Admin' },
+];
+
+const initialForm = {
+  templateName: '',
+  subjectLine: '',
+  bodyContent: '',
+  senderName: '',
+  category: '',
+  preHeaderText: '',
+  personalizationTags: '',
+  footerContent: '',
+  callToAction: '',
+  language: '',
+  recipientType: '',
+};
 
 const CreateEmailTemplate: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [form] = Form.useForm();
+  const [formData, setFormData] = useState(initialForm);
   const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  // Load dữ liệu từ localStorage khi mount
-  useEffect(() => {
-    const saved = localStorage.getItem(LOCAL_KEY);
-    if (saved) {
-      form.setFieldsValue(JSON.parse(saved));
-    }
-  }, [form]);
-
-  // Lưu dữ liệu vào localStorage mỗi khi thay đổi
-  const handleValuesChange = (changed: any, all: any) => {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
+  const handleChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Khi bấm submit form, show modal preview
-  const onFinish = (values: any) => {
-    setPreviewData(values);
+  const handlePreview = () => {
     setPreviewVisible(true);
   };
 
-  // Khi xác nhận ở modal, gửi request
-  const handleConfirm = async () => {
+  const handleCancelPreview = () => {
+    setPreviewVisible(false);
+  };
+
+  const handleConfirmCreate = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await axiosInstance.post('/api/Email/create-eamil-template', previewData);
-      if (res.data?.isSuccess) {
-        message.success(res.data?.message || 'Tạo email template thành công!');
-        form.resetFields();
-        setPreviewVisible(false);
-        setPreviewData(null);
-        localStorage.removeItem(LOCAL_KEY);
-      } else {
-        message.error(res.data?.message || 'Tạo email template thất bại.');
-      }
+      await axiosInstance.post('/api/Email/create-eamil-template', formData);
+      message.success('Tạo email template thành công!');
+      setPreviewVisible(false);
+      navigate('/admin/email-template');
     } catch (err: any) {
-      message.error(err?.response?.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      setError(err?.response?.data?.message || 'Đã có lỗi xảy ra.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="p-6">
+    <div style={{ maxWidth: 700, margin: '0 auto', padding: 24 }}>
       <Title level={2}>Tạo Email Template</Title>
-      <Card className="mt-4">
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-          onValuesChange={handleValuesChange}
-        >
-          <Form.Item name="templateName" label="Tên Template" initialValue="Welcome New Registration"> <Input /> </Form.Item>
-          <Form.Item name="subjectLine" label="Tiêu Đề" initialValue="Chào mừng bạn đến với Metro HCMC!"> <Input /> </Form.Item>
-          <Form.Item name="bodyContent" label="Nội Dung" initialValue={`<!DOCTYPE html>
-<html lang='vi'>
-<head>
-    <meta charset='UTF-8'>
-    <title>Chào mừng đến Metro HCMC</title>
-</head>
-<body style='font-family: Inter, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0;'>
-    <div style='max-width:600px;margin:40px auto;background:#fff;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.05);padding:40px;'>
-        <h1 style='color:#1e40af;text-align:center;'>Chào mừng bạn đến với Metro HCMC!</h1>
-        <p>Xin chào <b>{userName}</b>,</p>
-        <p>Cảm ơn bạn đã đăng ký tài khoản Metro HCMC. Chúng tôi rất vui mừng được đồng hành cùng bạn trên hành trình trải nghiệm hệ thống tàu điện hiện đại, an toàn và thân thiện với môi trường.</p>
-        <p>Bạn có thể đăng nhập và khám phá các tính năng tiện ích ngay hôm nay!</p>
-        <div style='text-align:center;margin:32px 0;'>
-            <a href='{Login}' style='display:inline-block;background:#1e40af;color:#fff;padding:14px 32px;text-decoration:none;font-size:16px;font-weight:600;border-radius:6px;'>Đăng nhập ngay</a>
-        </div>
-        <p>Nếu bạn có bất kỳ thắc mắc nào, hãy liên hệ với chúng tôi qua email hoặc hotline bên dưới.</p>
-        <hr style='margin:32px 0;border:none;border-top:1px solid #e5e7eb;'/>
-        <p style='font-size:14px;color:#6b7280;text-align:center;'>Chúc bạn một ngày tốt lành!<br/>Metro HCMC Team</p>
-    </div>
-</body>
-</html>`}> <Input.TextArea rows={8} /> </Form.Item>
-          <Form.Item name="senderName" label="Tên Người Gửi" initialValue={SENDER_OPTIONS[0]}> 
-            <Select>
-              {SENDER_OPTIONS.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="category" label="Danh Mục" initialValue="Welcome"> <Input /> </Form.Item>
-          <Form.Item name="preHeaderText" label="Pre-header Text" initialValue="Chào mừng bạn đến với Metro HCMC!"> <Input /> </Form.Item>
-          <Form.Item name="personalizationTags" label="Personalization Tags" initialValue="{userName}, {Login}"> <Input /> </Form.Item>
-          <Form.Item name="footerContent" label="Footer" initialValue={FOOTER_OPTIONS[0]}> 
-            <Select>
-              {FOOTER_OPTIONS.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="callToAction" label="Call To Action" initialValue="Đăng nhập ngay"> <Input /> </Form.Item>
-          <Form.Item name="language" label="Ngôn Ngữ" initialValue={LANGUAGE_OPTIONS[0]}> 
-            <Select>
-              {LANGUAGE_OPTIONS.map(opt => <Select.Option key={opt} value={opt}>{opt}</Select.Option>)}
-            </Select>
-          </Form.Item>
-          <Form.Item name="recipientType" label="Loại Người Nhận" initialValue="CUSTOMER"> <Input /> </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              Tạo Template
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+      <Form layout="vertical">
+        <Form.Item label="Tên Template" name="templateName">
+          <Input
+            value={formData.templateName}
+            onChange={e => handleChange('templateName', e.target.value)}
+            placeholder="Nhập tên template"
+          />
+        </Form.Item>
+        <Form.Item label="Tiêu đề Email" name="subjectLine">
+          <Input
+            value={formData.subjectLine}
+            onChange={e => handleChange('subjectLine', e.target.value)}
+            placeholder="Nhập tiêu đề email"
+          />
+        </Form.Item>
+        <Form.Item label="Nội dung Email (HTML)" name="bodyContent">
+          <TextArea
+            value={formData.bodyContent}
+            onChange={e => handleChange('bodyContent', e.target.value)}
+            placeholder="Nhập nội dung HTML cho email"
+            autoSize={{ minRows: 6, maxRows: 16 }}
+          />
+        </Form.Item>
+        <Form.Item label="Người gửi" name="senderName">
+          <Select
+            value={formData.senderName}
+            onChange={value => handleChange('senderName', value)}
+            placeholder="Chọn người gửi"
+            allowClear
+          >
+            {senderNameOptions.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Danh mục" name="category">
+          <Input
+            value={formData.category}
+            onChange={e => handleChange('category', e.target.value)}
+            placeholder="Nhập danh mục"
+          />
+        </Form.Item>
+        <Form.Item label="Pre-header Text" name="preHeaderText">
+          <Input
+            value={formData.preHeaderText}
+            onChange={e => handleChange('preHeaderText', e.target.value)}
+            placeholder="Nhập pre-header text"
+          />
+        </Form.Item>
+        <Form.Item label="Personalization Tags" name="personalizationTags">
+          <Input
+            value={formData.personalizationTags}
+            onChange={e => handleChange('personalizationTags', e.target.value)}
+            placeholder="Nhập personalization tags"
+          />
+        </Form.Item>
+        <Form.Item label="Footer" name="footerContent">
+          <Select
+            value={formData.footerContent}
+            onChange={value => handleChange('footerContent', value)}
+            placeholder="Chọn footer"
+            allowClear
+          >
+            {footerOptions.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Call To Action" name="callToAction">
+          <Input
+            value={formData.callToAction}
+            onChange={e => handleChange('callToAction', e.target.value)}
+            placeholder="Nhập call to action"
+          />
+        </Form.Item>
+        <Form.Item label="Ngôn ngữ" name="language">
+          <Select
+            value={formData.language}
+            onChange={value => handleChange('language', value)}
+            placeholder="Chọn ngôn ngữ"
+            allowClear
+          >
+            {languageOptions.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Loại người nhận" name="recipientType">
+          <Select
+            value={formData.recipientType}
+            onChange={value => handleChange('recipientType', value)}
+            placeholder="Chọn loại người nhận"
+            allowClear
+          >
+            {recipientTypeOptions.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+        {error && <Paragraph type="danger">{error}</Paragraph>}
+        <Form.Item>
+          <Button type="primary" onClick={handlePreview} style={{ minWidth: 120 }}>
+            Xem trước & Tạo
+          </Button>
+        </Form.Item>
+      </Form>
       <Modal
-        open={previewVisible}
         title="Xem trước Email Template"
-        onCancel={() => setPreviewVisible(false)}
-        onOk={handleConfirm}
+        open={previewVisible}
+        onCancel={handleCancelPreview}
+        onOk={handleConfirmCreate}
         okText="Xác nhận tạo"
         cancelText="Hủy"
-        width={900}
         confirmLoading={loading}
       >
-        {previewData && (
-          <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="Tên Template">{previewData.templateName}</Descriptions.Item>
-            <Descriptions.Item label="Tiêu Đề">{previewData.subjectLine}</Descriptions.Item>
-            <Descriptions.Item label="Nội Dung">
-              <div style={{ background: '#f9f9f9', padding: 12, borderRadius: 4, maxHeight: 300, overflow: 'auto' }}>
-                <div dangerouslySetInnerHTML={{ __html: previewData.bodyContent }} />
-              </div>
-            </Descriptions.Item>
-            <Descriptions.Item label="Tên Người Gửi">{previewData.senderName}</Descriptions.Item>
-            <Descriptions.Item label="Danh Mục">{previewData.category}</Descriptions.Item>
-            <Descriptions.Item label="Pre-header Text">{previewData.preHeaderText}</Descriptions.Item>
-            <Descriptions.Item label="Personalization Tags">{previewData.personalizationTags}</Descriptions.Item>
-            <Descriptions.Item label="Footer">{previewData.footerContent}</Descriptions.Item>
-            <Descriptions.Item label="Call To Action">{previewData.callToAction}</Descriptions.Item>
-            <Descriptions.Item label="Ngôn Ngữ">{previewData.language}</Descriptions.Item>
-            <Descriptions.Item label="Loại Người Nhận">{previewData.recipientType}</Descriptions.Item>
-          </Descriptions>
-        )}
+        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+          <p><b>Tên Template:</b> {formData.templateName}</p>
+          <p><b>Tiêu đề Email:</b> {formData.subjectLine}</p>
+          <p><b>Người gửi:</b> {formData.senderName}</p>
+          <p><b>Danh mục:</b> {formData.category}</p>
+          <p><b>Pre-header Text:</b> {formData.preHeaderText}</p>
+          <p><b>Personalization Tags:</b> {formData.personalizationTags}</p>
+          <p><b>Footer:</b> {formData.footerContent}</p>
+          <p><b>Call To Action:</b> {formData.callToAction}</p>
+          <p><b>Ngôn ngữ:</b> {formData.language}</p>
+          <p><b>Loại người nhận:</b> {formData.recipientType}</p>
+          <div style={{ margin: '16px 0' }}>
+            <b>Nội dung Email (HTML):</b>
+            <div style={{ border: '1px solid #eee', padding: 8, marginTop: 4 }}>
+              <div dangerouslySetInnerHTML={{ __html: formData.bodyContent || '<i>Không có nội dung</i>' }} />
+            </div>
+          </div>
+        </div>
       </Modal>
     </div>
   );

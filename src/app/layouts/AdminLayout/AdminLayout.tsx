@@ -9,6 +9,7 @@ import {
     UserOutlined,
     IdcardOutlined,
     FileTextOutlined,
+    CrownOutlined,
   } from '@ant-design/icons';
   import { Layout, Menu } from 'antd';
   import React, { useEffect } from 'react';
@@ -29,102 +30,111 @@ import {
       logTokenContents();
     }, []);
   
-    const menuItems = [
-      {
-        key: '/admin',
-        icon: <DashboardOutlined />,
-        label: 'Bảng Điều Khiển',
-      },
-      {
-        key: 'station-management',
-        icon: <ApartmentOutlined />,
-        label: 'Quản Lý Trạm',
-        children: [
-          {
-            key: '/admin/station',
-            label: 'Danh Sách Trạm',
-          },
-          {
-            key: '/admin/create-station',
-            label: 'Tạo Trạm',
-          },
-        ],
-      },
-      {
-        key: 'metro-line-management',
-        icon: <CarOutlined />,
-        label: 'Quản Lý Tuyến Metro',
-        children: [
-          {
-            key: '/admin/metro-line',
-            label: 'Danh Sách Tuyến Metro',
-          },
-          {
-            key: '/admin/create-metro-line',
-            label: 'Tạo Tuyến Metro',
-          },
-          {
-            key: '/admin/add-metro-line-station',
-            label: 'Thêm Trạm Vào Tuyến Metro',
-          },
-        ],
-      },
-      {
-        key: 'train-schedule',
-        icon: <ClockCircleOutlined />,
-        label: 'Quản Lý Lịch Trình Tàu',
-        children: [
-          {
-            key: '/admin/train-schedule',
-            label: 'Danh Sách Lịch Trình Tàu',
-          },
-        ],
-      },
-      {
-        key: 'fare-management',
-        icon: <DollarCircleOutlined />,
-        label: 'Quản Lý Giá Vé',
-        children: [
-          {
-            key: '/admin/fare-rule',
-            label: 'Quy Tắc Giá Vé',
-          },
-        ],
-      },
-      {
-        key: 'email-management',
-        icon: <SettingOutlined />,
-        label: 'Quản Lý Email',
-        children: [
-          {
-            key: '/admin/create-email-template',
-            label: 'Tạo Email Template',
-          },
-        ],
-      },
-      {
-        key: 'ticket-transaction-management',
-        icon: <IdcardOutlined />,
-        label: 'Quản Lý Giao Dịch Vé',
-        children: [
-          {
-            key: '/admin/transaction-ticket',
-            label: 'Giao Dịch Vé',
-          },
-        ],
-      },
-      {
-        key: 'log-activity-management',
-        icon: <FileTextOutlined />,
-        label: 'Quản Lý Hoạt Động',
-        children: [
-          {
-            key: '/admin/log-activity',
-            label: 'Hoạt động',
-          },
-        ],
-      },
-    ];
+      const menuItems = [
+    {
+      key: '/admin/accountInfo',
+      icon: <UserOutlined />,
+      label: 'Quản lý tài khoản',
+    },
+    {
+      key: '/admin',
+      icon: <DashboardOutlined />,
+      label: 'Bảng Điều Khiển',
+    },
+    {
+      key: 'station-management',
+      icon: <ApartmentOutlined />,
+      label: 'Quản Lý Trạm',
+      children: [
+        {
+          key: '/admin/station',
+          label: 'Danh Sách Trạm',
+        },
+        {
+          key: '/admin/create-station',
+          label: 'Tạo Trạm',
+        },
+      ],
+    },
+    {
+      key: 'metro-line-management',
+      icon: <CarOutlined />,
+      label: 'Quản Lý Tuyến Metro',
+      children: [
+        {
+          key: '/admin/metro-line',
+          label: 'Danh Sách Tuyến Metro',
+        },
+        {
+          key: '/admin/create-metro-line',
+          label: 'Tạo Tuyến Metro',
+        },
+        {
+          key: '/admin/add-metro-line-station',
+          label: 'Thêm Trạm Vào Tuyến Metro',
+        },
+      ],
+    },
+    {
+      key: 'train-schedule',
+      icon: <ClockCircleOutlined />,
+      label: 'Quản Lý Lịch Trình Tàu',
+      children: [
+        {
+          key: '/admin/train-schedule',
+          label: 'Danh Sách Lịch Trình Tàu',
+        },
+      ],
+    },
+    {
+      key: 'fare-management',
+      icon: <DollarCircleOutlined />,
+      label: 'Quản Lý Giá Vé',
+      children: [
+        {
+          key: '/admin/fare-rule',
+          label: 'Quy Tắc Giá Vé',
+        },
+      ],
+    },
+    {
+      key: 'ticket-transaction-management',
+      icon: <IdcardOutlined />,
+      label: 'Quản Lý Giao Dịch Vé',
+      children: [
+        {
+          key: '/admin/transaction-ticket',
+          label: 'Giao Dịch Vé',
+        },
+      ],
+    },
+    {
+      key: 'log-activity-management',
+      icon: <FileTextOutlined />,
+      label: 'Quản Lý Hoạt Động',
+      children: [
+        {
+          key: '/admin/log-activity',
+          label: 'Hoạt động',
+        },
+      ],
+    },
+    {
+      key: 'email-management',
+      icon: <SettingOutlined />,
+      label: 'Quản Lý Email',
+      children: [
+        {
+          key: '/admin/create-email-template',
+          label: 'Tạo Email Template',
+        },
+        {
+          key: '/admin/email-template',
+          label: 'Danh Sách Email Template',
+        },
+      ],
+    },
+  ];
   
     const handleMenuClick = ({ key }: { key: string }) => {
       navigate(key);
@@ -150,6 +160,8 @@ import {
   
       return findLabel(menuItems, location.pathname) || 'Dashboard';
     };
+  
+
   
     return (
       <Layout className="min-h-screen h-screen">
@@ -190,9 +202,13 @@ import {
         <Layout className="flex flex-col h-full">
           <Header className="bg-[#001529] px-4 md:px-6 shadow-sm">
             <div className="flex items-center justify-between h-full">
-              <h2 className="text-lg font-semibold text-white truncate">
-                {getCurrentMenuLabel()}
-              </h2>
+              <div className="flex items-center gap-3">
+                <CrownOutlined className="text-yellow-400 text-lg" />
+                <h2 className="text-lg font-semibold text-white truncate">
+                  {getCurrentMenuLabel()}
+                </h2>
+                <span className="hidden md:inline text-blue-300 text-sm">| Admin System</span>
+              </div>
               <div className="flex items-center gap-4">
                 <span className="text-white font-medium hidden sm:inline">{userInfo?.name || 'Admin'}</span>
                 <img

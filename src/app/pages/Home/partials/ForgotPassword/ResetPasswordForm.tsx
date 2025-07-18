@@ -3,31 +3,48 @@ import { Form, Input, Button, message, Typography } from 'antd';
 import logoMetro from '../../../../assets/logo.png';
 import backgroundHcmCity from '../../../../assets/backgroundhcmcity.png';
 import { changePassword } from '../../../../../api/auth/auth';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 
 const ResetPasswordForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const onFinish = async (values: {
-    newPassword: string;
-    confirmPassword: string;
-  }) => {
+  // Lấy email từ query param
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get('email') || '';
+  // Lấy token từ raw query string để giữ nguyên encode (ví dụ: %2B không bị chuyển thành +)
+  const rawQuery = location.search.substring(1);
+  const tokenMatch = rawQuery.match(/(?:^|&)token=([^&]*)/);
+  const token = tokenMatch ? tokenMatch[1] : '';
+
+  const onFinish = async (values: { newPassword: string; confirmPassword: string }) => {
     setLoading(true);
     try {
-      // Giả sử có token hoặc mã xác thực từ link, cần truyền kèm nếu API yêu cầu
-      const response = await changePassword({
-        currentPassword: '', // Không có currentPassword khi reset qua email
+      const payload = {
+        email,
+        token,
         newPassword: values.newPassword,
         confirmPassword: values.confirmPassword,
-      });
+      };
+      const response = await changePassword(payload);
       if (response?.isSuccess) {
-        message.success('Đổi mật khẩu thành công!');
+        message.success('Đổi mật khẩu thành công! Đang chuyển hướng đến trang đăng nhập...');
+        // Delay 2 giây để user có thể đọc message, sau đó chuyển hướng
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         message.error(response?.message || 'Đổi mật khẩu thất bại.');
       }
     } catch (error: any) {
-      message.error('Đã xảy ra lỗi. Vui lòng thử lại.');
+      if (error.response) {
+        message.error(error.response.data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      } else {
+        message.error('Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
     } finally {
       setLoading(false);
     }

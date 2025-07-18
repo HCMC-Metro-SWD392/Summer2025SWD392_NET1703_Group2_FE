@@ -5,7 +5,7 @@ import ManagerLayout from "../layouts/ManagerLayout/ManagerLayout";
 import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
 import BuySubscriptionTicket from "../pages/Customer/partials/BuySubscriptionTicket/BuySubscriptionTicket";
-import CustomerInfo from "../pages/Customer/partials/CustomerInfo/CustomerInfo";
+import AccountInfo from "../pages/Customer/partials/CustomerInfo/CustomerInfo";
 import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
 import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
 import Home from "../pages/Home";
@@ -54,11 +54,34 @@ import TicketTransactionPage from "../pages/Admin/TicketManagement/TicketTransac
 import RecentLogsPage from "../pages/Admin/LogActivityManagement/RecentLogsPage";
 import EmailForm from "../pages/Home/partials/ForgotPassword/EmailForm";
 import ResetPasswordForm from "../pages/Home/partials/ForgotPassword/ResetPasswordForm";
+import Contact from "../pages/Home/partials/InformationPage/Contact";
+import ScrollToTop from "../components/ScrollToTop";
 import CreateEmailTemplate from "../pages/Admin/EmailManagement/CreateEmailTemplate";
+import UpdateEmailTemplate from "../pages/Admin/EmailManagement/UpdateEmailTemplate";
+import EmailTemplatetList from "../pages/Admin/EmailManagement/EmailTemplatetList";
+import CreateNews from "../pages/Staff/partials/News/CreateNews";
+import NewsListPageForStaff from "../pages/Staff/partials/News/NewsListPageForStaff";
+import NewsListPage from "../pages/Manager/NewsManagerment/NewsListPage";
+import { useParams, useNavigate } from "react-router-dom";
+import React from "react";
+const UpdateEmailTemplateWrapper = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  if (!id) return null;
+  return (
+    <UpdateEmailTemplate
+      templateId={id}
+      open={true}
+      onClose={() => navigate(-1)}
+    />
+  );
+};
+
 
 export default function MainRoutes() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route element={<CommonLayout/>}>
           <Route path="/" element={<Home />} />
@@ -75,10 +98,11 @@ export default function MainRoutes() {
             <Route path="mySubmittedRequest" element={<MySubmittedRequests />}/>
             <Route path="submit-success" element={<SubmitSuccess />}/>
           </Route>
-          <Route path="/customerInfor" element={<CustomerInfo />} />
+          <Route path="/accountInfo" element={<AccountInfo />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           <Route path="/change-password" element={<ChangePasswordForm />} />
           <Route path="/metro-line" element={<AllMetroLine />} />
+          <Route path="/contact" element={<Contact />} />
         </Route>
 
 
@@ -87,11 +111,12 @@ export default function MainRoutes() {
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/forgot-password" element={<EmailForm/>} />
-          <Route path="/reset-password" element={<ResetPasswordForm/>} />
+          <Route path="/resetPassword" element={<ResetPasswordForm/>} />
         </Route>
 
         <Route element={<ManagerLayout/>}>
         <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager/accountInfo" element={<AccountInfo />} />
         <Route path="/manager/staffs" element={<StaffList />} />
         <Route path="/manager/staffs/:id" element={<StaffDetails />} />
         <Route path="/manager/staffs/:id/edit" element={<EditStaff />} />
@@ -107,10 +132,12 @@ export default function MainRoutes() {
         <Route path="/manager/subscription-ticket" element={<SubscriptionTicketList />} />
         <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
         <Route path="/manager/transaction-ticket" element={<TicketTransactionPage />} />
+        <Route path="/manager/news" element={<NewsListPage />} />
       </Route>
 
       <Route element={<AdminLayout/>}>
         <Route path="/admin" element={<AdminMain />} />
+        <Route path="/admin/accountInfo" element={<AccountInfo />} />
         <Route path="/admin/fare-rule" element={<FareRule />} />
         <Route path="/admin/station/:id" element={<StationDetails />} />
         <Route path="/admin/station" element={<StationList />} />
@@ -127,11 +154,18 @@ export default function MainRoutes() {
         <Route path="/admin/transaction-ticket" element={<TicketTransactionPage />} />
         <Route path="/admin/log-activity" element={<RecentLogsPage />} />
         <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
+        <Route path="/admin/email-template" element={<EmailTemplatetList />} />
+        <Route path="/admin/email-management/update/:id" element={<UpdateEmailTemplateWrapper />} />
       </Route>
 
-      <Route path="/staff" element={<Staff />} />
-
+      <Route element={<Staff />}>
+        <Route path="/staff" element={<Staff />} />
+        <Route path="/staff/accountInfo" element={<AccountInfo />} />
         <Route path="/staff/case-approval" element={<CaseApproval />} />
+        <Route path="/staff/create-news" element={<CreateNews />} />
+        <Route path="/staff/news-list" element={<NewsListPageForStaff />} />
+      </Route>
+
         
       </Routes>
 
