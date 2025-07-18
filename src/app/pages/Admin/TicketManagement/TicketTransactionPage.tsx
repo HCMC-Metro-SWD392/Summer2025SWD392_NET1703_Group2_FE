@@ -37,7 +37,7 @@ const TicketTransactionPage: React.FC = () => {
       });
 
       const items = res.data?.result ?? [];
-      const total = res.data?.result.length ?? 0;
+      const total = 20;
 
       const transformed = items.map((item: any, index: number) => ({
         key: item.orderCode ?? index,
@@ -161,7 +161,6 @@ const TicketTransactionPage: React.FC = () => {
             pageSize: pagination.pageSize,
             total: pagination.total,
             showSizeChanger: true,
-            showTotal: (total) => `Tổng ${total} giao dịch`,
           }}
           onChange={handleTableChange}
           scroll={{ x: 'max-content' }}
