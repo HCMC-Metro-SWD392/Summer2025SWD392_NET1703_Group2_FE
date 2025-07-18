@@ -218,11 +218,11 @@ const ManagerLayout: React.FC = () => {
             
             <div className="flex items-center gap-4">
               {/* Notifications */}
-              <Badge count={5} size="small">
+              {/* <Badge count={5} size="small">
                 <button className="text-white hover:text-green-200 transition-colors">
                   <BellOutlined className="text-lg" />
                 </button>
-              </Badge>
+              </Badge> */}
               
               {/* Quick Actions */}
               <div className="hidden lg:flex items-center gap-2">

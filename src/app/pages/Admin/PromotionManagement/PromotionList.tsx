@@ -51,7 +51,7 @@ const PromotionList: React.FC = () => {
           ...prev,
           pagination: {
             ...prev.pagination,
-            total: response.total || 0,
+            total: 20,
             current: params.pageNumber || 1,
             pageSize: params.pageSize || 10
           }
@@ -106,26 +106,6 @@ const PromotionList: React.FC = () => {
       }));
     }
   }, []);
-
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await PromotionApi.deletePromotion(id);
-      if (response.isSuccess) {
-        message.success('Xóa khuyến mãi thành công');
-      fetchPromotions({
-        pageNumber: tableParams.pagination.current,
-        pageSize: tableParams.pagination.pageSize,
-        sortBy: tableParams.sortField,
-        isAscending: tableParams.sortOrder === 'ascend'
-      });
-      } else {
-        message.error(response.message || 'Xóa khuyến mãi thất bại');
-      }
-    } catch (error) {
-      message.error('Xóa khuyến mãi thất bại');
-      console.error('Error deleting promotion:', error);
-    }
-  };
 
   const columns: ColumnsType<GetPromotionDTO> = [
     {
@@ -222,16 +202,6 @@ const PromotionList: React.FC = () => {
           >
             Chỉnh Sửa
           </Button>
-          <Popconfirm
-        title="Bạn có chắc muốn xóa khuyến mãi này?"
-        onConfirm={() => handleDelete(record.id)}
-        okText="Xóa"
-        cancelText="Hủy"
-      >
-        <Button danger>
-          Xóa
-        </Button>
-      </Popconfirm>
         </Space>
       ),
     },
@@ -253,12 +223,16 @@ const PromotionList: React.FC = () => {
   ) => {
     const sorterResult = Array.isArray(sorter) ? sorter[0] : sorter;
     
-    setTableParams({
-      pagination,
+    setTableParams(prev => ({
+      ...prev,
+      pagination: {
+        ...prev.pagination,
+        ...pagination,
+      },
       sortField: sorterResult.field as string,
       sortOrder: sorterResult.order as SortOrder,
       filters
-    });
+    }));
   };
 
   const handleSearch = (value: string) => {
@@ -303,7 +277,6 @@ const PromotionList: React.FC = () => {
           pagination={{
             ...tableParams.pagination,
             showSizeChanger: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mã giảm giá`,
             pageSizeOptions: ['10', '20', '50', '100']
           }}
           onChange={handleTableChange}
