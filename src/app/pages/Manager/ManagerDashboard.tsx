@@ -244,9 +244,6 @@ const ManagerDashboard: React.FC = () => {
                   valueStyle={{ color: '#cf1322' }}
                   loading={revenueLoading}
                 />
-                <div className="mt-2">
-                  <span className="text-gray-500 ml-2">(Tự động cập nhật theo tháng)</span>
-                </div>
               </div>
             </Card>
           </Col>
