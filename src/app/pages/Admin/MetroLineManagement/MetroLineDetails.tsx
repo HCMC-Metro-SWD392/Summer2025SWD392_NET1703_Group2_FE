@@ -49,6 +49,7 @@ const MetroLineDetails: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [metroLine, setMetroLine] = useState<GetMetroLineDTO | null>(null);
   const [stations, setStations] = useState<GetStationDTO[]>([]);
+  const [metroLineStations, setMetroLineStations] = useState<GetMetroLineStationDTO[]>([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingStation, setEditingStation] = useState<GetMetroLineStationDTO | null>(null);
   const [editDistance, setEditDistance] = useState<number>(0);
@@ -58,6 +59,7 @@ const MetroLineDetails: React.FC = () => {
     if (id) {
       fetchMetroLineDetails();
       fetchStations();
+      fetchMetroLineStations();
     }
   }, [id]);
 
@@ -90,40 +92,54 @@ const MetroLineDetails: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<GetMetroLineStationDTO> = [
+  const fetchMetroLineStations = async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const response = await MetroLineStationApi.getStationByMetroLineId(id, true);
+      if (response.isSuccess && response.result) {
+        setMetroLineStations(response.result);
+      } else {
+        message.error(response.message || 'Không thể tải danh sách trạm');
+      }
+    } catch (error) {
+      message.error('Có lỗi xảy ra khi tải danh sách trạm');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns: ColumnsType<any> = [
     {
       title: 'Thứ Tự',
       dataIndex: 'stationOrder',
       key: 'stationOrder',
       width: 80,
       align: 'center',
-      sorter: (a, b) => a.stationOrder - b.stationOrder,
+      sorter: (a, b) => (a.stationOrder ?? 0) - (b.stationOrder ?? 0),
       defaultSortOrder: 'ascend',
+      render: (stationOrder: number, _record: any, index: number) =>
+        index === 0 ? 0 : (typeof stationOrder === 'number' ? stationOrder : index + 1),
     },
     {
       title: 'Tên Trạm',
       dataIndex: ['station', 'name'],
       key: 'stationName',
-      render: (_, record) => (
-        <Space>
-          {record.station.name}
-          {record.station.id === metroLine?.startStation?.id }
-          {record.station.id === metroLine?.endStation?.id }
-        </Space>
-      ),
+      render: (_: any, record: any) => record.station?.name || 'N/A',
     },
     {
       title: 'Địa Chỉ',
       dataIndex: ['station', 'address'],
       key: 'stationAddress',
-      render: (address: string | undefined) => address || 'N/A',
+      render: (_: any, record: any) => record.station?.address || 'N/A',
     },
     {
       title: 'Khoảng Cách (km)',
       dataIndex: 'distanceFromStart',
       key: 'distanceFromStart',
       align: 'right',
-      render: (distance: number) => distance.toFixed(1),
+      render: (distance: number | undefined) =>
+        typeof distance === 'number' ? distance.toFixed(1) : 'N/A',
     },
     {
       title: 'Hành Động',
@@ -142,7 +158,7 @@ const MetroLineDetails: React.FC = () => {
           >
             Sửa
           </Button>
-          {/* <Button
+          <Button
             danger
             onClick={() => {
               confirm({
@@ -157,7 +173,7 @@ const MetroLineDetails: React.FC = () => {
                     const res = await MetroLineApi.removeMetroLineStation(record.id);
                     if (res.isSuccess) {
                       message.success('Xóa trạm thành công');
-                      fetchMetroLineDetails();
+                      fetchMetroLineStations();
                     } else {
                       message.error(res.message || 'Không thể xóa trạm');
                     }
@@ -169,7 +185,7 @@ const MetroLineDetails: React.FC = () => {
             }}
           >
             Xóa
-          </Button> */}
+          </Button>
         </Space>
       ),
     },
@@ -253,14 +269,14 @@ const MetroLineDetails: React.FC = () => {
         extra={
           <Space>
             <Tag color="blue">
-              Tổng số: {metroLine.metroLineStations.length} trạm
+              Tổng số: {metroLineStations.length} trạm
             </Tag>
           </Space>
         }
       >
         <Table
           columns={columns}
-          dataSource={metroLine.metroLineStations}
+          dataSource={metroLineStations}
           rowKey="id"
           pagination={false}
           loading={loading}
@@ -286,7 +302,7 @@ const MetroLineDetails: React.FC = () => {
               message.success('Cập nhật trạm thành công');
               setEditModalVisible(false);
               setEditingStation(null);
-              fetchMetroLineDetails();
+              fetchMetroLineStations();
             } else {
               message.error(res.message || 'Không thể cập nhật trạm');
             }
