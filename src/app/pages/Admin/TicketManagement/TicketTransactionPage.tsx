@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, DatePicker, Table, Tag, Button, Form } from 'antd';
+import { Card, DatePicker, Table, Tag, Button, Form, Alert } from 'antd';
 import axiosInstance from '../../../../settings/axiosInstance';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -17,6 +17,8 @@ const TicketTransactionPage: React.FC = () => {
     pageSize: 10,
     total: 0,
   });
+  const [noData, setNoData] = useState(false);
+  const [showNoDataAlert, setShowNoDataAlert] = useState(false);
 
   const fetchData = async (params: {
     page?: number;
@@ -39,6 +41,12 @@ const TicketTransactionPage: React.FC = () => {
       const items = res.data?.result ?? [];
       const total = 20;
 
+      setNoData(items.length === 0);
+      if (items.length === 0) {
+        setShowNoDataAlert(true);
+        setTimeout(() => setShowNoDataAlert(false), 3000);
+      }
+
       const transformed = items.map((item: any, index: number) => ({
         key: item.orderCode ?? index,
         ticketId: item.orderCode ?? `TCKT-${index}`,
@@ -56,6 +64,9 @@ const TicketTransactionPage: React.FC = () => {
         pageSize: params.pageSize ?? 10,
       }));
     } catch (err) {
+      setNoData(true);
+      setShowNoDataAlert(true);
+      setTimeout(() => setShowNoDataAlert(false), 2000);
       console.error('Lỗi khi lấy dữ liệu giao dịch vé:', err);
     } finally {
       setLoading(false);
@@ -64,8 +75,14 @@ const TicketTransactionPage: React.FC = () => {
 
   const handleSearch = () => {
     const range = form.getFieldValue('range');
-    const dateFrom = range?.[0]?.format('YYYY-MM-DDT00:00:00');
-    const dateTo = range?.[1]?.format('YYYY-MM-DDT23:59:59');
+    let dateFrom, dateTo;
+    if (range && range[0] && range[1]) {
+      dateFrom = range[0].format('YYYY-MM-DDT00:00:00');
+      dateTo = range[1].format('YYYY-MM-DDT23:59:59');
+    } else {
+      dateFrom = '1900-01-01T00:00:00';
+      dateTo = '2100-12-31T23:59:59';
+    }
     fetchData({
       dateFrom,
       dateTo,
@@ -76,9 +93,14 @@ const TicketTransactionPage: React.FC = () => {
 
   const handleTableChange = (paginationInfo: any) => {
     const range = form.getFieldValue('range');
-    const dateFrom = range?.[0]?.format('YYYY-MM-DDT00:00:00');
-    const dateTo = range?.[1]?.format('YYYY-MM-DDT23:59:59');
-
+    let dateFrom, dateTo;
+    if (range && range[0] && range[1]) {
+      dateFrom = range[0].format('YYYY-MM-DDT00:00:00');
+      dateTo = range[1].format('YYYY-MM-DDT23:59:59');
+    } else {
+      dateFrom = '1900-01-01T00:00:00';
+      dateTo = '2100-12-31T23:59:59';
+    }
     fetchData({
       dateFrom,
       dateTo,
@@ -88,13 +110,9 @@ const TicketTransactionPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const defaultFrom = dayjs().startOf('week');
-    const defaultTo = dayjs().endOf('week');
-    form.setFieldsValue({ range: [defaultFrom, defaultTo] });
-
     fetchData({
-      dateFrom: defaultFrom.format('YYYY-MM-DDT00:00:00'),
-      dateTo: defaultTo.format('YYYY-MM-DDT23:59:59'),
+      dateFrom: '1900-01-01T00:00:00',
+      dateTo: '2100-12-31T23:59:59',
       page: 1,
       pageSize: 10,
     });
@@ -141,7 +159,7 @@ const TicketTransactionPage: React.FC = () => {
       <Card className="mb-4">
         <Form form={form} layout="inline" onFinish={handleSearch}>
           <Form.Item name="range" label="Khoảng ngày">
-            <RangePicker format="DD/MM/YYYY" allowClear={false} />
+            <RangePicker format="DD/MM/YYYY" allowClear />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">
@@ -152,6 +170,11 @@ const TicketTransactionPage: React.FC = () => {
       </Card>
 
       <Card>
+        {showNoDataAlert && (
+          <div style={{ marginBottom: 16 }}>
+            <Alert message="Không tìm thấy dữ liệu giao dịch vé trong khoảng thời gian này." type="error" showIcon />
+          </div>
+        )}
         <Table
           dataSource={data}
           columns={columns}
