@@ -21,7 +21,7 @@ const endpoints = {
   createTicketSubscription: "/api/SubscriptionTicket/create-subscription-ticket",
   getQRCodeFromSubscription: (ticketId: string) => `/api/Ticket/get-qr-code/${ticketId}`,
   getAllStations : "/api/Station/get-all-stations",
-  resetPassword: "/api/Auth/reset-password",
+  resetPassword: "/api/Auth/send-reset-password-email",
 };
 
 export default endpoints;
