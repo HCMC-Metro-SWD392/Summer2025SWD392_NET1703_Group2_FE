@@ -227,7 +227,6 @@ import {
                 <h2 className="text-lg font-semibold text-white truncate">
                   {getCurrentMenuLabel()}
                 </h2>
-                <span className="hidden md:inline text-blue-300 text-sm">| Admin System</span>
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-white font-medium hidden sm:inline">{userInfo?.name || 'Admin'}</span>

@@ -51,7 +51,7 @@ const PromotionList: React.FC = () => {
           ...prev,
           pagination: {
             ...prev.pagination,
-            total: 20,
+            total: 10,
             current: params.pageNumber || 1,
             pageSize: params.pageSize || 10
           }

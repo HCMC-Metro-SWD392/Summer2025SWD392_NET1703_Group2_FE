@@ -35,12 +35,12 @@ const ManagerList: React.FC = () => {
 
   const columns: ColumnsType<GetAdminManagerDTO> = [
     {
-      title: 'Full Name',
+      title: 'Tên',
       dataIndex: 'fullName',
       key: 'fullName',
     },
     {
-      title: 'User Name',
+      title: 'Tên Tài Khoản',
       dataIndex: 'userName',
       key: 'userName',
     },
@@ -50,27 +50,27 @@ const ManagerList: React.FC = () => {
       key: 'email',
     },
     {
-      title: 'Address',
+      title: 'Địa Chỉ',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Sex',
+      title: 'Giới Tính',
       dataIndex: 'sex',
       key: 'sex',
     },
     {
-      title: 'Date of Birth',
+      title: 'Ngày Sinh',
       dataIndex: 'dateOfBirth',
       key: 'dateOfBirth',
     },
     {
-      title: 'Phone Number',
+      title: 'Số Điện Thoại',
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
     },
     {
-      title: 'Identity ID',
+      title: 'Mã Định Danh',
       dataIndex: 'identityId',
       key: 'identityId',
     },
@@ -78,7 +78,7 @@ const ManagerList: React.FC = () => {
 
   return (
     <div className="w-full h-full p-2 md:p-6">
-      <h2>Manager List</h2>
+      <h2>Danh Sách Quản Lý</h2>
       <Table
         columns={columns}
         dataSource={managers}
@@ -87,7 +87,7 @@ const ManagerList: React.FC = () => {
         scroll={{ x: 'max-content' }}
         className="w-full"
         size="middle"
-        locale={{ emptyText: 'No managers found.' }}
+        locale={{ emptyText: 'Không tìm thấy quản lý nào.' }}
       />
     </div>
   );

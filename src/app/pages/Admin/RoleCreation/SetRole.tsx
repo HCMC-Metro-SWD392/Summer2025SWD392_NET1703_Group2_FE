@@ -258,7 +258,7 @@ const SetRole: React.FC = () => {
                   </Form>
                 </TabPane>
 
-                <TabPane tab="⬇️ Hạ vai trò về User" key="3">
+                <TabPane tab="⬇️ Hạ vai trò về Người Dùng" key="3">
                   <Form
                     layout="vertical"
                     onFinish={async (values) => {
@@ -266,7 +266,7 @@ const SetRole: React.FC = () => {
                         setLoading(true);
                         const response = await RoleApi.demoteRoleToUser(values.email);
                         if (response.isSuccess) {
-                          message.success('Hạ vai trò về User thành công!');
+                          message.success('Hạ vai trò về Người Dùng thành công!');
                         } else {
                           message.error(response.message || 'Hạ vai trò thất bại!');
                         }
@@ -296,7 +296,7 @@ const SetRole: React.FC = () => {
                         loading={loading}
                         size="large"
                       >
-                        Hạ vai trò về User
+                        Hạ vai trò về Người Dùng
                       </Button>
                     </Form.Item>
                   </Form>

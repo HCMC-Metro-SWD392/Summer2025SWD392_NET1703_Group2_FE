@@ -117,11 +117,6 @@ const TicketTransactionPage: React.FC = () => {
       key: 'event',
     },
     {
-      title: 'Thời gian mua',
-      dataIndex: 'time',
-      key: 'time',
-    },
-    {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
