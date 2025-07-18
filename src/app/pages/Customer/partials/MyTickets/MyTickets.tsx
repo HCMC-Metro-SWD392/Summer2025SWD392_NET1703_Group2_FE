@@ -42,6 +42,7 @@ const MyTickets: React.FC = () => {
       });
       setTickets(response.data.result.getTickets || []);
       setTotal(response.data.result.totalCount || 0);
+      setCurrentPage(pageNumber);
     } catch (err) {
       console.error("Lỗi tải vé:", err);
       setTickets([]);
