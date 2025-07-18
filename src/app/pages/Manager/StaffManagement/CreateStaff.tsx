@@ -248,7 +248,7 @@ const CreateStaff: React.FC = () => {
                   </Form>
                 </TabPane>
 
-                <TabPane tab="⬇️ Hạ vai trò về User" key="3">
+                <TabPane tab="⬇️ Hạ vai trò về Người Dùng" key="3">
                   <Form
                     layout="vertical"
                     onFinish={async (values) => {
@@ -286,7 +286,7 @@ const CreateStaff: React.FC = () => {
                         loading={loading}
                         size="large"
                       >
-                        Hạ vai trò về User
+                        Hạ vai trò về Người Dùng
                       </Button>
                     </Form.Item>
                   </Form>

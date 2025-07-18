@@ -119,7 +119,7 @@ const CreateEmailTemplate: React.FC = () => {
     setError(null);
     try {
       await axiosInstance.post('/api/Email/create-eamil-template', formData);
-      message.success('Tạo email template thành công!');
+      message.success('Tạo Mẫu Email thành công!');
       setPreviewVisible(false);
       navigate('/admin/email-template');
     } catch (err: any) {
@@ -131,9 +131,9 @@ const CreateEmailTemplate: React.FC = () => {
 
   return (
     <div style={{ maxWidth: 700, margin: '0 auto', padding: 24 }}>
-      <Title level={2}>Tạo Email Template</Title>
+      <Title level={2}>Tạo Mẫu Email</Title>
       <Form layout="vertical">
-        <Form.Item label="Tên Template" name="templateName">
+        <Form.Item label="Tên Mẫu" name="templateName">
           <Input
             value={formData.templateName}
             onChange={e => handleChange('templateName', e.target.value)}
@@ -174,25 +174,25 @@ const CreateEmailTemplate: React.FC = () => {
             placeholder="Nhập danh mục"
           />
         </Form.Item>
-        <Form.Item label="Pre-header Text" name="preHeaderText">
+        <Form.Item label="Văn bản tiền tiêu đề" name="preHeaderText">
           <Input
             value={formData.preHeaderText}
             onChange={e => handleChange('preHeaderText', e.target.value)}
-            placeholder="Nhập pre-header text"
+            placeholder="Nhập Văn bản tiền tiêu đề"
           />
         </Form.Item>
-        <Form.Item label="Personalization Tags" name="personalizationTags">
+        <Form.Item label="Thẻ cá nhân hóa" name="personalizationTags">
           <Input
             value={formData.personalizationTags}
             onChange={e => handleChange('personalizationTags', e.target.value)}
-            placeholder="Nhập personalization tags"
+            placeholder="Nhập Thẻ cá nhân hóa"
           />
         </Form.Item>
-        <Form.Item label="Footer" name="footerContent">
+        <Form.Item label="Chân trang" name="footerContent">
           <Select
             value={formData.footerContent}
             onChange={value => handleChange('footerContent', value)}
-            placeholder="Chọn footer"
+            placeholder="Chọn Chân trang"
             allowClear
           >
             {footerOptions.map(opt => (
@@ -200,11 +200,11 @@ const CreateEmailTemplate: React.FC = () => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="Call To Action" name="callToAction">
+        <Form.Item label="Lời Kêu Gọi Hành Động" name="callToAction">
           <Input
             value={formData.callToAction}
             onChange={e => handleChange('callToAction', e.target.value)}
-            placeholder="Nhập call to action"
+            placeholder="Nhập Lời Kêu Gọi Hành Động"
           />
         </Form.Item>
         <Form.Item label="Ngôn ngữ" name="language">
@@ -239,7 +239,7 @@ const CreateEmailTemplate: React.FC = () => {
         </Form.Item>
       </Form>
       <Modal
-        title="Xem trước Email Template"
+        title="Xem trước Mẫu Email"
         open={previewVisible}
         onCancel={handleCancelPreview}
         onOk={handleConfirmCreate}
@@ -248,14 +248,14 @@ const CreateEmailTemplate: React.FC = () => {
         confirmLoading={loading}
       >
         <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          <p><b>Tên Template:</b> {formData.templateName}</p>
+          <p><b>Tên Mẫu:</b> {formData.templateName}</p>
           <p><b>Tiêu đề Email:</b> {formData.subjectLine}</p>
           <p><b>Người gửi:</b> {formData.senderName}</p>
           <p><b>Danh mục:</b> {formData.category}</p>
-          <p><b>Pre-header Text:</b> {formData.preHeaderText}</p>
-          <p><b>Personalization Tags:</b> {formData.personalizationTags}</p>
-          <p><b>Footer:</b> {formData.footerContent}</p>
-          <p><b>Call To Action:</b> {formData.callToAction}</p>
+          <p><b>Văn bản tiền tiêu đề:</b> {formData.preHeaderText}</p>
+          <p><b>Thẻ cá nhân hóa:</b> {formData.personalizationTags}</p>
+          <p><b>Chân trang:</b> {formData.footerContent}</p>
+          <p><b>Lời Kêu Gọi Hành Động:</b> {formData.callToAction}</p>
           <p><b>Ngôn ngữ:</b> {formData.language}</p>
           <p><b>Loại người nhận:</b> {formData.recipientType}</p>
           <div style={{ margin: '16px 0' }}>
