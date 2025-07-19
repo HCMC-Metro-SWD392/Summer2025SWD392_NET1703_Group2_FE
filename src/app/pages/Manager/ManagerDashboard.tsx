@@ -60,7 +60,7 @@ const ManagerDashboard: React.FC = () => {
         key: item.orderCode ?? index,
         ticketId: item.orderCode ?? `TCKT-${index}`,
         customer: item.userFullName ?? 'Không rõ',
-        event: item.detailTicket[0] ?? 'Không rõ',
+        event: item.detailTicket[0] ?? 'Mua vé vượt',
         time: item.timeOfPurchase,
         status: item.paymentStatus ?? 'completed',
       }));
