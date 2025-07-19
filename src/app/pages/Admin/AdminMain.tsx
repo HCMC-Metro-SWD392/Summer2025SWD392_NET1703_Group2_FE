@@ -46,9 +46,9 @@ const AdminMain: React.FC = () => {
   const [ticketCount, setTicketCount] = useState<number>(0);
   const [ticketCountLoading, setTicketCountLoading] = useState<boolean>(true);
 
-  const fetchRecentTicketSales = async (page = 1, pageSize = 5) => {
+  const fetchRecentTicketSales = async (page = 1, pageSize = 100) => {
     const dateTo = dayjs();
-    const dateFrom = dateTo.subtract(7, 'day');
+    const dateFrom = dateTo.subtract(31, 'day');
 
     setTicketCountLoading(true);
     try {
