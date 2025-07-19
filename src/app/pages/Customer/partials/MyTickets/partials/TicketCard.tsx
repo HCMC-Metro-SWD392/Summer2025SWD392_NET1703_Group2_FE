@@ -250,6 +250,11 @@ const TicketCard = ({
 
               <div className="text-sm grid gap-2">
 
+                <div className="flex justify-between">
+                  <Text strong className="text-gray-600">Số serial:</Text>
+                  <span>{ticket.ticketSerial}</span>
+                </div>
+
                   {ticket.subscriptionTicketId && ticket.subscriptionTicketId ? (
                     <>
                     <div className="flex justify-between">

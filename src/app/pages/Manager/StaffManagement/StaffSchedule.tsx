@@ -106,6 +106,33 @@ const StaffSchedule: React.FC = () => {
     }
   };
 
+  const fetchUnscheduledStaff = async () => {
+  const values = form.getFieldsValue();
+  const workingDate = values.WorkingDate?.format?.('YYYY-MM-DD');
+  const shiftId = values.ShiftId;
+
+  if (!workingDate || !shiftId) {
+    setStaffs([]); // nếu chưa đủ điều kiện thì clear danh sách
+    return;
+  }
+
+  setDropdownLoading(prev => ({ ...prev, staff: true }));
+  try {
+    const response = await StaffScheduleApi.getUnscheduledStaff(workingDate, shiftId);
+    if (response.isSuccess && Array.isArray(response.result)) {
+      setStaffs(response.result);
+    } else {
+      setStaffs([]);
+      message.error(response.message || 'Không tìm được nhân viên rảnh');
+    }
+  } catch (error) {
+    setStaffs([]);
+    message.error('Lỗi khi tải danh sách nhân viên rảnh');
+  } finally {
+    setDropdownLoading(prev => ({ ...prev, staff: false }));
+  }
+};
+
   const handleCreate = async (values: any) => {
     const data: CreateStaffScheduleDTO = {
       staffId: values.StaffId,
@@ -288,81 +315,92 @@ const StaffSchedule: React.FC = () => {
         />
       </div>
       <Modal
-        title="Tạo Lịch Làm Việc"
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        okText="Create"
+  title="Tạo Lịch Làm Việc"
+  open={modalVisible}
+  onCancel={() => {
+    setModalVisible(false);
+    form.resetFields();
+    setStaffs([]); // clear danh sách nhân viên khi đóng
+  }}
+  onOk={() => form.submit()}
+  okText="Create"
+>
+  <Form
+    form={form}
+    layout="vertical"
+    onFinish={handleCreate}
+  >
+    <Form.Item
+      label="Ngày Làm Việc"
+      name="WorkingDate"
+      rules={[{ required: true, message: 'Hãy Chọn Ngày Làm Việc' }]}
+    >
+      <DatePicker
+        style={{ width: '100%' }}
+        onChange={() => fetchUnscheduledStaff()}
+      />
+    </Form.Item>
+
+    <Form.Item
+      label="Ca"
+      name="ShiftId"
+      rules={[{ required: true, message: 'Chọn Ca Làm Việc' }]}
+    >
+      <Select placeholder="Chọn Ca Làm Việc" onChange={() => fetchUnscheduledStaff()}>
+        {shifts.map(shift => (
+          <Select.Option key={shift.id} value={shift.id}>
+            {shift.shiftName} ({shift.startTime} - {shift.endTime})
+          </Select.Option>
+        ))}
+      </Select>
+    </Form.Item>
+
+    <Form.Item
+      label="Nhân Viên"
+      name="StaffId"
+      rules={[{ required: true, message: 'Hãy Chọn Nhân Viên' }]}
+    >
+      <Select
+        placeholder="Chọn Nhân Viên"
+        loading={dropdownLoading.staff}
+        disabled={staffs.length === 0}
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          !!option?.children && option.children.toString().toLowerCase().includes(input.toLowerCase())
+        }
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleCreate}
-        >
-          <Form.Item
-            label="Nhân Viên"
-            name="StaffId"
-            rules={[{ required: true, message: 'Hãy Chọn Nhân Viên' }]}
-          >
-            <Select
-              placeholder="Chọn Nhân Viên"
-              loading={dropdownLoading.staff}
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                !!option?.children && option.children.toString().toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {staffs.map(staff => (
-                <Select.Option key={staff.id} value={staff.id}>
-                  {staff.fullName} ({staff.email})
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Ca"
-            name="ShiftId"
-            rules={[{ required: true, message: 'Chọn Ca Làm Việc' }]}
-          >
-            <Select placeholder="Chọn Ca Làm Việc">
-              {shifts.map(shift => (
-                <Select.Option key={shift.id} value={shift.id}>
-                  {shift.shiftName} ({shift.startTime} - {shift.endTime})
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            label="Ngày Làm Việc"
-            name="WorkingDate"
-            rules={[{ required: true, message: 'Hãy Chọn Ngày Làm Việc' }]}
-          >
-            <DatePicker style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item
-            label="Chọn Ga Làm Việc"
-            name="WorkingStationId"
-            rules={[{ required: true, message: 'Hãy Chọn Ca Làm Việc' }]}
-          >
-            <Select
-              placeholder="Chọn Ca Làm Việc"
-              loading={dropdownLoading.station}
-              showSearch
-              optionFilterProp="children"
-              filterOption={(input, option) =>
-                !!option?.children && option.children.toString().toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {stations.map(station => (
-                <Select.Option key={station.id} value={station.id}>
-                  {station.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Form>
-      </Modal>
+        {staffs.map(staff => (
+          <Select.Option key={staff.id} value={staff.id}>
+            {staff.fullName} ({staff.email})
+          </Select.Option>
+        ))}
+      </Select>
+    </Form.Item>
+
+    <Form.Item
+      label="Chọn Ga Làm Việc"
+      name="WorkingStationId"
+      rules={[{ required: true, message: 'Hãy Chọn Ca Làm Việc' }]}
+    >
+      <Select
+        placeholder="Chọn Ca Làm Việc"
+        loading={dropdownLoading.station}
+        showSearch
+        optionFilterProp="children"
+        filterOption={(input, option) =>
+          !!option?.children && option.children.toString().toLowerCase().includes(input.toLowerCase())
+        }
+      >
+        {stations.map(station => (
+          <Select.Option key={station.id} value={station.id}>
+            {station.name}
+          </Select.Option>
+        ))}
+      </Select>
+    </Form.Item>
+  </Form>
+</Modal>
       <Modal
         title="Tạo Ca Làm Việc"
         open={shiftModalVisible}
