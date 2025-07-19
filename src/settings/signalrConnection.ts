@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { removeTokens, removeUserInfo } from "../api/auth/tokenUtils";
+import { message } from "antd";
 export const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const startSignalR = async () => {
@@ -14,6 +15,7 @@ export const startSignalR = async () => {
         removeTokens();
         removeUserInfo();
         window.location.href = "/login";
+        message.error("Tài khoản của bạn đã được đăng nhập ở nơi khác.");
       });
     } catch (err) {
       console.error("❌ SignalR start error:", err);
