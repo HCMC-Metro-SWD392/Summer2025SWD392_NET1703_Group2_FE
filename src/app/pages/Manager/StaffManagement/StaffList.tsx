@@ -48,13 +48,13 @@ const StaffList: React.FC = () => {
       dataIndex: 'phoneNumber',
       key: 'phoneNumber',
     },
-    {
-      title: 'Địa Chỉ',
-      dataIndex: 'address',
-      key: 'address',
+     {
+      title: 'Mã Nhân Viên',
+      dataIndex: 'staffCode',
+      key: 'staffCode',
     },
     {
-      title: 'Mã Danh Tính',
+      title: 'Mã Định Danh',
       dataIndex: 'identityId',
       key: 'identityId',
     },
@@ -68,6 +68,7 @@ const StaffList: React.FC = () => {
       dataIndex: 'dateOfBirth',
       key: 'dateOfBirth',
     },
+   
   ];
 
   return (
