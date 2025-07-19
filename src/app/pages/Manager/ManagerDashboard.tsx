@@ -136,7 +136,7 @@ const ManagerDashboard: React.FC = () => {
 
   const ticketColumns = [
     {
-      title: 'Mã vé',
+      title: 'Mã giao dịch',
       dataIndex: 'ticketId',
       key: 'ticketId',
     },
