@@ -34,7 +34,7 @@ export const TrainScheduleApi = {
         try {
             const response: AxiosResponse<ResponseDTO> = await axiosInstance.post(
                 TRAIN_SCHEDULE_ENDPOINTS.CREATE,
-                { createTrainScheduleDto: data }
+                data
             );
             return response.data;
         } catch (error: any) {
