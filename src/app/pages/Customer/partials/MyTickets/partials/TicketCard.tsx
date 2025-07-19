@@ -255,7 +255,7 @@ const TicketCard = ({
                   <span>{ticket.ticketSerial}</span>
                 </div>
 
-                  {ticket.subscriptionTicketId && ticket.subscriptionTicketId ? (
+                  {ticket.subscriptionTicketId && ticket.ticketRouteId? (
                     <>
                     <div className="flex justify-between">
                       <Text strong className="text-gray-600">Tuyến chính :</Text>
@@ -264,7 +264,7 @@ const TicketCard = ({
 
                     <div className="flex justify-between">
                       <Text strong className="text-gray-600">Tuyến tích hợp :</Text>
-                      <span>{ticket.fromStationSub} → {ticket.toStationSub}</span>
+                      <span>{ticket.fromStationRoute} → {ticket.toStationRoute}</span>
                     </div>
                     </>
                     

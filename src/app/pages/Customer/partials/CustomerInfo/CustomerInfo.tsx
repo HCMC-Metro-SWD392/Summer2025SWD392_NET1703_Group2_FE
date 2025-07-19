@@ -20,32 +20,27 @@ const CustomerInfo: React.FC = () => {
 
     // Get current user role from token
     const currentUser = getUserInfo();
-    const userRole = currentUser?.role?.toUpperCase() || '';
+    const userRole = currentUser["CustomerType"] || '';
 
     const getRoleDisplayName = (role: string) => {
         switch (role?.toUpperCase()) {
-            case 'CUSTOMER': return 'Khách hàng';
-            case 'STAFF': return 'Nhân viên';
-            case 'MANAGER': return 'Quản lý';
-            case 'ADMIN': return 'Quản trị viên';
-            default: return 'Người dùng';
+            case 'Normal': return 'Khách hàng thường';
+            case 'Student': return 'Học sinh/Sinh viên';
         }
     };
 
     const getRoleColor = (role: string) => {
         switch (role?.toUpperCase()) {
-            case 'CUSTOMER': return '#1890ff';
-            case 'STAFF': return '#52c41a';
-            case 'MANAGER': return '#faad14';
-            case 'ADMIN': return '#f5222d';
+            case 'Normal': return '#1890ff';
+            case 'Student': return '#52c41a';
             default: return '#666';
         }
     };
 
-    const getCustomerTypeDisplayName = (customerType: number) => {
-        switch (customerType) {
-            case 0: return 'Khách hàng thường';
-            case 1: return 'Học sinh/Sinh viên';
+    const getCustomerTypeDisplayName = (role: string) => {
+        switch (role) {
+            case 'Normal': return 'Khách hàng thường';
+            case 'Student': return 'Học sinh/Sinh viên';
             default: return 'Khách hàng thường';
         }
     };
@@ -173,7 +168,7 @@ const CustomerInfo: React.FC = () => {
                     </Col>
                     <Col span={24}>
                         <div className={styles['info-item']}>
-                            <StarOutlined /> <Text strong>Loại khách hàng:</Text> {customerData.customerType === 0 ? 'Khách hàng thường' : customerData.customerType === 1 ? 'Học sinh/Sinh viên' : 'Khách hàng thường'}
+                            <StarOutlined /> <Text strong>Loại khách hàng:</Text> {getCustomerTypeDisplayName(userRole)}
                         </div>
                     </Col>
                 </Row>
