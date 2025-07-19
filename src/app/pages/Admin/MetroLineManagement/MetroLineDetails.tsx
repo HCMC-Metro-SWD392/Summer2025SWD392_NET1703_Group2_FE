@@ -146,7 +146,7 @@ const MetroLineDetails: React.FC = () => {
       sorter: (a, b) => (a.stationOrder ?? 0) - (b.stationOrder ?? 0),
       defaultSortOrder: 'ascend',
       render: (stationOrder: number, _record: any, index: number) =>
-        index === 0 ? 0 : (typeof stationOrder === 'number' ? stationOrder : index + 1),
+        typeof stationOrder === 'number' ? stationOrder : index + 1,
     },
     {
       title: 'Tên Trạm',
