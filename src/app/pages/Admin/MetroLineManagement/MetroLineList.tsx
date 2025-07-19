@@ -20,6 +20,12 @@ import type { GetMetroLineDTO } from '../../../../api/metroLine/MetroLineInterfa
 const { Title } = Typography;
 const { Option } = Select;
 
+const statusMap = {
+  0: { text: "Hoạt động bình thường", color: "green" },
+  1: { text: "Bị lỗi", color: "red" },
+  2: { text: "Bị chậm", color: "orange" },
+};
+
 const MetroLineList: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -83,6 +89,14 @@ const MetroLineList: React.FC = () => {
       key: 'stationCount',
       render: (_, record) => record.metroLineStations.length,
       sorter: (a, b) => a.metroLineStations.length - b.metroLineStations.length,
+    },
+    {
+      title: 'Trạng Thái',
+      key: 'status',
+      render: (_, record) => {
+        const statusInfo = statusMap[record.status] || { text: "Không xác định", color: "default" };
+        return <Tag color={statusInfo.color}>{statusInfo.text}</Tag>;
+      },
     },
     {
       title: 'Thao Tác',
