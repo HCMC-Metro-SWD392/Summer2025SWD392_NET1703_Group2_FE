@@ -27,10 +27,12 @@ import {
   SwapOutlined,
   NumberOutlined,
   ExclamationCircleOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { MetroLineApi } from '../../../../api/metroLine/MetroLineApi';
 import { MetroLineStationApi } from '../../../../api/metroLine/MetroLineStationApi';
 import type { GetMetroLineDTO, GetMetroLineStationDTO } from '../../../../api/metroLine/MetroLineInterface';
+import { MetroLineStatus } from '../../../../api/metroLine/MetroLineInterface';
 import type { GetStationDTO } from '../../../../api/station/StationInterface';
 import { StationApi } from '../../../../api/station/StationApi';
 
@@ -54,6 +56,8 @@ const MetroLineDetails: React.FC = () => {
   const [editingStation, setEditingStation] = useState<GetMetroLineStationDTO | null>(null);
   const [editDistance, setEditDistance] = useState<number>(0);
   const [editOrder, setEditOrder] = useState<number>(1);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<MetroLineStatus>(MetroLineStatus.Normal);
 
   useEffect(() => {
     if (id) {
@@ -104,6 +108,29 @@ const MetroLineDetails: React.FC = () => {
       }
     } catch (error) {
       message.error('Có lỗi xảy ra khi tải danh sách trạm');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async () => {
+    if (!id) return;
+    
+    console.log('Frontend - Changing status for metro line:', id, 'to status:', selectedStatus);
+    setLoading(true);
+    try {
+      const response = await MetroLineApi.changeMetroLineStatus(id, selectedStatus);
+      console.log('Frontend - API response:', response);
+      if (response.isSuccess) {
+        message.success('Thay đổi trạng thái thành công');
+        setStatusModalVisible(false);
+        fetchMetroLineDetails(); // Refresh the metro line data
+      } else {
+        message.error(response.message || 'Không thể thay đổi trạng thái');
+      }
+    } catch (error) {
+      console.error('Error changing metro line status:', error);
+      message.error('Có lỗi xảy ra khi thay đổi trạng thái');
     } finally {
       setLoading(false);
     }
@@ -213,6 +240,16 @@ const MetroLineDetails: React.FC = () => {
             Chi Tiết Tuyến Metro {metroLine.metroLineNumber}
           </Title>
         </Space>
+        <Button
+          type="primary"
+          icon={<SettingOutlined />}
+          onClick={() => {
+            setSelectedStatus(metroLine.status);
+            setStatusModalVisible(true);
+          }}
+        >
+          Thay Đổi Trạng Thái
+        </Button>
       </Space>
 
       <Row gutter={24}>
@@ -331,6 +368,36 @@ const MetroLineDetails: React.FC = () => {
               onChange={value => setEditOrder(value ?? 1)}
               style={{ width: '100%' }}
             />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Thay Đổi Trạng Thái Tuyến Metro"
+        visible={statusModalVisible}
+        onCancel={() => setStatusModalVisible(false)}
+        onOk={handleStatusChange}
+        okText="Cập nhật"
+        cancelText="Hủy"
+        confirmLoading={loading}
+      >
+        <Form layout="vertical">
+          <Form.Item label="Trạng Thái">
+            <Select
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              style={{ width: '100%' }}
+            >
+              <Select.Option value={MetroLineStatus.Normal}>
+                Hoạt động bình thường
+              </Select.Option>
+              <Select.Option value={MetroLineStatus.Faulty}>
+                Bị lỗi
+              </Select.Option>
+              <Select.Option value={MetroLineStatus.Delayed}>
+                Bị chậm
+              </Select.Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>
