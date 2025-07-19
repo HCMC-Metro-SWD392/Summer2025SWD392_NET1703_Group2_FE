@@ -98,7 +98,12 @@ const SpecialCaseRequestForm: React.FC = () => {
       setFileListRaw([]);
     } catch (error) {
       console.error("Lỗi gửi form:", error);
-      message.error("Gửi đơn thất bại!");
+
+      if (axios.isAxiosError(error) && error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error("Gửi đơn thất bại!");
+      }
     } finally {
       setSubmitting(false);
     }

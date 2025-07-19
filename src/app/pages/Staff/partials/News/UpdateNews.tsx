@@ -346,7 +346,7 @@ const UpdateNews: React.FC<UpdateNewsProps> = ({
             </div>
 
             {/* ImageUrl */}
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 URL Hình ảnh
               </label>
@@ -358,7 +358,7 @@ const UpdateNews: React.FC<UpdateNewsProps> = ({
                 placeholder="Nhập URL hình ảnh"
                 disabled={loadingDetail}
               />
-            </div>
+            </div> */}
 
             {/* Category */}
             <div>

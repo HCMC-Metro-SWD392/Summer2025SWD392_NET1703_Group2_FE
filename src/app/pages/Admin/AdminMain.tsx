@@ -13,6 +13,7 @@ import axiosInstance from '../../../settings/axiosInstance';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/vi';
+import { RevenueApi } from '../../../api/revenue/RevenueApi';
 
 dayjs.extend(relativeTime);
 dayjs.locale('vi');
@@ -36,11 +37,22 @@ const AdminMain: React.FC = () => {
     total: 0,
   });
 
+  const [revenue, setRevenue] = useState<number>(0);
+  const [revenueLoading, setRevenueLoading] = useState<boolean>(true);
+
+  const [customerCount, setCustomerCount] = useState<number>(0);
+  const [customerLoading, setCustomerLoading] = useState<boolean>(true);
+
+  const [ticketCount, setTicketCount] = useState<number>(0);
+  const [ticketCountLoading, setTicketCountLoading] = useState<boolean>(true);
+
   const fetchRecentTicketSales = async (page = 1, pageSize = 5) => {
     const dateTo = dayjs();
     const dateFrom = dateTo.subtract(7, 'day');
 
+    setTicketCountLoading(true);
     try {
+      // Main ticket statistics
       const response = await axiosInstance.get('/api/DashBoard/ticket-statistics', {
         params: {
           dateFrom: dateFrom.format('YYYY-MM-DDT00:00:00'),
@@ -50,10 +62,9 @@ const AdminMain: React.FC = () => {
           pageSize: pageSize,
         },
       });
-
       const data = response.data?.result ?? [];
-      const total = response.data?.result.length ?? 0;
-
+      const total = data.length;
+      setTicketCount(total);
       const transformed = data.map((item: any, index: number) => ({
         key: item.orderCode ?? index,
         ticketId: item.orderCode ?? `TCKT-${index}`,
@@ -62,7 +73,6 @@ const AdminMain: React.FC = () => {
         time: item.timeOfPurchase,
         status: item.paymentStatus ?? 'completed',
       }));
-
       setRecentTicketSales(transformed);
       setTicketPagination({
         current: page,
@@ -70,8 +80,9 @@ const AdminMain: React.FC = () => {
         total,
       });
     } catch (err) {
-      console.error('Lỗi khi tải dữ liệu ticket-statistics:', err);
+      setTicketCount(0);
     }
+    setTicketCountLoading(false);
   };
 
   const fetchRecentLogs = async (page = 1, pageSize = 5) => {
@@ -112,6 +123,33 @@ const AdminMain: React.FC = () => {
   useEffect(() => {
     fetchRecentTicketSales(ticketPagination.current, ticketPagination.pageSize);
     fetchRecentLogs(logPagination.current, logPagination.pageSize);
+    // Fetch current month revenue
+    const fetchRevenue = async () => {
+      setRevenueLoading(true);
+      try {
+        const month = dayjs().month() + 1;
+        const res = await RevenueApi.viewRevenueMonth(month);
+        setRevenue(res.result ?? 0);
+      } catch {
+        setRevenue(0);
+      } finally {
+        setRevenueLoading(false);
+      }
+    };
+    fetchRevenue();
+    // Fetch customer count
+    const fetchCustomerCount = async () => {
+      setCustomerLoading(true);
+      try {
+        const res = await axiosInstance.get('/api/DashBoard/customer-statistics-number');
+        setCustomerCount(res.data?.result ?? 0);
+      } catch {
+        setCustomerCount(0);
+      } finally {
+        setCustomerLoading(false);
+      }
+    };
+    fetchCustomerCount();
   }, []);
 
   const handleTicketTableChange = (pagination: any) => {
@@ -138,11 +176,7 @@ const AdminMain: React.FC = () => {
       dataIndex: 'event',
       key: 'event',
     },
-    {
-      title: 'Thời gian mua',
-      dataIndex: 'time',
-      key: 'time',
-    },
+
     {
       title: 'Trạng thái',
       dataIndex: 'status',
@@ -196,74 +230,47 @@ const AdminMain: React.FC = () => {
 
   return (
     <div className="w-full h-full p-2 md:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl font-bold">Bảng điều khiển</h1>
-      </div>
+
 
       {/* Statistics Cards */}
       <div className="mb-6">
-        <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]} justify="center" align="middle" style={{ width: '100%' }}>
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
-              <Statistic
-                title="Tổng số khách hàng"
-                value={1128}
-                prefix={<UserOutlined />}
-                valueStyle={{ color: '#3f8600' }}
-              />
-              <div className="mt-2">
-                <span className="text-green-500">
-                  <RiseOutlined /> 12%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Statistic
+                  title="Tổng số khách hàng"
+                  value={customerLoading ? undefined : customerCount}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: '#3f8600' }}
+                  loading={customerLoading}
+                />
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
-              <Statistic
-                title="Tổng số vé đã bán"
-                value={93}
-                prefix={<ShoppingCartOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-              <div className="mt-2">
-                <span className="text-green-500">
-                  <RiseOutlined /> 8%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Statistic
+                  title="Tổng số vé đã bán"
+                  value={ticketCountLoading ? undefined : ticketCount}
+                  prefix={<ShoppingCartOutlined />}
+                  valueStyle={{ color: '#1890ff' }}
+                  loading={ticketCountLoading}
+                />
               </div>
             </Card>
           </Col>
           <Col xs={24} sm={12} lg={6}>
             <Card className="h-full">
-              <Statistic
-                title="Doanh thu"
-                value={11280}
-                prefix={<DollarOutlined />}
-                valueStyle={{ color: '#cf1322' }}
-              />
-              <div className="mt-2">
-                <span className="text-red-500">
-                  <FallOutlined /> 3%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="h-full">
-              <Statistic
-                title="Tỷ lệ chuyển đổi"
-                value={68}
-                suffix="%"
-                valueStyle={{ color: '#722ed1' }}
-              />
-              <div className="mt-2">
-                <span className="text-green-500">
-                  <RiseOutlined /> 5%
-                </span>
-                <span className="text-gray-500 ml-2">so với tháng trước</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Statistic
+                  title="Doanh thu tháng này"
+                  value={revenueLoading ? undefined : revenue}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#cf1322' }}
+                  loading={revenueLoading}
+                />
               </div>
             </Card>
           </Col>

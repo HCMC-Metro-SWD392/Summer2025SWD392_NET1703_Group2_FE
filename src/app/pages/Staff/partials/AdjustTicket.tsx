@@ -125,8 +125,8 @@ const AdjustTicket: React.FC = () => {
           serial: data.ticketSerial,
           status: data.ticketRtStatus,
           serialNumber: data.serialNumber,
-          fromStation: data.fromStation,
-          toStation: data.toStation,
+          fromStation: data.fromStationRoute,
+          toStation: data.toStationRoute,
           price: data.price,
           ticketSerial: data.ticketSerial,
           startDate: data.startDate,
@@ -241,9 +241,9 @@ const AdjustTicket: React.FC = () => {
                   >
                     Tìm kiếm
                   </Button>
-                  <Button icon={<QrcodeOutlined />} onClick={handleQRScan}>
+                  {/* <Button icon={<QrcodeOutlined />} onClick={handleQRScan}>
                     Quét mã QR
-                  </Button>
+                  </Button> */}
                 </div>
               ) : isShiftOver ? (
                 <div className="text-center text-red-500 py-4">

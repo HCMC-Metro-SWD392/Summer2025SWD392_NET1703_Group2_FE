@@ -7,6 +7,7 @@ const STAFF_SCHEDULE_ENDPOINTS = {
   GET_ALL: '/api/StaffSchedule/schedules',
   CREATE: '/api/StaffSchedule/create',
   GET_BY_STATION_AND_DATE: '/api/StaffSchedule/schedules-by-station',
+  GET_ALL_STAFF_UNSCHEDULED: '/api/StaffSchedule/get-unscheduled-staff',
 } as const;
 
 export const StaffScheduleApi = {
@@ -17,6 +18,21 @@ export const StaffScheduleApi = {
         {
           params: { startDate, endDate }
         }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return error.response.data;
+      }
+      throw error;
+    }
+  },
+
+  getUnscheduledStaff: async (workingDate: string, shiftId: string): Promise<ResponseDTO> => {
+    try {
+      const response: AxiosResponse<ResponseDTO> = await axiosInstance.get(
+        STAFF_SCHEDULE_ENDPOINTS.GET_ALL_STAFF_UNSCHEDULED,
+        { params: { workingDate, shiftId } }
       );
       return response.data;
     } catch (error: any) {

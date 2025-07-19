@@ -3,8 +3,9 @@ import type {
     CreateMetroLineDTO, 
     GetMetroLineDTO, 
     ResponseDTO, 
-    UpdateMetroLineStationDTO 
+    UpdateMetroLineStationDTO
 } from './MetroLineInterface';
+import { MetroLineStatus } from './MetroLineInterface';
 import axiosInstance from '../../settings/axiosInstance';
 
 // API Endpoints
@@ -13,7 +14,8 @@ const METRO_LINE_ENDPOINTS = {
     GET_ALL: '/api/MetroLine/metro-lines/all',
     GET_BY_ID: (id: string) => `/api/MetroLine/metro-line/${id}`,
     UPDATE_METRO_LINE_STATION: (metroLineStationId: string) => `/api/MetroLineStation/update-metroline-station/${metroLineStationId}`,
-    REMOVE_METRO_LINE_STATION: (metroLineStationId: string) => `/api/MetroLineStation/remove-metroline-station/${metroLineStationId}`
+    REMOVE_METRO_LINE_STATION: (metroLineStationId: string) => `/api/MetroLineStation/remove-metroline-station/${metroLineStationId}`,
+    CHANGE_STATUS: (metroLineId: string) => `/api/MetroLine/change-status/${metroLineId}`
 } as const;
 
 // Metro Line API Service
@@ -104,6 +106,33 @@ export const MetroLineApi = {
                 return error.response.data;
             }
             throw new Error('Có lỗi xảy ra khi xóa trạm tuyến Metro');
+        }
+    },
+
+    changeMetroLineStatus: async (
+        metroLineId: string,
+        metroLineStatus: MetroLineStatus
+    ): Promise<ResponseDTO<any>> => {
+        try {
+            console.log('Changing metro line status:', { metroLineId, metroLineStatus });
+            
+            const response: AxiosResponse<ResponseDTO<any>> = await axiosInstance.put(
+                METRO_LINE_ENDPOINTS.CHANGE_STATUS(metroLineId),
+                null,
+                {
+                    params: {
+                        metroLineStatus: metroLineStatus
+                    }
+                }
+            );
+            return response.data;
+        } catch (error: any) {
+            console.error('Error in changeMetroLineStatus:', error);
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                return error.response.data;
+            }
+            throw new Error('Có lỗi xảy ra khi thay đổi trạng thái tuyến Metro');
         }
     }
 };

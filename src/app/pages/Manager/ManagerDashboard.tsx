@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Typography } from 'antd';
+import { RevenueApi } from '../../../api/revenue/RevenueApi';
 
 dayjs.extend(relativeTime);
 
@@ -30,7 +31,12 @@ const ManagerDashboard: React.FC = () => {
     pageSize: 3,
     total: 0,
   });
-
+  const [customerCount, setCustomerCount] = useState<number>(0);
+  const [customerLoading, setCustomerLoading] = useState<boolean>(true);
+  const [ticketCount, setTicketCount] = useState<number>(0);
+  const [ticketCountLoading, setTicketCountLoading] = useState<boolean>(true);
+  const [revenue, setRevenue] = useState<number>(0);
+  const [revenueLoading, setRevenueLoading] = useState<boolean>(true);
 
   const fetchRecentTicketSales = async (page = 1, pageSize = 3) => {
     const dateTo = dayjs();
@@ -70,7 +76,57 @@ const ManagerDashboard: React.FC = () => {
     }
   };
 
+  const fetchTicketCount = async () => {
+    const dateTo = dayjs();
+    const dateFrom = dateTo.subtract(7, 'day');
+    setTicketCountLoading(true);
+    try {
+      // Main ticket statistics
+      const response = await axiosInstance.get('/api/DashBoard/ticket-statistics', {
+        params: {
+          dateFrom: dateFrom.format('YYYY-MM-DDT00:00:00'),
+          dateTo: dateTo.format('YYYY-MM-DDT23:59:59'),
+          isAccendingCreated: false,
+          pageNumber: 1,
+          pageSize: 5,
+        },
+      });
+      setTicketCount(response.data?.result?.length ?? 0);
+    } catch {
+      setTicketCount(0);
+    }
+    setTicketCountLoading(false);
+  };
+
+  const fetchCustomerCount = async () => {
+    setCustomerLoading(true);
+    try {
+      const res = await axiosInstance.get('/api/DashBoard/customer-statistics-number');
+      setCustomerCount(res.data?.result ?? 0);
+    } catch {
+      setCustomerCount(0);
+    } finally {
+      setCustomerLoading(false);
+    }
+  };
+
+  const fetchRevenue = async () => {
+    setRevenueLoading(true);
+    try {
+      const month = dayjs().month() + 1;
+      const res = await RevenueApi.viewRevenueMonth(month);
+      setRevenue(res.result ?? 0);
+    } catch {
+      setRevenue(0);
+    } finally {
+      setRevenueLoading(false);
+    }
+  };
+
   useEffect(() => {
+    fetchTicketCount();
+    fetchCustomerCount();
+    fetchRevenue();
     fetchRecentTicketSales(ticketPagination.current, ticketPagination.pageSize);
   }, []);
 
@@ -93,11 +149,6 @@ const ManagerDashboard: React.FC = () => {
       title: 'Sự kiện',
       dataIndex: 'event',
       key: 'event',
-    },
-    {
-      title: 'Thời gian mua',
-      dataIndex: 'time',
-      key: 'time',
     },
     {
       title: 'Trạng thái',
@@ -153,10 +204,52 @@ const ManagerDashboard: React.FC = () => {
 
   return (
     <div className="w-full h-full p-2 md:p-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+
+      {/* Statistics Cards */}
+      <div className="mb-6">
+        <Row gutter={[16, 16]} justify="center" align="middle" style={{ width: '100%' }}>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Statistic
+                  title="Tổng số khách hàng"
+                  value={customerLoading ? undefined : customerCount}
+                  prefix={<UserOutlined />}
+                  valueStyle={{ color: '#3f8600' }}
+                  loading={customerLoading}
+                />
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Statistic
+                  title="Tổng số vé đã bán"
+                  value={ticketCountLoading ? undefined : ticketCount}
+                  prefix={<ShoppingCartOutlined />}
+                  valueStyle={{ color: '#1890ff' }}
+                  loading={ticketCountLoading}
+                />
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Card className="h-full">
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <Statistic
+                  title="Doanh thu tháng này"
+                  value={revenueLoading ? undefined : revenue}
+                  prefix={<DollarOutlined />}
+                  valueStyle={{ color: '#cf1322' }}
+                  loading={revenueLoading}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
       </div>
 
-      
       {/* --- Recent Ticket Sales Table --- */}
       <div className="mb-6">
         <Card title="Giao dịch vé gần đây" className="h-full">
@@ -179,35 +272,6 @@ const ManagerDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* --- Monthly Goals --- */}
-      <div className="mb-6">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={24}>
-            <Card title="Mục tiêu hàng tháng" className="h-full">
-              <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Mục tiêu doanh số</span>
-                  </div>
-                  <Progress percent={75} status="active" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Sự hài lòng của khách hàng</span>
-                  </div>
-                  <Progress percent={90} status="active" />
-                </div>
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Người dùng mới</span>
-                  </div>
-                  <Progress percent={60} status="active" />
-                </div>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </div>
     </div>
   );
 };

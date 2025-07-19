@@ -36,6 +36,27 @@ const EmailTemplatetList: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'ascend' | 'descend' | null>(null);
   const navigate = useNavigate();
 
+  // Mapping for Vietnamese field labels
+  const fieldLabels: Record<string, string> = {
+    id: 'Mã mẫu',
+    templateName: 'Tên mẫu',
+    subjectLine: 'Tiêu đề',
+    bodyContent: 'Nội dung',
+    senderName: 'Người gửi',
+    category: 'Danh mục',
+    preHeaderText: 'Tiêu đề phụ',
+    personalizationTags: 'Thẻ cá nhân hóa',
+    footerContent: 'Chân trang',
+    callToAction: 'Kêu gọi hành động',
+    language: 'Ngôn ngữ',
+    recipientType: 'Loại người nhận',
+    status: 'Trạng thái',
+    createdAt: 'Ngày tạo',
+    updatedAt: 'Ngày cập nhật',
+    createdBy: 'Người tạo',
+    updatedBy: 'Người cập nhật',
+  };
+
   const fetchTemplates = async (sorter?: any) => {
     setLoading(true);
     try {
@@ -51,7 +72,7 @@ const EmailTemplatetList: React.FC = () => {
       const res = await axiosInstance.get('/api/Email/get-all-email-template', { params });
       setTemplates(res.data.result || []);
     } catch (err: any) {
-      message.error('Lỗi khi tải danh sách template email.');
+      message.error('Lỗi khi tải danh sách mẫu email.');
     } finally {
       setLoading(false);
     }
@@ -97,7 +118,7 @@ const EmailTemplatetList: React.FC = () => {
 
   const columns = [
     {
-      title: 'Tên Template',
+      title: 'Tên mẫu email',
       dataIndex: 'templateName',
       key: 'templateName',
     },
@@ -129,12 +150,12 @@ const EmailTemplatetList: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Title level={3} style={{ margin: 0 }}>Danh sách Email Template</Title>
+        <Title level={3} style={{ margin: 0 }}>Danh sách mẫu email</Title>
         <Button type="primary" onClick={handleCreateNew}>Tạo mới</Button>
       </div>
       <form onSubmit={handleFilterSubmit} style={{ marginBottom: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
         <Input
-          placeholder="Tìm kiếm theo tên template"
+          placeholder="Tìm kiếm theo tên mẫu email"
           value={filter}
           onChange={handleFilterChange}
           style={{ width: 240 }}
@@ -158,7 +179,7 @@ const EmailTemplatetList: React.FC = () => {
       <Modal
         open={modalOpen}
         onCancel={handleClose}
-        title="Chi tiết Email Template"
+        title="Chi tiết mẫu email"
         footer={<Button onClick={handleClose}>Đóng</Button>}
         width={700}
       >
@@ -166,7 +187,7 @@ const EmailTemplatetList: React.FC = () => {
           <div style={{ maxHeight: 500, overflowY: 'auto' }}>
             {Object.entries(selected).map(([key, value]) => (
               <div key={key} style={{ marginBottom: 12 }}>
-                <Text strong>{key}</Text>
+                <Text strong>{fieldLabels[key] || key}</Text>
                 {key === 'bodyContent' ? (
                   <div
                     style={{ border: '1px solid #eee', borderRadius: 6, padding: 12, marginTop: 4, background: '#fafbfc', overflowX: 'auto' }}

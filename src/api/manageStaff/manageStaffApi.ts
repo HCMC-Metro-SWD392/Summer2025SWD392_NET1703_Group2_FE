@@ -61,6 +61,7 @@ export const ManageStaffApi = {
     try {
       const response: AxiosResponse<ResponseDTO> = await axiosInstance.get(
         MANAGE_STAFF_ENDPOINTS.GET_ALL_STAFF,
+        { params: { isActive: true } }
       );
       return response.data;
     } catch (error: any) {

@@ -6,6 +6,7 @@ import PageNotFound from "../layouts/PageNotFound/PageNotFound";
 import BuyRouteTicket from "../pages/Customer/partials/BuyRouteTickets/BuyRouteTickets";
 import BuySubscriptionTicket from "../pages/Customer/partials/BuySubscriptionTicket/BuySubscriptionTicket";
 import AccountInfo from "../pages/Customer/partials/CustomerInfo/CustomerInfo";
+import AccountInfo1 from "../pages/Customer/partials/CustomerInfo/AccountInfo";
 import MyTickets from "../pages/Customer/partials/MyTickets/MyTickets";
 import VerifyTicketPayment from "../pages/Customer/partials/VerifyTicketPayment/VerifyTicketPayment";
 import Home from "../pages/Home";
@@ -62,6 +63,11 @@ import EmailTemplatetList from "../pages/Admin/EmailManagement/EmailTemplatetLis
 import CreateNews from "../pages/Staff/partials/News/CreateNews";
 import NewsListPageForStaff from "../pages/Staff/partials/News/NewsListPageForStaff";
 import NewsListPage from "../pages/Manager/NewsManagerment/NewsListPage";
+import SetRole from "../pages/Admin/RoleCreation/SetRole";
+import ManagerList from "../pages/Admin/RoleCreation/ManagerList";
+import AdminList from "../pages/Admin/RoleCreation/AdminList";
+
+
 import { useParams, useNavigate } from "react-router-dom";
 import React from "react";
 const UpdateEmailTemplateWrapper = () => {
@@ -116,7 +122,7 @@ export default function MainRoutes() {
 
         <Route element={<ManagerLayout/>}>
         <Route path="/manager" element={<ManagerDashboard />} />
-        <Route path="/manager/accountInfo" element={<AccountInfo />} />
+        <Route path="/manager/accountInfo" element={<AccountInfo1 />} />
         <Route path="/manager/staffs" element={<StaffList />} />
         <Route path="/manager/staffs/:id" element={<StaffDetails />} />
         <Route path="/manager/staffs/:id/edit" element={<EditStaff />} />
@@ -137,7 +143,7 @@ export default function MainRoutes() {
 
       <Route element={<AdminLayout/>}>
         <Route path="/admin" element={<AdminMain />} />
-        <Route path="/admin/accountInfo" element={<AccountInfo />} />
+        <Route path="/admin/accountInfo" element={<AccountInfo1 />} />
         <Route path="/admin/fare-rule" element={<FareRule />} />
         <Route path="/admin/station/:id" element={<StationDetails />} />
         <Route path="/admin/station" element={<StationList />} />
@@ -156,6 +162,9 @@ export default function MainRoutes() {
         <Route path="/admin/create-email-template" element={<CreateEmailTemplate />} />
         <Route path="/admin/email-template" element={<EmailTemplatetList />} />
         <Route path="/admin/email-management/update/:id" element={<UpdateEmailTemplateWrapper />} />
+        <Route path="/admin/set-role" element={<SetRole />} />
+        <Route path="/admin/managerList" element={<ManagerList />} />
+        <Route path="/admin/adminList" element={<AdminList />} />
       </Route>
 
       <Route element={<Staff />}>
