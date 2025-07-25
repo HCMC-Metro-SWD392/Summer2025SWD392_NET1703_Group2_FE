@@ -23,7 +23,11 @@ const AssignStaffSchedule: React.FC = () => {
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      const response = await StaffScheduleApi.getAllSchedules('2000-01-01', '2100-12-31');
+      // Set date range from today to far future
+      const today = new Date();
+      const startDate = today.toISOString().split('T')[0];
+      const endDate = '2100-12-31';
+      const response = await StaffScheduleApi.getAllSchedules(startDate, endDate);
       if (response.isSuccess && Array.isArray(response.result)) {
         setSchedules(response.result);
       } else {
@@ -69,6 +73,9 @@ const AssignStaffSchedule: React.FC = () => {
     if (schedule.staffId) {
       form.setFieldsValue({ staffId: schedule.staffId });
     }
+    if (schedule.stationId) {
+      form.setFieldsValue({ workingStationId: schedule.stationId });
+    }
   };
 
   const handleAssign = async (values: any) => {
@@ -112,7 +119,12 @@ const AssignStaffSchedule: React.FC = () => {
   const columns = [
     { title: 'Tên Ca', dataIndex: 'shiftName', key: 'shiftName' },
     { title: 'Nhân Viên', dataIndex: 'staffFullName', key: 'staffFullName' },
-    { title: 'Ga', dataIndex: 'stationName', key: 'stationName' },
+    { 
+      title: 'Ga', 
+      dataIndex: 'stationName', 
+      key: 'stationName',
+      render: (text: string | null) => text || <span style={{ color: '#aaa' }}>Chưa có</span>
+    },
     { title: 'Ngày Làm Việc', dataIndex: 'workingDate', key: 'workingDate' },
     { title: 'Giờ Bắt Đầu', dataIndex: 'startTime', key: 'startTime' },
     { title: 'Giờ Tan Ca', dataIndex: 'endTime', key: 'endTime' },
@@ -128,7 +140,7 @@ const AssignStaffSchedule: React.FC = () => {
   ];
 
   const filteredSchedules = schedules.filter(sch =>
-    sch.stationName && sch.stationName.toLowerCase().includes(stationSearch.toLowerCase())
+    (sch.stationName || '').toLowerCase().includes(stationSearch.toLowerCase())
   );
 
   return (
@@ -179,9 +191,10 @@ const AssignStaffSchedule: React.FC = () => {
           <Form.Item
             label="Ga làm việc"
             name="workingStationId"
-            rules={[{ required: true, message: 'Chọn ga làm việc' }]}
+            // Remove required rule if station is optional, otherwise keep as is
+            rules={[]}
           >
-            <Select showSearch placeholder="Chọn ga làm việc">
+            <Select showSearch placeholder="Chọn ga làm việc (có thể bỏ trống)">
               {stations.map(station => (
                 <Select.Option key={station.id} value={station.id}>
                   {station.name}
