@@ -13,6 +13,7 @@ import { PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import axiosInstance from "../../../../../../settings/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -80,6 +81,10 @@ const SpecialCaseRequestForm: React.FC = () => {
       formData.append("Title", title);
       formData.append("Content", content);
       formData.append("FormRequestType", formType);
+      const token = localStorage.getItem("accessToken");
+      const decoded: any = jwtDecode(token || "");
+      const role = decoded["CustomerType"];
+      formData.append("CustomerType", role);
       uploadedKeys.forEach((key) => {
         formData.append("AttachmentKeys", key);
       });
@@ -146,8 +151,8 @@ const SpecialCaseRequestForm: React.FC = () => {
               className="w-full"
             >
               <Option value="0">Học sinh/Sinh viên</Option>
-              <Option value="1">Người cao tuổi</Option>
-              <Option value="2">Trường hợp đặc biệt khác</Option>
+              {/* <Option value="1">Người cao tuổi</Option> */}
+              {/* <Option value="2">Trường hợp đặc biệt khác</Option> */}
             </Select>
           </div>
 

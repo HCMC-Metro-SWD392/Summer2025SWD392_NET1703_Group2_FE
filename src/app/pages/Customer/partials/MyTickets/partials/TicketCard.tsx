@@ -10,6 +10,7 @@ import {
   Space,
   Spin,
   type QRCodeProps,
+  Button,
 } from "antd";
 import type { Ticket } from "../../../../../../types/types";
 import { getStatusColor, getStatusLabel } from "./ticketUtils";
@@ -18,6 +19,7 @@ import logoMetroHCMC from "../../../../../assets/logo.png";
 import { getQRCodeFromSubscription } from "../../../../../../api/buyRouteTicket/buyRouteTicket";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import TicketUsageHistory from "./TicketUsageHistory";
+import { ViewRouteFetcher } from "../../BuyRouteTickets/partials/ViewRouteFetcher";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -36,6 +38,8 @@ const TicketCard = ({
   const [countdown, setCountdown] = useState(61);
   const [activeTab, setActiveTab] = useState(status === "used" ? "2" : "1");
   const [historyReloadCount, setHistoryReloadCount] = useState(0);
+  const [openWayModal, setOpenWayModal] = useState(false);
+
 
   const isModalVisibleRef = useRef(isModalVisible);
   const countdownRef = useRef<number | null>(null);
@@ -255,8 +259,8 @@ const TicketCard = ({
                   <span>{ticket.ticketSerial}</span>
                 </div>
 
-                  {ticket.subscriptionTicketId && ticket.ticketRouteId ? (
-                    <>
+                {ticket.subscriptionTicketId && ticket.ticketRouteId ? (
+                  <>
                     <div className="flex justify-between">
                       <Text strong className="text-gray-600">Tuyến chính :</Text>
                       <span>{ticket.fromStationSub} → {ticket.toStationSub}</span>
@@ -266,18 +270,18 @@ const TicketCard = ({
                       <Text strong className="text-gray-600">Tuyến tích hợp :</Text>
                       <span>{ticket.fromStationRoute} → {ticket.toStationRoute}</span>
                     </div>
-                    </>
-                    
-                  ) : (
-                    <div className="flex justify-between">
-                      <Text strong className="text-gray-600">Tuyến chính :</Text>
-                      {ticket.subscriptionTicketId ? (
-                        <span>{ticket.fromStationSub} → {ticket.toStationSub}</span>
-                      ) : (
-                        <span>{ticket.fromStationRoute} → {ticket.toStationRoute}</span>
-                      )}
-                    </div>
-                  )}
+                  </>
+
+                ) : (
+                  <div className="flex justify-between">
+                    <Text strong className="text-gray-600">Tuyến chính :</Text>
+                    {ticket.subscriptionTicketId ? (
+                      <span>{ticket.fromStationSub} → {ticket.toStationSub}</span>
+                    ) : (
+                      <span>{ticket.fromStationRoute} → {ticket.toStationRoute}</span>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex justify-between">
                   <Text strong className="text-gray-600">Ngày mua:</Text>
@@ -300,6 +304,22 @@ const TicketCard = ({
                     {getStatusLabel(status)}
                   </Tag>
                 </div>
+
+                {/* <div className="flex justify-end">
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={() => setOpenWayModal(true)}
+                  >
+                    Xem đường đi
+                  </Button>
+                  <ViewRouteFetcher
+                    open={openWayModal}
+                    onClose={() => setOpenWayModal(false)}
+                    stationStart={ticket.fromStationRouteId || ticket.fromStationSubId}
+                    stationEnd={ticket.toStationRouteId || ticket.toStationSubId}
+                  />
+                </div> */}
               </div>
             </div>
           </TabPane>
