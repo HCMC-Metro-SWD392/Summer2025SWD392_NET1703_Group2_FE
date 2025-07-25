@@ -13,14 +13,15 @@ import { PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import axiosInstance from "../../../../../../settings/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const FORM_TITLES: Record<string, string> = {
   "0": "Đơn xác nhận học sinh/sinh viên",
-  "1": "Đơn xác nhận người cao tuổi",
-  "2": "Đơn xác nhận trường hợp đặc biệt khác",
+  // "1": "Đơn xác nhận người cao tuổi",
+  // "1": "Đơn xác nhận trường hợp đặc biệt khác",
 };
 
 const SpecialCaseRequestForm: React.FC = () => {
@@ -80,6 +81,10 @@ const SpecialCaseRequestForm: React.FC = () => {
       formData.append("Title", title);
       formData.append("Content", content);
       formData.append("FormRequestType", formType);
+      const token = localStorage.getItem("accessToken");
+      const decoded: any = jwtDecode(token || "");
+      const role = decoded["CustomerType"];
+      formData.append("CustomerType", role);
       uploadedKeys.forEach((key) => {
         formData.append("AttachmentKeys", key);
       });
