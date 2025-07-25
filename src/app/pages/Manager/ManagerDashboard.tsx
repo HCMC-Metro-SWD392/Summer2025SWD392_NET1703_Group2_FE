@@ -78,7 +78,7 @@ const ManagerDashboard: React.FC = () => {
 
   const fetchTicketCount = async () => {
     const dateTo = dayjs();
-    const dateFrom = dateTo.subtract(365, 'day'); // Changed from 7 days to 365 days (1 year)
+    const dateFrom = dateTo.subtract(31, 'day');
     setTicketCountLoading(true);
     try {
       // Main ticket statistics
@@ -225,7 +225,7 @@ const ManagerDashboard: React.FC = () => {
             <Card className="h-full">
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Statistic
-                  title="Tổng số vé đã bán"
+                  title="Tổng số vé đã bán trong tháng"
                   value={ticketCountLoading ? undefined : ticketCount}
                   prefix={<ShoppingCartOutlined />}
                   valueStyle={{ color: '#1890ff' }}
