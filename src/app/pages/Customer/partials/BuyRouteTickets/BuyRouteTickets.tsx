@@ -38,6 +38,8 @@ import dayjs from "dayjs";
 import axios from "axios";
 import axiosInstance from "../../../../../settings/axiosInstance";
 import { checkUserType } from "../../../../../api/auth/auth";
+import { ViewRouteFetcher } from "./partials/ViewRouteFetcher";
+
 
 const BuyRouteTicket: React.FC = () => {
   const [allStations, setAllStations] = useState<Station[]>([]);
@@ -68,6 +70,10 @@ const BuyRouteTicket: React.FC = () => {
   const timeFromInfoRef = useRef<HTMLDivElement | null>(null);
   const timeToInfoRef = useRef<HTMLDivElement | null>(null);
   const payRef = useRef(null);
+  const [openWayModal, setOpenWayModal] = useState(false);
+
+  const stationStart = "161ddd62-d1e1-4e97-b61e-85b3ff028d33"; // Ga Thủ Thiêm
+  const stationEnd = "507ed73c-ddae-4cb5-8e60-7ecbdbfe1926";
 
   const selectedTicket = useMemo(() =>
     ticketType === "normal" ? null : ticketTypes.find((t) => t.name === ticketType),
@@ -129,7 +135,7 @@ const BuyRouteTicket: React.FC = () => {
 
   const handlePromotionCheck = async (code: string, isChangePrice: boolean, inputPrice?: number) => {
 
-     const currentPrice = inputPrice ?? ticketPrice;
+    const currentPrice = inputPrice ?? ticketPrice;
 
     if (!code || !currentPrice) {
       if (!currentPrice && !isChangePrice) {
@@ -174,30 +180,30 @@ const BuyRouteTicket: React.FC = () => {
   };
 
   const checkExistTicketRange = async (startStationId: string | undefined, endStationId: string | undefined) => {
-  if (!startStationId || !endStationId) return;
+    if (!startStationId || !endStationId) return;
 
-  try {
-    const res = await axiosInstance.get("/api/Ticket/check-exist-ticket-range", {
-      params: {
-        startStaionId: startStationId,
-        endStationId: endStationId,
-      },
-    });
+    try {
+      const res = await axiosInstance.get("/api/Ticket/check-exist-ticket-range", {
+        params: {
+          startStaionId: startStationId,
+          endStationId: endStationId,
+        },
+      });
 
-    return res.data;
-  } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      const responseData = error.response?.data;
-      if (responseData?.message) {
-        message.warning(responseData.message);
+      return res.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const responseData = error.response?.data;
+        if (responseData?.message) {
+          message.warning(responseData.message);
+        } else {
+          message.error("Lỗi khi kiểm tra vé.");
+        }
       } else {
-        message.error("Lỗi khi kiểm tra vé.");
+        message.error("Lỗi không xác định.");
       }
-    } else {
-      message.error("Lỗi không xác định.");
     }
-  }
-};
+  };
 
   useEffect(() => {
     const fetchPrice = async () => {
@@ -292,6 +298,20 @@ const BuyRouteTicket: React.FC = () => {
                   onClick={() => setOpenTour(true)}
                   title="Hướng dẫn sử dụng"
                 />
+                {fromStation && toStation && (
+                  <>
+                    <Button type="primary" onClick={() => setOpenWayModal(true)}>
+                      Xem đường đi
+                    </Button>
+
+                    <ViewRouteFetcher
+                      open={openWayModal}
+                      onClose={() => setOpenWayModal(false)}
+                      stationStart={fromStation.id || stationStart}
+                      stationEnd={toStation.id || stationEnd}
+                    />
+                  </>
+                )}
               </div>
             </div>
 
@@ -378,7 +398,7 @@ const BuyRouteTicket: React.FC = () => {
                     className={`relative cursor-pointer rounded-2xl border p-4 flex items-center gap-3 transition-all hover:shadow-lg ${isSelected
                       ? "border-blue-600 bg-blue-50 shadow-lg"
                       : "border-gray-300 bg-white"
-                      } ${item.name === "student" && !checkUserType("Student") ? "pointer-events-none opacity-50 hover:shadow-none" : "" }`} 
+                      } ${item.name === "student" && !checkUserType("Student") ? "pointer-events-none opacity-50 hover:shadow-none" : ""}`}
                   >
                     <div className="text-blue-600 text-2xl">
                       <TicketIcon />
@@ -418,48 +438,48 @@ const BuyRouteTicket: React.FC = () => {
             </div>
 
 
-          
-              <div className="mt-4" ref={ticketPromotion}>
-                <div className="mb-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Nhập mã khuyến mãi"
-                      value={promotionInput}
-                      onChange={(e) => setPromotionInput(e.target.value)}
-                      className="flex-1"
-                      disabled={isPromoApplied || ticketType === "monthly" || ticketType === "student"}
-                      allowClear
-                    />
-                    {!isPromoApplied ? (
-                      <Button
-                        onClick={() => {
-                          setPromotionCode(promotionInput);
-                          handlePromotionCheck(promotionInput, false);
-                        }}
-                        type="primary"
-                        disabled={ticketType === "monthly" || ticketType === "student"}
-                      >
-                        Áp dụng
-                      </Button>
-                    ) : (
-                      <Button
-                        danger
-                        onClick={() => {
-                          setPromotionCode("");
-                          setPromotionInput("");
-                          setPromoInfo(null);
-                          setIsPromoApplied(false);
-                          setFinalPrice(ticketPrice);
-                        }}
-                      >
-                        Hủy áp dụng
-                      </Button>
-                    )}
-                  </div>
 
+            <div className="mt-4" ref={ticketPromotion}>
+              <div className="mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Mã khuyến mãi (nếu có)</label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nhập mã khuyến mãi"
+                    value={promotionInput}
+                    onChange={(e) => setPromotionInput(e.target.value)}
+                    className="flex-1"
+                    disabled={isPromoApplied || ticketType === "monthly" || ticketType === "student"}
+                    allowClear
+                  />
+                  {!isPromoApplied ? (
+                    <Button
+                      onClick={() => {
+                        setPromotionCode(promotionInput);
+                        handlePromotionCheck(promotionInput, false);
+                      }}
+                      type="primary"
+                      disabled={ticketType === "monthly" || ticketType === "student"}
+                    >
+                      Áp dụng
+                    </Button>
+                  ) : (
+                    <Button
+                      danger
+                      onClick={() => {
+                        setPromotionCode("");
+                        setPromotionInput("");
+                        setPromoInfo(null);
+                        setIsPromoApplied(false);
+                        setFinalPrice(ticketPrice);
+                      }}
+                    >
+                      Hủy áp dụng
+                    </Button>
+                  )}
                 </div>
+
               </div>
+            </div>
 
             <Divider className="!my-4" />
 
