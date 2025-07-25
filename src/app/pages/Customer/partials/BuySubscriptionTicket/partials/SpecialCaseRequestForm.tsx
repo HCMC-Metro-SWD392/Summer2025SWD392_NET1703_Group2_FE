@@ -20,8 +20,8 @@ const { Option } = Select;
 
 const FORM_TITLES: Record<string, string> = {
   "0": "Đơn xác nhận học sinh/sinh viên",
-  // "1": "Đơn xác nhận người cao tuổi",
-  // "1": "Đơn xác nhận trường hợp đặc biệt khác",
+  "1": "Đơn xác nhận người cao tuổi",
+  "2": "Đơn xác nhận trường hợp đặc biệt khác",
 };
 
 const SpecialCaseRequestForm: React.FC = () => {
@@ -151,8 +151,8 @@ const SpecialCaseRequestForm: React.FC = () => {
               className="w-full"
             >
               <Option value="0">Học sinh/Sinh viên</Option>
-              <Option value="1">Người cao tuổi</Option>
-              <Option value="2">Trường hợp đặc biệt khác</Option>
+              {/* <Option value="1">Người cao tuổi</Option> */}
+              {/* <Option value="2">Trường hợp đặc biệt khác</Option> */}
             </Select>
           </div>
 
