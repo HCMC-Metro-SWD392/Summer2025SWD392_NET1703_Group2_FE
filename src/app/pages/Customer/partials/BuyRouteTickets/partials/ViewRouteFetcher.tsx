@@ -4,13 +4,20 @@ import { MetroRouteModal } from "./MetroRouteModal";
 import axiosInstance from "../../../../../../settings/axiosInstance";
 
 interface Props {
-  stationStart: string;
-  stationEnd: string;
+  stationStart?: string;
+  stationEnd?: string;
+  routeId?: string;
   open: boolean;
   onClose: () => void;
 }
 
-export const ViewRouteFetcher: React.FC<Props> = ({ stationStart, stationEnd, open, onClose }) => {
+export const ViewRouteFetcher: React.FC<Props> = ({
+  stationStart,
+  stationEnd,
+  routeId,
+  open,
+  onClose,
+}) => {
   const [loading, setLoading] = useState(false);
   const [routeData, setRouteData] = useState<any[] | null>(null);
 
@@ -18,13 +25,24 @@ export const ViewRouteFetcher: React.FC<Props> = ({ stationStart, stationEnd, op
     const fetchRoute = async () => {
       if (!open) return;
       setLoading(true);
+
       try {
-        const res = await axiosInstance.get("/api/Station/search-ticket-road", {
-          params: {
-            stationStart,
-            stationEnd,
-          },
-        });
+        let res;
+
+        if (routeId) {
+          // 📌 Gọi API theo routeId
+          res = await axiosInstance.get("/api/Station/search-ticket-road-v2", {
+            params: { ticketId: routeId },
+          });
+        } else if (stationStart && stationEnd) {
+          // 📌 Gọi API theo 2 ga
+          res = await axiosInstance.get("/api/Station/search-ticket-road", {
+            params: { stationStart, stationEnd },
+          });
+        } else {
+          message.warning("Thiếu thông tin để tìm đường đi.");
+          return;
+        }
 
         if (res.data?.isSuccess) {
           setRouteData(res.data.result);
@@ -40,7 +58,7 @@ export const ViewRouteFetcher: React.FC<Props> = ({ stationStart, stationEnd, op
     };
 
     fetchRoute();
-  }, [stationStart, stationEnd, open]);
+  }, [stationStart, stationEnd, routeId, open]);
 
   return (
     <>
