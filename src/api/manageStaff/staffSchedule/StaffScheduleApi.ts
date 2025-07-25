@@ -2,6 +2,7 @@ import type { AxiosResponse } from 'axios';
 import axiosInstance from '../../../settings/axiosInstance';
 import type { CreateStaffScheduleDTO, GetScheduleDTO } from './StaffScheduleInterface';
 import type { ResponseDTO } from './StaffScheduleInterface';
+import type { UpdateShiftDTO } from './StaffScheduleInterface';
 
 const STAFF_SCHEDULE_ENDPOINTS = {
   GET_ALL: '/api/StaffSchedule/schedules',
@@ -74,4 +75,37 @@ export const StaffScheduleApi = {
       throw error;
     }
   },
+
+  updateStaffShift: async (shiftId: string, data: UpdateShiftDTO): Promise<ResponseDTO> => {
+    try {
+      const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
+        `/api/StaffShift/update/${shiftId}`,
+        data
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return error.response.data;
+      }
+      throw error;
+    }
+  },
+
+  assignStaff: async (staffId: string, scheduleId: string, workingStationId: string): Promise<ResponseDTO> => {
+    try {
+      const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
+        `/api/StaffSchedule/assign-staff`,
+        undefined,
+        { params: { staffId, scheduleId, workingStationId } }
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        return error.response.data;
+      }
+      throw error;
+    }
+  },
+
+  
 };

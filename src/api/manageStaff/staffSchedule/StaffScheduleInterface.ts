@@ -49,3 +49,9 @@ export interface ResponseDTO<T = any> {
     result?: T;
     total?: number;  // Add total count for pagination
 }
+
+export interface UpdateShiftDTO {
+    shiftName: string;
+    startTime: string;
+    endTime: string;
+}

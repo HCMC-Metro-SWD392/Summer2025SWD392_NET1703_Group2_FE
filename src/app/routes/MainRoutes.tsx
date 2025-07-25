@@ -66,6 +66,7 @@ import NewsListPage from "../pages/Manager/NewsManagerment/NewsListPage";
 import SetRole from "../pages/Admin/RoleCreation/SetRole";
 import ManagerList from "../pages/Admin/RoleCreation/ManagerList";
 import AdminList from "../pages/Admin/RoleCreation/AdminList";
+import AssignStaffSchedule from "../pages/Manager/StaffManagement/AssignStaffSchedule";
 
 
 import { useParams, useNavigate } from "react-router-dom";
@@ -139,6 +140,7 @@ export default function MainRoutes() {
         <Route path="/manager/subscription-ticket/:id" element={<SubscriptionTicketDetails />} />
         <Route path="/manager/transaction-ticket" element={<TicketTransactionPage />} />
         <Route path="/manager/news" element={<NewsListPage />} />
+        <Route path="/manager/assign-schedule" element={<AssignStaffSchedule />} />
       </Route>
 
       <Route element={<AdminLayout/>}>

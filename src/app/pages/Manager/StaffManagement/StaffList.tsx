@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Tag, message, Popconfirm } from 'antd';
+import { Table, Button, Space, Tag, message, Popconfirm, Input } from 'antd';
 import { EditOutlined, DeleteOutlined, UserAddOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { ManageStaffApi } from '../../../../api/manageStaff/manageStaffApi';
@@ -8,6 +8,7 @@ import type { StaffInfo } from '../../../../api/manageStaff/manageStaffInterface
 const StaffList: React.FC = () => {
   const [staffs, setStaffs] = useState<StaffInfo[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     fetchStaffs();
@@ -30,6 +31,11 @@ const StaffList: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const filteredStaffs = staffs.filter(staff =>
+    staff.fullName.toLowerCase().includes(searchText.toLowerCase()) ||
+    (staff.phoneNumber && staff.phoneNumber.toLowerCase().includes(searchText.toLowerCase()))
+  );
 
   const columns: ColumnsType<StaffInfo> = [
     {
@@ -74,12 +80,18 @@ const StaffList: React.FC = () => {
   return (
     <div className="w-full h-full p-2 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        
+        <Input.Search
+          placeholder="Tìm kiếm theo tên nhân viên"
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ maxWidth: 300 }}
+          allowClear
+        />
       </div>
       <div className="w-full overflow-hidden">
         <Table
           columns={columns}
-          dataSource={staffs}
+          dataSource={filteredStaffs}
           rowKey="id"
           loading={loading}
           scroll={{ x: 'max-content' }}

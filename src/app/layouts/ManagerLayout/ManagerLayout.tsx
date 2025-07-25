@@ -111,7 +111,11 @@ const ManagerLayout: React.FC = () => {
         },
         {
           key: '/manager/staff-schedule',
-          label: 'Lịch Làm Việc',
+          label: 'Lịch Và Ca Làm Việc',
+        },
+        {
+          key: '/manager/assign-schedule',
+          label: 'Ca Làm Việc Nhân Viên',
         },
       ],
     },
