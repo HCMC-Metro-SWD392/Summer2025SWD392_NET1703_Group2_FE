@@ -25,6 +25,11 @@ const StaffSchedule: React.FC = () => {
   const [dateForStationQuery, setDateForStationQuery] = useState<Dayjs | null>(null);
   const [shiftModalVisible, setShiftModalVisible] = useState(false);
   const [shiftForm] = Form.useForm();
+  const [editShiftModalVisible, setEditShiftModalVisible] = useState(false);
+  const [editingShift, setEditingShift] = useState<any>(null);
+  const [editShiftForm] = Form.useForm();
+  const [selectShiftForEdit, setSelectShiftForEdit] = useState(false);
+  const [selectedShiftId, setSelectedShiftId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     fetchShifts();
@@ -211,6 +216,37 @@ const StaffSchedule: React.FC = () => {
     }
   };
 
+  const handleEditShift = (shift: any) => {
+    setEditingShift(shift);
+    editShiftForm.setFieldsValue({
+      shiftName: shift.shiftName,
+      startTime: dayjs(shift.startTime, 'HH:mm:ss'),
+      endTime: dayjs(shift.endTime, 'HH:mm:ss'),
+    });
+    setEditShiftModalVisible(true);
+  };
+
+  const handleUpdateShift = async (values: any) => {
+    if (!editingShift) return;
+    try {
+      await StaffScheduleApi.updateStaffShift(editingShift.id, {
+        shiftName: values.shiftName,
+        startTime: values.startTime.format('HH:mm:ss'),
+        endTime: values.endTime.format('HH:mm:ss'),
+      });
+      message.success('Cập nhật ca làm việc thành công');
+      setEditShiftModalVisible(false);
+      setEditingShift(null);
+      fetchShifts();
+      if (dateRange[0] && dateRange[1]) {
+        fetchSchedules(dateRange[0].format('YYYY-MM-DD'), dateRange[1].format('YYYY-MM-DD'));
+      }
+    } catch (error: any) {
+      console.log('Update shift error:', error);
+      message.error(error?.response?.data?.message || 'Cập nhật ca làm việc thất bại');
+    }
+  };
+
   const columns: ColumnsType<GetScheduleDTO> = [
     {
       title: 'Nhân Viên',
@@ -252,6 +288,46 @@ const StaffSchedule: React.FC = () => {
     },
   ];
 
+  // Table columns for shift management
+  const shiftColumns = [
+    { title: 'Tên Ca', dataIndex: 'shiftName', key: 'shiftName' },
+    { title: 'Giờ Bắt Đầu', dataIndex: 'startTime', key: 'startTime' },
+    { title: 'Giờ Tan Ca', dataIndex: 'endTime', key: 'endTime' },
+    {
+      title: 'Hành Động',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <Button
+          type="primary"
+          onClick={() => handleEditShift(record)}
+        >
+          Cập nhật Ca
+        </Button>
+      ),
+    },
+  ];
+
+  const openEditModalWithSelect = () => {
+    setSelectShiftForEdit(true);
+    setEditShiftModalVisible(true);
+    setEditingShift(null);
+    editShiftForm.resetFields();
+  };
+
+  // When a shift is selected from dropdown, populate the form
+  const handleSelectShift = (shiftId: string) => {
+    const shift = shifts.find(s => s.id === shiftId);
+    if (shift) {
+      setEditingShift(shift);
+      editShiftForm.setFieldsValue({
+        shiftName: shift.shiftName,
+        startTime: dayjs(shift.startTime, 'HH:mm:ss'),
+        endTime: dayjs(shift.endTime, 'HH:mm:ss'),
+      });
+      setSelectedShiftId(shiftId);
+    }
+  };
+
   return (
     <div className="w-full h-full p-2 md:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -262,6 +338,9 @@ const StaffSchedule: React.FC = () => {
           </Button>
           <Button type="primary" onClick={() => setShiftModalVisible(true)}>
             Tạo Ca Làm Việc
+          </Button>
+          <Button type="primary" onClick={openEditModalWithSelect}>
+            Cập nhật thông tin Ca Làm Việc
           </Button>
         </div>
       </div>
@@ -425,14 +504,73 @@ const StaffSchedule: React.FC = () => {
             name="startTime"
             rules={[{ required: true, message: 'Hãy Chọn Thời Gian Bắt Đầu' }]}
           >
-            <TimePicker format="HH:mm" style={{ width: '100%' }} />
+            <TimePicker format="HH:mm:ss" style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item
             label="Giờ Tan Ca"
             name="endTime"
             rules={[{ required: true, message: 'Hãy Chọn Thời Gian Tan Ca' }]}
           >
-            <TimePicker format="HH:mm" style={{ width: '100%' }} />
+            <TimePicker format="HH:mm:ss" style={{ width: '100%' }} />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title="Cập nhật Ca Làm Việc"
+        open={editShiftModalVisible}
+        onCancel={() => {
+          setEditShiftModalVisible(false);
+          setEditingShift(null);
+          setSelectShiftForEdit(false);
+          setSelectedShiftId(undefined);
+        }}
+        onOk={() => editShiftForm.submit()}
+        okText="Cập nhật"
+      >
+        <Form
+          form={editShiftForm}
+          layout="vertical"
+          onFinish={handleUpdateShift}
+        >
+          {selectShiftForEdit && (
+            <Form.Item label="Chọn Ca Làm Việc" required>
+              <Select
+                showSearch
+                placeholder="Chọn ca để cập nhật"
+                onChange={handleSelectShift}
+                value={selectedShiftId}
+                filterOption={(input, option) =>
+                  !!option?.children && option.children.toString().toLowerCase().includes(input.toLowerCase())
+                }
+              >
+                {shifts.map(shift => (
+                  <Select.Option key={shift.id} value={shift.id}>
+                    {shift.shiftName} ({shift.startTime} - {shift.endTime})
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+          <Form.Item
+            label="Tên Ca"
+            name="shiftName"
+            rules={[{ required: true, message: 'Hãy Nhập Tên Ca' }]}
+          >
+            <Input placeholder="Enter shift name" />
+          </Form.Item>
+          <Form.Item
+            label="Giờ Bắt Đầu"
+            name="startTime"
+            rules={[{ required: true, message: 'Hãy Chọn Thời Gian Bắt Đầu' }]}
+          >
+            <TimePicker format="HH:mm:ss" style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item
+            label="Giờ Tan Ca"
+            name="endTime"
+            rules={[{ required: true, message: 'Hãy Chọn Thời Gian Tan Ca' }]}
+          >
+            <TimePicker format="HH:mm:ss" style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>

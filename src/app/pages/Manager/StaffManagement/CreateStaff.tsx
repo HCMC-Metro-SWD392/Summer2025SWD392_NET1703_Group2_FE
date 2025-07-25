@@ -247,50 +247,6 @@ const CreateStaff: React.FC = () => {
                     </Form.Item>
                   </Form>
                 </TabPane>
-
-                <TabPane tab="⬇️ Hạ vai trò về Người Dùng" key="3">
-                  <Form
-                    layout="vertical"
-                    onFinish={async (values) => {
-                      try {
-                        setLoading(true);
-                        const response = await RoleApi.demoteStaffToUser(values.email);
-                        if (response.isSuccess) {
-                          message.success('Hạ vai trò về User thành công!');
-                        } else {
-                          message.error(response.message || 'Hạ vai trò thất bại!');
-                        }
-                      } catch (error: any) {
-                        message.error(error.message || 'Lỗi khi hạ vai trò!');
-                      } finally {
-                        setLoading(false);
-                      }
-                    }}
-                    size="large"
-                  >
-                    <Form.Item
-                      name="email"
-                      label="Email nhân viên"
-                      rules={[
-                        { required: true, message: 'Vui lòng nhập email' },
-                        { type: 'email', message: 'Email không hợp lệ' },
-                      ]}
-                    >
-                      <Input prefix={<MailOutlined />} placeholder="email@domain.com" />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        icon={<UserAddOutlined />}
-                        loading={loading}
-                        size="large"
-                      >
-                        Hạ vai trò về Người Dùng
-                      </Button>
-                    </Form.Item>
-                  </Form>
-                </TabPane>
               </Tabs>
             </Spin>
           </Card>
