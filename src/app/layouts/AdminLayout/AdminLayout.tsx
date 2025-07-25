@@ -282,14 +282,14 @@ const AdminLayout: React.FC = () => {
                 </h2>
               </div>
               <div className="flex items-center gap-4">
-                <Button
+                {/* <Button
                   type="default"
                   icon={<ApartmentOutlined className="text-lg" />}
                   className="flex items-center gap-2 px-4 border-blue-900 text-blue-900 hover:!bg-blue-900 hover:!text-white transition-colors rounded-lg shadow-sm !h-auto"
                   onClick={() => setIsMetroStatusModalOpen(true)}
                 >
                   <span className="hidden sm:text-sm sm:inline">Trạng thái tuyến Metro</span>
-                </Button>
+                </Button> */}
                 <span className="text-white font-medium hidden sm:inline">{userInfo?.name || 'Admin'}</span>
                 <img
                   src={userInfo?.avatarUrl || ""}

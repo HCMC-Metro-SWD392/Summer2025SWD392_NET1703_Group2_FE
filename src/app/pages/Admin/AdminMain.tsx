@@ -46,9 +46,9 @@ const AdminMain: React.FC = () => {
   const [ticketCount, setTicketCount] = useState<number>(0);
   const [ticketCountLoading, setTicketCountLoading] = useState<boolean>(true);
 
-  const fetchRecentTicketSales = async (page = 1, pageSize = 5) => {
+  const fetchRecentTicketSales = async (page = 1, pageSize = 100) => {
     const dateTo = dayjs();
-    const dateFrom = dateTo.subtract(7, 'day');
+    const dateFrom = dateTo.subtract(31, 'day');
 
     setTicketCountLoading(true);
     try {
@@ -69,7 +69,7 @@ const AdminMain: React.FC = () => {
         key: item.orderCode ?? index,
         ticketId: item.orderCode ?? `TCKT-${index}`,
         customer: item.userFullName ?? 'Không rõ',
-        event: item.detailTicket?.[0] ?? 'Không rõ',
+        event: item.detailTicket?.[0] ?? 'Mua vé vượt',
         time: item.timeOfPurchase,
         status: item.paymentStatus ?? 'completed',
       }));
@@ -162,7 +162,7 @@ const AdminMain: React.FC = () => {
 
   const ticketColumns = [
     {
-      title: 'Mã vé',
+      title: 'Mã giao dịch',
       dataIndex: 'ticketId',
       key: 'ticketId',
     },

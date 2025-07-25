@@ -30,7 +30,7 @@ import {
 } from "../../../../../api/buyRouteTicket/buyRouteTicket";
 import StepPayment from "./partials/StepPayment";
 import StationTimetableChart from "./partials/StationTimetableChart";
-import mapImage from "../../../../assets/HCMC_METRO_SWD391.drawio.png";
+import mapImage from "../../../../assets/Metro Map.png";
 import { removeVietnameseTones } from "../../../../utils/string";
 import { TicketIcon } from "lucide-react";
 import type { SelectProps } from "antd";

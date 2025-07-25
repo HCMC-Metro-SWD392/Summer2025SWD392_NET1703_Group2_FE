@@ -266,14 +266,14 @@ const ManagerLayout: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-4">
-              <Button
+              {/* <Button
                 type="default"
                 icon={<ApartmentOutlined className="text-lg" />}
                 className="flex items-center gap-2 px-4 border-green-700 text-green-700 hover:!bg-green-700 hover:!text-white transition-colors rounded-lg shadow-sm !h-auto"
                 onClick={() => setIsMetroStatusModalOpen(true)}
               >
                 <span className="hidden sm:text-sm sm:inline">Trạng thái tuyến Metro</span>
-              </Button>
+              </Button> */}
               
               {/* User Info */}
               <Dropdown overlay={managerHeaderMenu} trigger={['click']} placement="bottomRight">

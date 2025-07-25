@@ -60,7 +60,7 @@ const ManagerDashboard: React.FC = () => {
         key: item.orderCode ?? index,
         ticketId: item.orderCode ?? `TCKT-${index}`,
         customer: item.userFullName ?? 'Không rõ',
-        event: item.detailTicket[0] ?? 'Không rõ',
+        event: item.detailTicket[0] ?? 'Mua vé vượt',
         time: item.timeOfPurchase,
         status: item.paymentStatus ?? 'completed',
       }));
@@ -78,7 +78,7 @@ const ManagerDashboard: React.FC = () => {
 
   const fetchTicketCount = async () => {
     const dateTo = dayjs();
-    const dateFrom = dateTo.subtract(7, 'day');
+    const dateFrom = dateTo.subtract(31, 'day');
     setTicketCountLoading(true);
     try {
       // Main ticket statistics
@@ -88,7 +88,7 @@ const ManagerDashboard: React.FC = () => {
           dateTo: dateTo.format('YYYY-MM-DDT23:59:59'),
           isAccendingCreated: false,
           pageNumber: 1,
-          pageSize: 5,
+          pageSize: 100,
         },
       });
       setTicketCount(response.data?.result?.length ?? 0);
@@ -136,7 +136,7 @@ const ManagerDashboard: React.FC = () => {
 
   const ticketColumns = [
     {
-      title: 'Mã vé',
+      title: 'Mã giao dịch',
       dataIndex: 'ticketId',
       key: 'ticketId',
     },
@@ -225,7 +225,7 @@ const ManagerDashboard: React.FC = () => {
             <Card className="h-full">
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Statistic
-                  title="Tổng số vé đã bán"
+                  title="Tổng số vé đã bán trong tháng"
                   value={ticketCountLoading ? undefined : ticketCount}
                   prefix={<ShoppingCartOutlined />}
                   valueStyle={{ color: '#1890ff' }}
