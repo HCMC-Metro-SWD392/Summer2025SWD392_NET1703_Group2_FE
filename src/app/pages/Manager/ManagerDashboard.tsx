@@ -78,7 +78,7 @@ const ManagerDashboard: React.FC = () => {
 
   const fetchTicketCount = async () => {
     const dateTo = dayjs();
-    const dateFrom = dateTo.subtract(7, 'day');
+    const dateFrom = dateTo.subtract(365, 'day'); // Changed from 7 days to 365 days (1 year)
     setTicketCountLoading(true);
     try {
       // Main ticket statistics
@@ -88,7 +88,7 @@ const ManagerDashboard: React.FC = () => {
           dateTo: dateTo.format('YYYY-MM-DDT23:59:59'),
           isAccendingCreated: false,
           pageNumber: 1,
-          pageSize: 5,
+          pageSize: 100,
         },
       });
       setTicketCount(response.data?.result?.length ?? 0);
