@@ -305,7 +305,7 @@ const TicketCard = ({
                   </Tag>
                 </div>
 
-                {/* <div className="flex justify-end">
+                <div className="flex justify-center mt-4">
                   <Button
                     size="small"
                     type="primary"
@@ -316,10 +316,9 @@ const TicketCard = ({
                   <ViewRouteFetcher
                     open={openWayModal}
                     onClose={() => setOpenWayModal(false)}
-                    stationStart={ticket.fromStationRouteId || ticket.fromStationSubId}
-                    stationEnd={ticket.toStationRouteId || ticket.toStationSubId}
+                    routeId={ticket.id}
                   />
-                </div> */}
+                </div>
               </div>
             </div>
           </TabPane>

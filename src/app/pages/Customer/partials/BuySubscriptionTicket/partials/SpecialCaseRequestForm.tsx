@@ -84,7 +84,7 @@ const SpecialCaseRequestForm: React.FC = () => {
       const token = localStorage.getItem("accessToken");
       const decoded: any = jwtDecode(token || "");
       const role = decoded["CustomerType"];
-      formData.append("CustomerType", role);
+      formData.append("CustomerType", role === "Student" ? "1" : "0");
       uploadedKeys.forEach((key) => {
         formData.append("AttachmentKeys", key);
       });
