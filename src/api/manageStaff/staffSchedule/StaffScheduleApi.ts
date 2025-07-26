@@ -91,12 +91,12 @@ export const StaffScheduleApi = {
     }
   },
 
-  assignStaff: async (staffId: string, scheduleId: string, workingStationId: string): Promise<ResponseDTO> => {
+  assignStaff: async (staffId: string, shiftId: string, scheduleId: string, workingStationId: string): Promise<ResponseDTO> => {
     try {
       const response: AxiosResponse<ResponseDTO> = await axiosInstance.put(
         `/api/StaffSchedule/assign-staff`,
         undefined,
-        { params: { staffId, scheduleId, workingStationId } }
+        { params: { staffId, shiftId, scheduleId, workingStationId } }
       );
       return response.data;
     } catch (error: any) {
