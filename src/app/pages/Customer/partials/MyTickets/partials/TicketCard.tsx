@@ -20,6 +20,8 @@ import { getQRCodeFromSubscription } from "../../../../../../api/buyRouteTicket/
 import { ClockCircleOutlined } from "@ant-design/icons";
 import TicketUsageHistory from "./TicketUsageHistory";
 import { ViewRouteFetcher } from "../../BuyRouteTickets/partials/ViewRouteFetcher";
+import axiosInstance from "../../../../../../settings/axiosInstance";
+import axios from "axios";
 
 const { Text } = Typography;
 const { TabPane } = Tabs;
@@ -39,6 +41,9 @@ const TicketCard = ({
   const [activeTab, setActiveTab] = useState(status === "used" ? "2" : "1");
   const [historyReloadCount, setHistoryReloadCount] = useState(0);
   const [openWayModal, setOpenWayModal] = useState(false);
+  const [isMetroLineErrorModalVisible, setMetroLineErrorModalVisible] = useState(false);
+  const [metroLineErrors, setMetroLineErrors] = useState<{ metroName: string }[]>([]);
+  const [metroLineErrorMessage, setMetroLineErrorMessage] = useState<string | null>(null);
 
 
   const isModalVisibleRef = useRef(isModalVisible);
@@ -67,6 +72,37 @@ const TicketCard = ({
         }
       }
     }, 1000);
+  };
+
+  const checkMetroLineErrorInTicket = async (ticketId: string | undefined) => {
+    if (!ticketId) return;
+
+    try {
+      const res = await axiosInstance.get("/api/MetroLine/check-metro-line-error-in-path-V2", {
+        params: { ticketId },
+      });
+
+      const { result, message: apiMessage, isSuccess } = res.data;
+
+      if (!isSuccess && result?.length > 0) {
+        setMetroLineErrors(result); // danh sách tuyến lỗi
+        setMetroLineErrorMessage(apiMessage); // thông điệp lỗi
+        setMetroLineErrorModalVisible(true); // hiển thị modal
+      }
+
+      return res.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const responseData = error.response?.data;
+        if (responseData?.message) {
+          message.warning(responseData.message);
+        } else {
+          message.error("Lỗi khi kiểm tra tuyến đường.");
+        }
+      } else {
+        message.error("Lỗi không xác định.");
+      }
+    }
   };
 
   const fetchQRCode = async () => {
@@ -100,6 +136,7 @@ const TicketCard = ({
     // }
     setIsModalVisible(true);
     setActiveTab(status === "used" ? "2" : "1");
+    checkMetroLineErrorInTicket(ticket.id);
     fetchQRCode();
   };
 
@@ -357,6 +394,36 @@ const TicketCard = ({
           iconSize={60}
           bordered
         />
+      </Modal>
+
+      <Modal
+        open={isMetroLineErrorModalVisible}
+        closable={false}
+        centered
+        title="Cảnh báo tuyến metro"
+        footer={[
+          <button
+            key="ok"
+            onClick={() => setMetroLineErrorModalVisible(false)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded"
+          >
+            OK
+          </button>,
+        ]}
+      >
+        <div className="text-sm text-gray-700">
+          <p className="mb-2 font-semibold text-red-600">{metroLineErrorMessage}</p>
+
+          <ul className="list-disc pl-5 mb-3">
+            {metroLineErrors.map((line, idx) => (
+              <li key={idx}>{line.metroName}</li>
+            ))}
+          </ul>
+
+          <p className="text-xs text-gray-500 italic">
+            Nếu cần thêm thông tin chi tiết, vui lòng liên hệ nhân viên.
+          </p>
+        </div>
       </Modal>
     </>
   );
