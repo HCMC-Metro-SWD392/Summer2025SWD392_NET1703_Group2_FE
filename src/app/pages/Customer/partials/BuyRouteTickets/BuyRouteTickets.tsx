@@ -205,6 +205,43 @@ const BuyRouteTicket: React.FC = () => {
     }
   };
 
+  const checkMetroLineErrorInPath = async (
+  startStationId: string | undefined,
+  endStationId: string | undefined
+) => {
+  if (!startStationId || !endStationId) return;
+
+  try {
+    const res = await axiosInstance.get("/api/MetroLine/check-metro-line-error-in-path", {
+      params: {
+        stationStartId: startStationId,
+        stationEndId: endStationId,
+      },
+    });
+
+    const { result, message: apiMessage, isSuccess } = res.data;
+
+    if (!isSuccess && result && result.length > 0) {
+      const lines = result.map((line: any) => `Tuyến ${line.metroName}`).join("\n");
+      message.warning(`${apiMessage}:\n${lines}`);
+    }
+
+    return res.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const responseData = error.response?.data;
+      if (responseData?.message) {
+        message.warning(responseData.message);
+      } else {
+        message.error("Lỗi khi kiểm tra tuyến đường.");
+      }
+    } else {
+      message.error("Lỗi không xác định.");
+    }
+  }
+};
+
+
   useEffect(() => {
     const fetchPrice = async () => {
       if (fromStation && toStation) {
@@ -255,6 +292,7 @@ const BuyRouteTicket: React.FC = () => {
       message.warning("Bạn đang là học sinh/sinh viên nên có thể chọn loại vé tháng dành cho học sinh/sinh viên để nhận ưu đãi.");
     }
     checkExistTicketRange(fromStation?.id, toStation?.id);
+    checkMetroLineErrorInPath(fromStation?.id, toStation?.id);
     fetchPrice();
   }, [fromStation, toStation, ticketType]);
 
