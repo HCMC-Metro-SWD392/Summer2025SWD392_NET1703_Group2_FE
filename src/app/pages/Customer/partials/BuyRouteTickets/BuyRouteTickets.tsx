@@ -224,6 +224,7 @@ const BuyRouteTicket: React.FC = () => {
     if (!isSuccess && result && result.length > 0) {
       const lines = result.map((line: any) => `Tuyến ${line.metroName}`).join("\n");
       message.warning(`${apiMessage}:\n${lines}`);
+      message.warning(`Vui lòng cân nhắc khi mua vé!`);
     }
 
     return res.data;
