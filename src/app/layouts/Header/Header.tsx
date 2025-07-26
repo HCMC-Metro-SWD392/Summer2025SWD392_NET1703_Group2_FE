@@ -82,6 +82,14 @@ export default function Header() {
           >
             <span className="hidden sm:text-sm sm:inline">Trạng thái tuyến Metro</span>
           </Button>
+          <Button
+            type="default"
+            icon={<ApartmentOutlined className="text-xl" />}
+            className="flex items-center gap-2 px-4 border-blue-900 text-blue-900 hover:!bg-blue-900 hover:!text-white transition-colors rounded-lg shadow-sm !h-auto"
+            onClick={() => navigate('/metro-line')}
+          >
+            <span className="hidden sm:text-sm sm:inline">Tuyến Metro</span>
+          </Button>
           {!userInfo ? (
             <>
               {[

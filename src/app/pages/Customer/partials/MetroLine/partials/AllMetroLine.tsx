@@ -168,11 +168,11 @@ const AllMetroLine: React.FC = () => {
                   prefix={<FilterOutlined />}
                 >
                   <Select.Option value="all">Tất cả khoảng cách</Select.Option>
+                  <Select.Option value="2">≤ 2 km</Select.Option>
                   <Select.Option value="5">≤ 5 km</Select.Option>
                   <Select.Option value="10">≤ 10 km</Select.Option>
                   <Select.Option value="15">≤ 15 km</Select.Option>
                   <Select.Option value="20">≤ 20 km</Select.Option>
-                  <Select.Option value="30">≤ 30 km</Select.Option>
                 </Select>
               </Col>
               <Col xs={24} sm={24} md={10}>
@@ -285,7 +285,7 @@ const AllMetroLine: React.FC = () => {
               current: currentPage,
               onChange: (page) => setCurrentPage(page),
               pageSize: 8,
-              showSizeChanger: true,
+              showSizeChanger: false,
               showQuickJumper: true,
               showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} ga`,
             }}
