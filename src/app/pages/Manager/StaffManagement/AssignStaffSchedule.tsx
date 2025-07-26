@@ -3,11 +3,13 @@ import { Table, Button, Modal, Form, Select, message, Spin, Input } from 'antd';
 import { StaffScheduleApi } from '../../../../api/manageStaff/staffSchedule/StaffScheduleApi';
 import { ManageStaffApi } from '../../../../api/manageStaff/manageStaffApi';
 import { StationApi } from '../../../../api/station/StationApi';
+import { StaffShiftApi } from '../../../../api/manageStaff/staffShift/staffShiftApi';
 
 const AssignStaffSchedule: React.FC = () => {
   const [schedules, setSchedules] = useState<any[]>([]);
   const [staffs, setStaffs] = useState<any[]>([]);
   const [stations, setStations] = useState<any[]>([]);
+  const [shifts, setShifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [assignModalVisible, setAssignModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<any>(null);
@@ -18,6 +20,7 @@ const AssignStaffSchedule: React.FC = () => {
     fetchSchedules();
     fetchStaffs();
     fetchStations();
+    fetchShifts();
   }, []);
 
   const fetchSchedules = async () => {
@@ -66,6 +69,19 @@ const AssignStaffSchedule: React.FC = () => {
     }
   };
 
+  const fetchShifts = async () => {
+    try {
+      const response = await StaffShiftApi.getAllStaffShifts();
+      if (Array.isArray(response)) {
+        setShifts(response);
+      } else {
+        setShifts([]);
+      }
+    } catch {
+      setShifts([]);
+    }
+  };
+
   const openAssignModal = (schedule: any) => {
     setSelectedSchedule(schedule);
     setAssignModalVisible(true);
@@ -76,6 +92,9 @@ const AssignStaffSchedule: React.FC = () => {
     if (schedule.stationId) {
       form.setFieldsValue({ workingStationId: schedule.stationId });
     }
+    if (schedule.shiftId) {
+      form.setFieldsValue({ shiftId: schedule.shiftId });
+    }
   };
 
   const handleAssign = async (values: any) => {
@@ -83,6 +102,7 @@ const AssignStaffSchedule: React.FC = () => {
     try {
       const res = await StaffScheduleApi.assignStaff(
         values.staffId,
+        values.shiftId,
         selectedSchedule.id,
         values.workingStationId
       );
@@ -102,6 +122,9 @@ const AssignStaffSchedule: React.FC = () => {
             updated.stationId = values.workingStationId;
             const station = stations.find(s => s.id === values.workingStationId);
             if (station) updated.stationName = station.name;
+            updated.shiftId = values.shiftId;
+            const shift = shifts.find(s => s.id === values.shiftId);
+            if (shift) updated.shiftName = shift.shiftName;
             return [updated, ...others];
           }
           return prev;
@@ -206,6 +229,19 @@ const AssignStaffSchedule: React.FC = () => {
               {staffs.map(staff => (
                 <Select.Option key={staff.id} value={staff.id}>
                   {staff.fullName} ({staff.email})
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Ca làm việc"
+            name="shiftId"
+            rules={[{ required: true, message: 'Chọn ca làm việc' }]}
+          >
+            <Select showSearch placeholder="Chọn ca làm việc">
+              {shifts.map(shift => (
+                <Select.Option key={shift.id} value={shift.id}>
+                  {shift.shiftName} ({shift.startTime} - {shift.endTime})
                 </Select.Option>
               ))}
             </Select>
