@@ -1,5 +1,5 @@
 import React, { useState, type JSX } from "react";
-import { Modal, Typography, Tabs } from "antd";
+import { Modal, Typography, Tabs, Tag } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -14,7 +14,7 @@ interface MetroLine {
   id: string;
   metroName: string;
   stations: Station[];
-  status: number;
+  status: number; // 0: bình thường, 1: lỗi, 2: delay
 }
 
 interface MetroRouteModalProps {
@@ -48,6 +48,32 @@ export const MetroRouteModal: React.FC<MetroRouteModalProps> = ({
   const isIntersection = (stationId: string) =>
     stationMap.get(stationId)?.lines.size! > 1;
 
+  const getLineStyle = (status: number) => {
+    switch (status) {
+      case 1: // lỗi
+        return {
+          background: "#fff1f0",
+          border: "2px dashed #ff4d4f",
+          boxShadow: "0 0 6px #ffa39e",
+          textColor: "#cf1322",
+        };
+      case 2: // delay
+        return {
+          background: "#fffbe6",
+          border: "2px dashed #faad14",
+          boxShadow: "0 0 6px #ffe58f",
+          textColor: "#ad6800",
+        };
+      default: // bình thường
+        return {
+          background: "#f0f2f5",
+          border: "1px solid #d9d9d9",
+          boxShadow: undefined,
+          textColor: "#555",
+        };
+    }
+  };
+
   const renderStations = (isCompact: boolean) => {
     const fullList = data.flatMap((line) =>
       line.stations.map((station) => ({ station, line }))
@@ -62,6 +88,7 @@ export const MetroRouteModal: React.FC<MetroRouteModalProps> = ({
       const isFirst = idx === 0;
       const isLast = idx === fullList.length - 1;
       const intersection = isIntersection(stationId);
+      const statusStyle = getLineStyle(line.status);
 
       const shouldRenderStation =
         !isCompact || isFirst || isLast || intersection;
@@ -139,20 +166,25 @@ export const MetroRouteModal: React.FC<MetroRouteModalProps> = ({
               width: 120,
               height: 80,
               padding: 6,
-              background: "#f0f2f5",
+              background: intersection ? "#f6ffed" : statusStyle.background,
               borderRadius: 8,
               textAlign: "center",
               border: intersection
                 ? "2px dashed #52c41a"
-                : "1px solid #d9d9d9",
-              boxShadow: intersection ? "0 0 4px #b7eb8f" : undefined,
+                : statusStyle.border,
+              boxShadow: intersection
+                ? "0 0 4px #b7eb8f"
+                : statusStyle.boxShadow,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
+              alignItems: "center",
             }}
           >
-            <Text strong style={{ fontSize: 13 }}>{info.name}</Text>
-            <div style={{ marginTop: 4, fontSize: 11, color: "#555" }}>
+            <Text strong style={{ fontSize: 13, color: statusStyle.textColor }}>
+              {info.name}
+            </Text>
+            <div style={{ marginTop: 4, fontSize: 11, color: statusStyle.textColor }}>
               {line.metroName}
             </div>
           </div>
@@ -198,6 +230,16 @@ export const MetroRouteModal: React.FC<MetroRouteModalProps> = ({
           </div>
         </TabPane>
       </Tabs>
+
+      {/* Chú thích */}
+      <div style={{ marginTop: 24 }}>
+        <Text strong>Chú thích:</Text>
+        <div style={{ display: "flex", gap: 16, marginTop: 8, flexWrap: "wrap" }}>
+          <Tag color="default">Tuyến bình thường</Tag>
+          <Tag color="warning">Tuyến bị trễ</Tag>
+          <Tag color="error">Tuyến bị lỗi</Tag>
+        </div>
+      </div>
     </Modal>
   );
 };
