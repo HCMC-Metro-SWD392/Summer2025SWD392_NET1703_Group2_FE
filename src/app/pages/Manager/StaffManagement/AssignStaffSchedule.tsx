@@ -23,7 +23,7 @@ const AssignStaffSchedule: React.FC = () => {
   const fetchSchedules = async () => {
     try {
       setLoading(true);
-      // Set date range from today to far future
+      // Always get the current date when this function is called
       const today = new Date();
       const startDate = today.toISOString().split('T')[0];
       const endDate = '2100-12-31';
@@ -131,17 +131,39 @@ const AssignStaffSchedule: React.FC = () => {
     {
       title: 'Hành Động',
       key: 'action',
-      render: (_: any, record: any) => (
-        <Button type="primary" onClick={() => openAssignModal(record)}>
-          Đổi Ca
-        </Button>
-      ),
+      render: (_: any, record: any) => {
+        const isPast = isScheduleInPast(record);
+        return (
+          <Button 
+            type="primary" 
+            onClick={() => openAssignModal(record)}
+            disabled={isPast}
+            title={isPast ? 'Không thể thay đổi ca đã qua' : ''}
+          >
+            Đổi Ca
+          </Button>
+        );
+      },
     },
   ];
 
   const filteredSchedules = schedules.filter(sch =>
     (sch.stationName || '').toLowerCase().includes(stationSearch.toLowerCase())
   );
+
+  // Check if schedule is in the past
+  const isScheduleInPast = (schedule: any) => {
+    const now = new Date();
+    const workingDate = new Date(schedule.workingDate);
+    const startTime = schedule.startTime;
+    
+    // Create a datetime object for the schedule start
+    const scheduleDateTime = new Date(workingDate);
+    const [hours, minutes] = startTime.split(':').map(Number);
+    scheduleDateTime.setHours(hours, minutes, 0, 0);
+    
+    return scheduleDateTime < now;
+  };
 
   return (
     <Spin spinning={loading}>
